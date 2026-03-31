@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { LoginForm } from "@/modules/auth/components/LoginForm";
 
 export default function LoginPage() {
@@ -14,7 +15,14 @@ export default function LoginPage() {
 
       <div className="relative z-10 rounded-2xl overflow-hidden md:w-3/4 lg:flex lg:flex-row lg:items-center lg:bg-white lg:shadow-xl">
         <section id="section-left" className="hidden lg:block lg:w-1/2">
-          <img className="" src="/assets/bg-img.jpg" alt="" />
+          <Image
+            src="/assets/bg-img.jpg"
+            alt="Decoración InsoShop"
+            width={960}
+            height={960}
+            className="h-full w-full object-cover"
+            priority
+          />
         </section>
 
         <div
@@ -22,7 +30,14 @@ export default function LoginPage() {
           className=" flex flex-col items-center justify-center space-y-7 lg:space-y-0 lg:w-1/2"
         >
           <section className="w-30 lg:w-20 overflow-hidden lg:hidden">
-            <img src="/assets/logo.png" alt="Logo Insoshop" />
+            <Image
+              src="/assets/logo.png"
+              alt="Logo Insoshop"
+              width={128}
+              height={128}
+              className="h-auto w-full object-contain"
+              priority
+            />
           </section>
 
           <section className="shadow-md p-10 justify-center items-center flex flex-col space-y-3 bg-white lg:bg-none lg:rounded-none lg:shadow-none  rounded-2xl">
