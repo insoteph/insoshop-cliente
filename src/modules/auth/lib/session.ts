@@ -1,25 +1,29 @@
-const ACCESS_TOKEN_KEY = "insoshop.access-token";
+export type SessionCacheStatus =
+  | "unknown"
+  | "authenticated"
+  | "unauthenticated";
+
+let accessTokenMemory: string | null = null;
+let sessionCacheStatus: SessionCacheStatus = "unknown";
 
 export function getAccessToken() {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  return window.localStorage.getItem(ACCESS_TOKEN_KEY);
+  return accessTokenMemory;
 }
 
 export function setAccessToken(token: string) {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  window.localStorage.setItem(ACCESS_TOKEN_KEY, token);
+  accessTokenMemory = token;
+  sessionCacheStatus = "authenticated";
 }
 
 export function clearAccessToken() {
-  if (typeof window === "undefined") {
-    return;
-  }
+  accessTokenMemory = null;
+  sessionCacheStatus = "unauthenticated";
+}
 
-  window.localStorage.removeItem(ACCESS_TOKEN_KEY);
+export function getSessionCacheStatus() {
+  return sessionCacheStatus;
+}
+
+export function setSessionCacheStatus(status: SessionCacheStatus) {
+  sessionCacheStatus = status;
 }

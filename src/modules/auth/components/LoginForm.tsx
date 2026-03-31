@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { MaterialInput } from "@/modules/core/components/MaterialInput";
 import { loginService } from "@/modules/auth/services/login-service";
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,7 +25,8 @@ export function LoginForm() {
         password,
       });
 
-      router.push("/dashboard");
+      const nextPath = searchParams.get("next");
+      router.push(nextPath || "/dashboard");
     } catch (error) {
       setFeedback(
         error instanceof Error

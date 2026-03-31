@@ -1,4 +1,4 @@
-import type { InputHTMLAttributes } from "react";
+import { useState, type InputHTMLAttributes } from "react";
 
 type MaterialInputType = "text" | "email" | "password" | "tel" | "number";
 
@@ -21,22 +21,68 @@ export function MaterialInput({
   containerClassName = "",
   ...rest
 }: MaterialInputProps) {
+  const isPasswordType = type === "password";
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const resolvedType =
+    isPasswordType && isPasswordVisible ? "text" : type;
+
   return (
     <div className={`relative ${containerClassName}`}>
       <input
+        autoComplete="false"
         id={id}
         name={name ?? id}
-        type={type}
+        type={resolvedType}
         placeholder=" "
         className={`
-          peer h-11 w-full rounded-lg border border-zinc-300 bg-white px-3 
+          peer h-11 w-full rounded-lg border border-zinc-300 bg-white px-3
           text-sm text-zinc-800 outline-none transition-all duration-200 
          
           focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10
+          ${isPasswordType ? "pr-10" : ""}
           ${className}
         `}
         {...rest}
       />
+      {isPasswordType ? (
+        <button
+          type="button"
+          onClick={() => setIsPasswordVisible((prev) => !prev)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 transition-colors hover:text-zinc-700"
+          aria-label={isPasswordVisible ? "Ocultar contraseña" : "Mostrar contraseña"}
+          title={isPasswordVisible ? "Ocultar contraseña" : "Mostrar contraseña"}
+        >
+          {isPasswordVisible ? (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="h-5 w-5"
+              aria-hidden="true"
+            >
+              <path d="M3 3l18 18" />
+              <path d="M10.58 10.58a2 2 0 102.83 2.83" />
+              <path d="M9.88 5.09A9.77 9.77 0 0112 5c5 0 9 4 10 7a11.8 11.8 0 01-4.21 5.17" />
+              <path d="M6.61 6.61A11.8 11.8 0 002 12c1 3 5 7 10 7a9.77 9.77 0 004.12-.91" />
+            </svg>
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="h-5 w-5"
+              aria-hidden="true"
+            >
+              <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          )}
+        </button>
+      ) : null}
       <label
         htmlFor={id}
         className="

@@ -13,7 +13,7 @@ export default function LoginPage() {
         <span className="login-ball" />
       </div>
 
-      <div className="relative z-10 rounded-2xl overflow-hidden md:w-1/2 lg:flex lg:h-[58vh] lg:min-h-[600px] lg:flex-row lg:items-center lg:bg-white/85 lg:backdrop-blur-sm lg:border  lg:shadow-xl">
+      <div className="relative z-10 rounded-2xl overflow-hidden md:w-1/2 lg:flex lg:h-[58vh] lg:min-h-[600px] lg:flex-row lg:items-center lg:bg-white/85 lg:backdrop-blur-sm lg:border  lg:shadow-xl border-none">
         <section
           id="section-left"
           className="relative hidden lg:block lg:w-1/2 lg:self-stretch border-solid border-white border-8 overflow-hidden"
