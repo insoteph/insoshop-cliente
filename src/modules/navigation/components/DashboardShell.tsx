@@ -8,18 +8,9 @@ import {
 } from "@/modules/auth/services/current-user-service";
 import { Sidebar } from "@/modules/navigation/components/Sidebar";
 import { useTheme } from "@/modules/core/providers/ThemeProvider";
-import { useStoreContext } from "@/modules/stores/context/StoreContext";
 
 export function DashboardShell({ children }: { children: ReactNode }) {
   const { theme, toggleTheme } = useTheme();
-  const {
-    stores,
-    activeStore,
-    activeStoreId,
-    isLoading,
-    error,
-    setActiveStoreId,
-  } = useStoreContext();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
@@ -55,13 +46,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   return (
     <div className="dashboard-root">
       <Sidebar
-        stores={stores}
-        activeStoreId={activeStoreId}
-        isStoreLoading={isLoading}
         isOpen={isSidebarOpen}
         isCollapsed={isSidebarCollapsed}
         onClose={() => setIsSidebarOpen(false)}
-        onStoreChange={setActiveStoreId}
       />
 
       <div className="dashboard-content">

@@ -148,6 +148,11 @@ body {
   min-width: 0;
   display: flex;
   flex-direction: column;
+  background: #fff;
+}
+
+.dark .dashboard-content {
+  background: var(--background);
 }
 
 .dashboard-topbar {
@@ -449,6 +454,14 @@ body {
 .section-grid {
   display: grid;
   gap: 1rem;
+}
+
+.data-table-skeleton {
+  background: color-mix(in srgb, var(--accent) 24%, white 76%);
+}
+
+.dark .data-table-skeleton {
+  background: color-mix(in srgb, var(--accent) 35%, #1b2538 65%);
 }
 
 @media (min-width: 1024px) {

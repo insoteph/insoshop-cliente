@@ -4,38 +4,22 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 import { SidebarItem } from "@/modules/navigation/components/SidebarItem";
-import { StoreSelector } from "@/modules/stores/components/StoreSelector";
-import type { StoreOption } from "@/modules/stores/services/store-service";
 
 type SidebarProps = {
-  stores: StoreOption[];
-  activeStoreId: number | null;
-  isStoreLoading: boolean;
   isOpen: boolean;
   isCollapsed: boolean;
   onClose: () => void;
-  onStoreChange: (storeId: number) => void;
 };
 
 const navigation = [
   { href: "/dashboard", label: "Dashboard", icon: "/icons/dashboard.svg" },
   { href: "/tiendas", label: "Tiendas", icon: "/icons/Cart.svg" },
-  { href: "/dashboard/productos", label: "Usuarios", icon: "/icons/users.svg" },
-  {
-    href: "/dashboard/categorias",
-    label: "Roles",
-    icon: "/icons/shield.svg",
-  },
 ];
 
 export function Sidebar({
-  stores,
-  activeStoreId,
-  isStoreLoading,
   isOpen,
   isCollapsed,
   onClose,
-  onStoreChange,
 }: SidebarProps) {
   const pathname = usePathname();
 
@@ -105,15 +89,6 @@ export function Sidebar({
               />
             ))}
           </nav>
-        </div>
-
-        <div className={`mt-8 ${isCollapsed ? "sidebar-store-hidden" : ""}`}>
-          <StoreSelector
-            stores={stores}
-            activeStoreId={activeStoreId}
-            isLoading={isStoreLoading}
-            onChange={onStoreChange}
-          />
         </div>
       </aside>
     </>
