@@ -4,7 +4,6 @@ import {
   useCallback,
   createContext,
   useContext,
-  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -34,7 +33,7 @@ const StoreContext = createContext<StoreContextValue | null>(null);
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [stores, setStores] = useState<StoreOption[]>([]);
   const [activeStoreId, setActiveStoreIdState] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const refreshStores = useCallback(async () => {
@@ -77,18 +76,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     }
   }, []);
-
-  useEffect(() => {
-    void refreshStores();
-  }, [refreshStores]);
-
-  useEffect(() => {
-    if (typeof window === "undefined" || !activeStoreId) {
-      return;
-    }
-
-    window.localStorage.setItem(STORAGE_KEY, String(activeStoreId));
-  }, [activeStoreId]);
 
   const value = useMemo(
     () => ({

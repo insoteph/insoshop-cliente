@@ -30,18 +30,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       .catch(() => setCurrentUser(null));
   }, []);
 
-  const pageSubtitle = useMemo(() => {
-    if (error) {
-      return error;
-    }
-
-    if (activeStore) {
-      return `Trabajando sobre ${activeStore.nombre}`;
-    }
-
-    return "Selecciona una tienda para filtrar la información.";
-  }, [activeStore, error]);
-
   const initials = useMemo(() => {
     if (!currentUser?.nombre) {
       return "IS";

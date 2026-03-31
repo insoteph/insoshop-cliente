@@ -19,7 +19,7 @@ type SidebarProps = {
 
 const navigation = [
   { href: "/dashboard", label: "Dashboard", icon: "/icons/dashboard.svg" },
-  { href: "/dashboard/tiendas", label: "Tiendas", icon: "/icons/Cart.svg" },
+  { href: "/tiendas", label: "Tiendas", icon: "/icons/Cart.svg" },
   { href: "/dashboard/productos", label: "Usuarios", icon: "/icons/users.svg" },
   {
     href: "/dashboard/categorias",

@@ -3,20 +3,28 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
+import {
+  getAccessToken,
+  getSessionCacheStatus,
+} from "@/modules/auth/lib/session";
 import { ensureSession } from "@/modules/auth/services/session-service";
 import { ProcessingModal } from "@/modules/core/components/ProcessingModal";
-import { useStoreContext } from "@/modules/stores/context/StoreContext";
 
 export function AuthGuard({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { refreshStores } = useStoreContext();
-  const [isChecking, setIsChecking] = useState(true);
+  const shouldValidateSession =
+    getSessionCacheStatus() !== "authenticated" || !getAccessToken();
+  const [isChecking, setIsChecking] = useState(shouldValidateSession);
 
   useEffect(() => {
     let isMounted = true;
 
     async function validateSession() {
+      if (!shouldValidateSession) {
+        return;
+      }
+
       try {
         const hasSession = await ensureSession();
 
@@ -39,8 +47,6 @@ export function AuthGuard({ children }: { children: ReactNode }) {
 
           return;
         }
-
-        await refreshStores();
       } catch {
         if (!isMounted) {
           return;
@@ -60,7 +66,7 @@ export function AuthGuard({ children }: { children: ReactNode }) {
     return () => {
       isMounted = false;
     };
-  }, [pathname, refreshStores, router]);
+  }, [pathname, router, shouldValidateSession]);
 
   if (isChecking) {
     return <ProcessingModal isOpen label="Procesando..." />;
