@@ -19,7 +19,7 @@ export type Product = {
 
 export async function fetchProducts(storeId: number) {
   const response = await apiFetch<PagedResult<Product>>(
-    "/api/productos?page=1&pageSize=100",
+    "/productos?page=1&pageSize=100",
     {
       storeId,
     }
@@ -33,7 +33,7 @@ export async function uploadProductImage(file: File) {
   formData.append("file", file);
 
   const response = await apiFetch<{ fileName: string; url: string }>(
-    "/api/product-images",
+    "/product-images",
     {
       method: "POST",
       body: formData,
@@ -55,9 +55,10 @@ export async function createProduct(
     imagenes: ProductImagePayload[];
   }
 ) {
-  return apiFetch("/api/productos", {
+  return apiFetch("/productos", {
     method: "POST",
     storeId,
     body: payload,
   });
 }
+

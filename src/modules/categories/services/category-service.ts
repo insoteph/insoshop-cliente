@@ -10,7 +10,7 @@ export type Category = {
 
 export async function fetchCategories(storeId: number) {
   const response = await apiFetch<PagedResult<Category>>(
-    "/api/categorias?page=1&pageSize=100",
+    "/categorias?page=1&pageSize=100",
     {
       storeId,
     }
@@ -23,9 +23,10 @@ export async function createCategory(
   storeId: number,
   payload: { nombre: string; estado: boolean }
 ) {
-  return apiFetch("/api/categorias", {
+  return apiFetch("/categorias", {
     method: "POST",
     storeId,
     body: payload,
   });
 }
+

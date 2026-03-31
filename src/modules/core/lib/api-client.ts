@@ -1,9 +1,15 @@
 import { getAccessToken } from "@/modules/auth/lib/session";
 
 export type ApiResponse<T> = {
-  success: boolean;
+  success: true;
   message: string;
   data: T;
+};
+
+export type ApiErrorResponse = {
+  success: false;
+  message: string;
+  data?: unknown;
 };
 
 export type PagedResult<T> = {
@@ -21,7 +27,54 @@ type ApiFetchOptions = Omit<RequestInit, "body"> & {
 };
 
 const DEFAULT_API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || "http://localhost:7166";
+  process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || "http://localhost:7166/api";
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function buildApiUrl(path: string) {
+  const normalizedBase = DEFAULT_API_BASE_URL.replace(/\/+$/, "");
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${normalizedBase}${normalizedPath}`;
+}
+
+async function readApiResponse<T>(response: Response) {
+  let payload: unknown = null;
+
+  try {
+    payload = await response.json();
+  } catch {
+    if (!response.ok) {
+      throw new Error("No se pudo procesar la respuesta de la API.");
+    }
+
+    throw new Error("La API devolvio una respuesta invalida.");
+  }
+
+  if (!isRecord(payload)) {
+    throw new Error("La API devolvio un formato de respuesta no valido.");
+  }
+
+  const message =
+    typeof payload.message === "string"
+      ? payload.message
+      : "La operacion no pudo completarse.";
+
+  if (!response.ok) {
+    throw new Error(message);
+  }
+
+  if (payload.success !== true) {
+    throw new Error(message);
+  }
+
+  if (!("data" in payload)) {
+    throw new Error("La API no devolvio el campo data.");
+  }
+
+  return payload as ApiResponse<T>;
+}
 
 export async function apiFetch<T>(
   path: string,
@@ -58,7 +111,7 @@ export async function apiFetch<T>(
     payload = JSON.stringify(body);
   }
 
-  const response = await fetch(`${DEFAULT_API_BASE_URL}${path}`, {
+  const response = await fetch(buildApiUrl(path), {
     method,
     headers: requestHeaders,
     body: payload,
@@ -67,13 +120,5 @@ export async function apiFetch<T>(
     ...rest,
   });
 
-  const result = (await response.json()) as ApiResponse<T> | {
-    message?: string;
-  };
-
-  if (!response.ok || ("success" in result && !result.success)) {
-    throw new Error(result.message || "La operación no pudo completarse.");
-  }
-
-  return result as ApiResponse<T>;
+  return readApiResponse<T>(response);
 }

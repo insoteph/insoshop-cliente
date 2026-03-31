@@ -9,11 +9,12 @@ export type StoreOption = {
 };
 
 export async function fetchAvailableStores() {
-  const response = await apiFetch<StoreOption[]>("/api/tiendas/disponibles");
+  const response = await apiFetch<StoreOption[]>("/tiendas/disponibles");
   return response.data;
 }
 
 export async function fetchOperativeStore() {
-  const response = await apiFetch<StoreOption>("/api/tiendas/operativa");
+  const response = await apiFetch<StoreOption>("/tiendas/operativa");
   return response.data;
 }
+

@@ -4,19 +4,11 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
 import { MaterialInput } from "@/modules/core/components/MaterialInput";
-import { apiFetch } from "@/modules/core/lib/api-client";
-import { setAccessToken } from "@/modules/auth/lib/session";
-
-type LoginResponse = {
-  token: string;
-  expiration: string;
-  requirePasswordChange: boolean;
-  refreshToken: string | null;
-};
+import { loginService } from "@/modules/auth/services/login-service";
 
 export function LoginForm() {
   const router = useRouter();
-  const [userName, setUserName] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -27,16 +19,11 @@ export function LoginForm() {
     setFeedback(null);
 
     try {
-      const response = await apiFetch<LoginResponse>("/api/auth/login", {
-        method: "POST",
-        body: {
-          userName,
-          password,
-        },
-        auth: false,
+      await loginService({
+        username,
+        password,
       });
 
-      setAccessToken(response.data.token);
       router.push("/dashboard");
     } catch (error) {
       setFeedback(
@@ -52,11 +39,11 @@ export function LoginForm() {
   return (
     <form className="w-full max-w-md space-y-5" onSubmit={handleSubmit}>
       <MaterialInput
-        id="userName"
+        id="username"
         type="text"
         label="Usuario"
-        value={userName}
-        onChange={(event) => setUserName(event.target.value)}
+        value={username}
+        onChange={(event) => setUsername(event.target.value)}
         required
       />
 

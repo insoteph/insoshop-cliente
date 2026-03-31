@@ -6,6 +6,7 @@ export type CurrentUser = {
 };
 
 export async function fetchCurrentUser() {
-  const response = await apiFetch<CurrentUser>("/api/usuarios/current-user");
+  const response = await apiFetch<CurrentUser>("/usuarios/current-user");
   return response.data;
 }
+

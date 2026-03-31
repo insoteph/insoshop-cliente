@@ -36,14 +36,14 @@ export type PublicStore = {
 };
 
 export async function fetchProductsForSale(storeId: number) {
-  return apiFetch<PagedResult<Product>>("/api/productos?page=1&pageSize=100", {
+  return apiFetch<PagedResult<Product>>("/productos?page=1&pageSize=100", {
     storeId,
   }).then((response) => response.data.items.filter((item) => item.estado));
 }
 
 export async function fetchPaymentMethods(storeId: number) {
   const response = await apiFetch<PagedResult<PaymentMethod>>(
-    "/api/metodospago?page=1&pageSize=100",
+    "/metodospago?page=1&pageSize=100",
     {
       storeId,
     }
@@ -54,7 +54,7 @@ export async function fetchPaymentMethods(storeId: number) {
 
 export async function fetchSaleStates() {
   const response = await apiFetch<PagedResult<SaleState>>(
-    "/api/estadosventa?page=1&pageSize=100"
+    "/estadosventa?page=1&pageSize=100"
   );
 
   return response.data.items;
@@ -71,7 +71,7 @@ export async function createSale(payload: {
     id: number;
     numeroOrden: string;
     total: number;
-  }>("/api/ventas", {
+  }>("/ventas", {
     method: "POST",
     auth: payload.tiendaId ? false : true,
     body: payload,
@@ -80,7 +80,7 @@ export async function createSale(payload: {
 
 export async function fetchPublicStore(slug: string) {
   const response = await apiFetch<PublicStore>(
-    `/api/public/tiendas/${slug}/productos`,
+    `/public/tiendas/${slug}/productos`,
     {
       auth: false,
     }
@@ -88,3 +88,4 @@ export async function fetchPublicStore(slug: string) {
 
   return response.data;
 }
+
