@@ -18,11 +18,14 @@ type SidebarProps = {
 };
 
 const navigation = [
-  { href: "/dashboard", label: "Dashboard", icon: "◫" },
-  { href: "/dashboard/tiendas", label: "Tiendas", icon: "⌂" },
-  { href: "/dashboard/productos", label: "Productos", icon: "◩" },
-  { href: "/dashboard/categorias", label: "Categorías", icon: "◧" },
-  { href: "/dashboard/ventas", label: "Ventas", icon: "◪" },
+  { href: "/dashboard", label: "Dashboard", icon: "/icons/dashboard.svg" },
+  { href: "/dashboard/tiendas", label: "Tiendas", icon: "/icons/Cart.svg" },
+  { href: "/dashboard/productos", label: "Usuarios", icon: "/icons/users.svg" },
+  {
+    href: "/dashboard/categorias",
+    label: "Roles",
+    icon: "/icons/shield.svg",
+  },
 ];
 
 export function Sidebar({
@@ -54,11 +57,11 @@ export function Sidebar({
                 alt="InsoShop"
                 width={36}
                 height={36}
-                className="h-9 w-9 object-contain"
+                className="h-8 w-8 object-contain"
               />
             </div>
             <div className={isCollapsed ? "sidebar-brand-hidden" : ""}>
-              <p className="text-xs uppercase tracking-[0.24em] text-[var(--muted)]">
+              <p className="text-md font-medium uppercase tracking-[0.24em] text-[var(--muted)]">
                 Panel
               </p>
               <h2 className="text-lg font-semibold text-[var(--foreground)]">
@@ -68,7 +71,7 @@ export function Sidebar({
           </div>
 
           <button className="sidebar-close" onClick={onClose} type="button">
-            ✕
+            X
           </button>
         </div>
 
@@ -76,26 +79,26 @@ export function Sidebar({
           <SidebarItem
             href="/dashboard"
             label="Dashboard"
-            icon={<span>▥</span>}
+            icon="/icons/dashboard.svg"
             active={pathname === "/dashboard"}
             collapsed={isCollapsed}
             onClick={onClose}
           />
         </div>
 
-        <div className="mt-6">
+        <div className="mt-1">
           <p
             className={`px-3 text-xs uppercase tracking-[0.2em] text-[var(--muted)] ${isCollapsed ? "sidebar-section-hidden" : ""}`}
           >
-            Módulo InsoShop
+            Modulos InsoShop
           </p>
-          <nav className="mt-3 space-y-1">
+          <nav className="mt-1 space-y-1">
             {navigation.slice(1).map((item) => (
               <SidebarItem
                 key={item.href}
                 href={item.href}
                 label={item.label}
-                icon={<span>{item.icon}</span>}
+                icon={item.icon}
                 active={pathname === item.href}
                 collapsed={isCollapsed}
                 onClick={onClose}

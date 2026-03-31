@@ -84,19 +84,14 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               className="sidebar-hamburger topbar-hamburger"
               onClick={handleSidebarToggle}
               title={isSidebarCollapsed ? "Expandir menú" : "Contraer menú"}
-              aria-label={isSidebarCollapsed ? "Expandir menú" : "Contraer menú"}
+              aria-label={
+                isSidebarCollapsed ? "Expandir menú" : "Contraer menú"
+              }
             >
               <span />
               <span />
               <span />
             </button>
-
-            <div className="dashboard-heading">
-              <h1 className="dashboard-heading-title">
-                {activeStore?.nombre || "Panel multi-tienda"}
-              </h1>
-              <p className="dashboard-heading-subtitle">{pageSubtitle}</p>
-            </div>
           </div>
 
           <div className="dashboard-topbar-actions">
