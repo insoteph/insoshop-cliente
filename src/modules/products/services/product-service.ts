@@ -13,19 +13,53 @@ export type Product = {
   precio: number;
   cantidad: number;
   estado: boolean;
+  categoriaId: number;
   categoriaNombre: string;
+  tiendaId: number;
+  tiendaNombre: string;
   imagenes: ProductImagePayload[];
 };
 
-export async function fetchProducts(storeId: number) {
+type ProductsQuery = {
+  storeId: number;
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  categoriaId?: number | null;
+  estadoFiltro?: "activos" | "inactivos" | "todos";
+};
+
+function buildProductsQuery(params: ProductsQuery) {
+  const query = new URLSearchParams();
+
+  query.set("page", String(params.page ?? 1));
+  query.set("pageSize", String(params.pageSize ?? 10));
+  query.set("tiendaId", String(params.storeId));
+
+  if (params.search?.trim()) {
+    query.set("search", params.search.trim());
+  }
+
+  if (params.categoriaId) {
+    query.set("categoriaId", String(params.categoriaId));
+  }
+
+  if (params.estadoFiltro && params.estadoFiltro !== "todos") {
+    query.set("estadoFiltro", params.estadoFiltro);
+  }
+
+  return query.toString();
+}
+
+export async function fetchProducts(params: ProductsQuery) {
   const response = await apiFetch<PagedResult<Product>>(
-    "/productos?page=1&pageSize=100",
+    `/productos?${buildProductsQuery(params)}`,
     {
-      storeId,
+      storeId: params.storeId,
     }
   );
 
-  return response.data.items;
+  return response.data;
 }
 
 export async function uploadProductImage(file: File) {
@@ -43,18 +77,17 @@ export async function uploadProductImage(file: File) {
   return response.data;
 }
 
-export async function createProduct(
-  storeId: number,
-  payload: {
-    nombre: string;
-    descripcion: string;
-    categoriaId: number;
-    precio: number;
-    cantidad: number;
-    estado: boolean;
-    imagenes: ProductImagePayload[];
-  }
-) {
+type ProductPayload = {
+  nombre: string;
+  descripcion: string;
+  categoriaId: number;
+  precio: number;
+  cantidad: number;
+  estado: boolean;
+  imagenes: ProductImagePayload[];
+};
+
+export async function createProduct(storeId: number, payload: ProductPayload) {
   return apiFetch("/productos", {
     method: "POST",
     storeId,
@@ -62,3 +95,21 @@ export async function createProduct(
   });
 }
 
+export async function updateProduct(
+  productId: number,
+  storeId: number,
+  payload: ProductPayload
+) {
+  return apiFetch(`/productos/${productId}`, {
+    method: "PUT",
+    storeId,
+    body: payload,
+  });
+}
+
+export async function toggleProductStatus(productId: number, storeId: number) {
+  return apiFetch(`/productos/${productId}`, {
+    method: "DELETE",
+    storeId,
+  });
+}

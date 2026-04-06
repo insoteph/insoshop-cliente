@@ -1,25 +1,32 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
-
 import {
-  fetchCurrentUser,
-  type CurrentUser,
-} from "@/modules/auth/services/current-user-service";
-import { Sidebar } from "@/modules/navigation/components/Sidebar";
+  useMemo,
+  useState,
+  type ChangeEvent,
+  type ReactNode,
+} from "react";
+import { usePathname, useRouter } from "next/navigation";
+
 import { useTheme } from "@/modules/core/providers/ThemeProvider";
+import { useAdminSession } from "@/modules/auth/providers/AdminSessionProvider";
+import { ProcessingModal } from "@/modules/core/components/ProcessingModal";
+import { Sidebar } from "@/modules/navigation/components/Sidebar";
 
 export function DashboardShell({ children }: { children: ReactNode }) {
+  const router = useRouter();
+  const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
-
-  useEffect(() => {
-    fetchCurrentUser()
-      .then((user) => setCurrentUser(user))
-      .catch(() => setCurrentUser(null));
-  }, []);
+  const {
+    currentUser,
+    isLoading,
+    stores,
+    activeStore,
+    activeStoreId,
+    setActiveStoreId,
+  } = useAdminSession();
 
   const initials = useMemo(() => {
     if (!currentUser?.nombre) {
@@ -34,6 +41,10 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       .join("");
   }, [currentUser]);
 
+  if (isLoading && !currentUser) {
+    return <ProcessingModal isOpen label="Cargando panel..." />;
+  }
+
   function handleSidebarToggle() {
     if (typeof window !== "undefined" && window.innerWidth < 1024) {
       setIsSidebarOpen(true);
@@ -42,6 +53,34 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
     setIsSidebarCollapsed((currentValue) => !currentValue);
   }
+
+  function handleStoreChange(event: ChangeEvent<HTMLSelectElement>) {
+    const nextStoreId = Number(event.target.value);
+    if (!Number.isInteger(nextStoreId) || nextStoreId <= 0) {
+      return;
+    }
+
+    setActiveStoreId(nextStoreId);
+    router.push(`/tiendas/${nextStoreId}`);
+  }
+
+  const canReturnToDirectory =
+    currentUser?.tieneAccesoGlobal && pathname !== "/tiendas";
+  const isStoreDetailRoute = /^\/tiendas\/\d+$/.test(pathname);
+  const headerSubtitle = isStoreDetailRoute && activeStore
+    ? `Administrando ${activeStore.nombre}`
+    : "Panel administrativo multi-tienda";
+  const headerTitle = isStoreDetailRoute && activeStore
+    ? activeStore.nombre
+    : pathname === "/usuarios"
+      ? "Gestión de usuarios"
+      : pathname === "/roles"
+        ? "Gestión de roles"
+        : pathname === "/ventas"
+          ? "Ventas"
+          : pathname === "/tiendas"
+            ? "Listado de tiendas"
+            : "Centro de control";
 
   return (
     <div className="dashboard-root">
@@ -67,9 +106,44 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               <span />
               <span />
             </button>
+
+            <div className="dashboard-heading">
+              <p className="dashboard-heading-subtitle">{headerSubtitle}</p>
+              <h1 className="dashboard-heading-title">{headerTitle}</h1>
+            </div>
           </div>
 
           <div className="dashboard-topbar-actions">
+            {!currentUser?.tieneAccesoGlobal && stores.length > 1 ? (
+              <div className="topbar-store-switcher">
+                <label htmlFor="active-store" className="topbar-store-label">
+                  Tienda activa
+                </label>
+                <select
+                  id="active-store"
+                  className="topbar-store-select"
+                  value={activeStoreId ?? ""}
+                  onChange={handleStoreChange}
+                >
+                  {stores.map((store) => (
+                    <option key={store.id} value={store.id}>
+                      {store.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : null}
+
+            {canReturnToDirectory ? (
+              <button
+                type="button"
+                className="topbar-ghost-button"
+                onClick={() => router.push("/tiendas")}
+              >
+                Ver listado
+              </button>
+            ) : null}
+
             <button
               type="button"
               onClick={toggleTheme}

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Image from "next/image";
 import { LoginForm } from "@/modules/auth/components/LoginForm";
 
@@ -51,7 +52,9 @@ export default function LoginPage() {
               Ingresa tus credenciales para continuar
             </span>
             <div className="my-2 w-full border-t border-slate-200" />
-            <LoginForm />
+            <Suspense fallback={null}>
+              <LoginForm />
+            </Suspense>
           </section>
         </div>
       </div>

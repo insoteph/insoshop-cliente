@@ -3,12 +3,14 @@
 import { useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+import { useAdminSession } from "@/modules/auth/providers/AdminSessionProvider";
 import { MaterialInput } from "@/modules/core/components/MaterialInput";
 import { loginService } from "@/modules/auth/services/login-service";
 
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { refreshCurrentUser } = useAdminSession();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,6 +26,7 @@ export function LoginForm() {
         username,
         password,
       });
+      await refreshCurrentUser();
 
       const nextPath = searchParams.get("next");
       router.push(nextPath || "/dashboard");

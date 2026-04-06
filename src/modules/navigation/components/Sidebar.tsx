@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 
+import { permissions } from "@/modules/auth/lib/permissions";
+import { useAdminSession } from "@/modules/auth/providers/AdminSessionProvider";
 import { SidebarItem } from "@/modules/navigation/components/SidebarItem";
 
 type SidebarProps = {
@@ -11,17 +13,26 @@ type SidebarProps = {
   onClose: () => void;
 };
 
-const navigation = [
-  { href: "/dashboard", label: "Dashboard", icon: "/icons/dashboard.svg" },
-  { href: "/tiendas", label: "Tiendas", icon: "/icons/Cart.svg" },
-];
-
-export function Sidebar({
-  isOpen,
-  isCollapsed,
-  onClose,
-}: SidebarProps) {
+export function Sidebar({ isOpen, isCollapsed, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const { currentUser, activeStore, hasPermission } = useAdminSession();
+
+  const canSeeStoreAdmin =
+    hasPermission(permissions.tiendas.ver) ||
+    hasPermission(permissions.productos.ver) ||
+    hasPermission(permissions.categorias.ver) ||
+    hasPermission(permissions.ventas.ver) ||
+    hasPermission(permissions.usuarios.ver);
+  const canSeeUsers = hasPermission(permissions.usuarios.ver);
+  const canSeeRoles = hasPermission(permissions.roles.ver);
+  const canSeeSales =
+    currentUser?.tieneAccesoGlobal || hasPermission(permissions.ventas.ver);
+
+  const dashboardHref = currentUser?.tieneAccesoGlobal
+    ? "/tiendas"
+    : activeStore
+      ? `/tiendas/${activeStore.id}`
+      : "/dashboard";
 
   return (
     <>
@@ -61,10 +72,14 @@ export function Sidebar({
 
         <div className="mt-8">
           <SidebarItem
-            href="/dashboard"
-            label="Dashboard"
+            href={dashboardHref}
+            label="Inicio"
             icon="/icons/dashboard.svg"
-            active={pathname === "/dashboard"}
+            active={
+              pathname === "/dashboard" ||
+              pathname === dashboardHref ||
+              pathname.startsWith("/tiendas/")
+            }
             collapsed={isCollapsed}
             onClick={onClose}
           />
@@ -77,17 +92,49 @@ export function Sidebar({
             Modulos InsoShop
           </p>
           <nav className="mt-1 space-y-1">
-            {navigation.slice(1).map((item) => (
+            {canSeeStoreAdmin ? (
               <SidebarItem
-                key={item.href}
-                href={item.href}
-                label={item.label}
-                icon={item.icon}
-                active={pathname === item.href}
+                href={dashboardHref}
+                label={currentUser?.tieneAccesoGlobal ? "Tiendas" : "Mi tienda"}
+                icon="/icons/Cart.svg"
+                active={pathname === "/tiendas" || pathname.startsWith("/tiendas/")}
                 collapsed={isCollapsed}
                 onClick={onClose}
               />
-            ))}
+            ) : null}
+
+            {canSeeSales ? (
+              <SidebarItem
+                href="/ventas"
+                label="Ventas"
+                icon="/icons/dashboard.svg"
+                active={pathname === "/ventas"}
+                collapsed={isCollapsed}
+                onClick={onClose}
+              />
+            ) : null}
+
+            {canSeeUsers ? (
+              <SidebarItem
+                href="/usuarios"
+                label="Usuarios"
+                icon="/icons/users.svg"
+                active={pathname === "/usuarios"}
+                collapsed={isCollapsed}
+                onClick={onClose}
+              />
+            ) : null}
+
+            {canSeeRoles ? (
+              <SidebarItem
+                href="/roles"
+                label="Roles"
+                icon="/icons/shield.svg"
+                active={pathname === "/roles"}
+                collapsed={isCollapsed}
+                onClick={onClose}
+              />
+            ) : null}
           </nav>
         </div>
       </aside>

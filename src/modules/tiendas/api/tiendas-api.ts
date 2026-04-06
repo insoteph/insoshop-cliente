@@ -1,8 +1,53 @@
 import { apiFetch } from "@/modules/core/lib/api-client";
-import type { TiendasPageResult } from "@/modules/tiendas/types/tiendas-types";
+import type {
+  TiendaDetalle,
+  TiendasPageResult,
+  TiendasQueryParams,
+} from "@/modules/tiendas/types/tiendas-types";
 
-export async function fetchTiendasApi(page = 1, pageSize = 10) {
-  return apiFetch<TiendasPageResult>(
-    `/Tiendas?page=${page}&pageSize=${pageSize}`
-  );
+function buildTiendasQuery(params: TiendasQueryParams = {}) {
+  const query = new URLSearchParams();
+
+  query.set("page", String(params.page ?? 1));
+  query.set("pageSize", String(params.pageSize ?? 10));
+
+  if (params.search?.trim()) {
+    query.set("search", params.search.trim());
+  }
+
+  if (params.estadoFiltro && params.estadoFiltro !== "todos") {
+    query.set("estadoFiltro", params.estadoFiltro);
+  }
+
+  if (params.tiendaId) {
+    query.set("tiendaId", String(params.tiendaId));
+  }
+
+  return query.toString();
+}
+
+export async function fetchTiendasApi(params: TiendasQueryParams = {}) {
+  return apiFetch<TiendasPageResult>(`/tiendas?${buildTiendasQuery(params)}`, {
+    storeId: params.tiendaId ?? null,
+  });
+}
+
+export async function fetchTiendaByIdApi(tiendaId: number) {
+  return apiFetch<TiendaDetalle>(`/tiendas/${tiendaId}`);
+}
+
+export async function updateTiendaApi(
+  tiendaId: number,
+  payload: {
+    nombre: string;
+    telefono: string;
+    moneda: string;
+    logoUrl: string;
+    estado: boolean;
+  }
+) {
+  return apiFetch(`/tiendas/${tiendaId}`, {
+    method: "PUT",
+    body: payload,
+  });
 }
