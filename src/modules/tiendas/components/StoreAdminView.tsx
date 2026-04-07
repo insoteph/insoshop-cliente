@@ -124,7 +124,7 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
     <section className="space-y-5">
       <TitleBar title={store.nombre} status={store.estado} />
 
-      <div className="space-y-0">
+      <div className="mb-3 flex min-h-[calc(100dvh-14rem)] flex-col space-y-0 md:min-h-[calc(100dvh-15rem)]">
         <StoreModuleTabs
           visibleTabs={visibleTabs}
           activeTab={activeTab}
@@ -132,7 +132,7 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
           className="rounded-b-none border-b-0"
         />
 
-        <div className="rounded-b-md border border-[var(--line)] bg-[var(--panel)] p-4 shadow-lg">
+        <div className="flex-1 rounded-b-md border border-[var(--line)] bg-[var(--panel)] p-4 shadow-lg">
           {activeTab === "informacion" ? (
             <StoreInfoPanel storeId={storeId} canEdit={canEditStore} />
           ) : null}

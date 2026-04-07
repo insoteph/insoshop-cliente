@@ -115,8 +115,8 @@ export function StoreInfoPanel({ storeId, canEdit }: StoreInfoPanelProps) {
           className="px-4 py-2 bg-white rounded-md shadow-md space-y-4"
           onSubmit={handleSubmit}
         >
-          <div>
-            <h3 className="text-lg font-semibold text-slate-700">
+          <div className="border-b border-slate-200 pb-3">
+            <h3 className="text-lg font-semibold tracking-wide text-slate-700">
               Informacion general
             </h3>
           </div>
@@ -209,7 +209,7 @@ export function StoreInfoPanel({ storeId, canEdit }: StoreInfoPanelProps) {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="rounded-2xl bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
+                className="rounded-md bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
               >
                 {isSaving ? "Guardando..." : "Guardar cambios"}
               </button>
