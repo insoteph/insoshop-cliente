@@ -85,7 +85,7 @@ export function TableRowActions({
       <button
         type="button"
         onClick={onPrimaryAction}
-        className="rounded-l-md border border-[1.5px]  border-slate-300 px-3 py-1 text-sm text-slate-700"
+        className="cursor-pointer rounded-l-md border border-[1.5px] border-white bg-blue-700   px-3 py-1 text-sm text-white"
       >
         {primaryButtonLabel}
       </button>
@@ -99,7 +99,7 @@ export function TableRowActions({
             aria-haspopup="menu"
             aria-expanded={isOpen}
             aria-label="Abrir mas acciones"
-            className="inline-flex items-center justify-center rounded-r-md border border-[1.5px] border-slate-300 bg-[var(--panel)] px-1 py-1 text-slate-700 transition-colors hover:bg-[var(--panel-muted)]"
+            className="cursor-pointer inline-flex items-center justify-center rounded-r-md border border-[1.5px] border-white  bg-blue-700 px-1 py-1 text-white transition-colors hover:bg-blue-800"
           >
             <span
               aria-hidden="true"
@@ -142,7 +142,7 @@ export function TableRowActions({
                         option.onClick();
                         setIsOpen(false);
                       }}
-                      className="block w-full rounded-md px-3 py-2 text-left text-sm text-slate-700 transition-colors hover:bg-[var(--panel-muted)]"
+                      className="cursor-pointer block w-full rounded-md px-3 py-2 text-left text-sm text-slate-700 transition-colors hover:bg-[var(--panel-muted)]"
                     >
                       {option.label}
                     </button>

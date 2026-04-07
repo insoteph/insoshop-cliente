@@ -40,7 +40,7 @@ export type DataTableRowActionsConfig<TData extends Record<string, unknown>> = {
   primaryButtonLabel: string;
   onPrimaryAction: (row: TData) => void;
   dropdownOptions?: Array<{
-    label: string;
+    label: string | ((row: TData) => string);
     onClick: (row: TData) => void;
   }>;
 };
@@ -294,7 +294,10 @@ export function DataTable<TData extends Record<string, unknown>>({
                         onPrimaryAction={() => rowActions.onPrimaryAction(row)}
                         dropdownOptions={rowActions.dropdownOptions?.map(
                           (option): DataTableRowActionOption => ({
-                            label: option.label,
+                            label:
+                              typeof option.label === "function"
+                                ? option.label(row)
+                                : option.label,
                             onClick: () => option.onClick(row),
                           }),
                         )}
