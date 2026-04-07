@@ -105,7 +105,7 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
 
   return (
     <section className="space-y-5">
-      <div className="panel-card space-y-4">
+      <div className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-lg">
         <div>
           <h3 className="text-lg font-semibold text-[var(--foreground)]">
             Ventas de la tienda

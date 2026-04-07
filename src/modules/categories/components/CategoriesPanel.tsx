@@ -199,7 +199,7 @@ export function CategoriesPanel({
 
   return (
     <section className="space-y-5">
-      <div className="panel-card space-y-4">
+      <div className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-lg">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <h3 className="text-lg font-semibold text-[var(--foreground)]">
@@ -258,7 +258,10 @@ export function CategoriesPanel({
       </div>
 
       {showForm ? (
-        <form className="panel-card space-y-4" onSubmit={handleSubmit}>
+        <form
+          className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-lg"
+          onSubmit={handleSubmit}
+        >
           <div className="flex items-center justify-between gap-3">
             <div>
               <h4 className="text-lg font-semibold text-[var(--foreground)]">

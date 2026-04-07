@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { MaterialInput } from "@/modules/core/components/MaterialInput";
 import { formatDate } from "@/modules/core/lib/formatters";
 import {
   fetchTiendaById,
@@ -57,7 +58,7 @@ export function StoreInfoPanel({ storeId, canEdit }: StoreInfoPanelProps) {
         setError(
           loadError instanceof Error
             ? loadError.message
-            : "No se pudo cargar la tienda."
+            : "No se pudo cargar la tienda.",
         );
       } finally {
         setIsLoading(false);
@@ -77,12 +78,12 @@ export function StoreInfoPanel({ storeId, canEdit }: StoreInfoPanelProps) {
       await updateTienda(storeId, form);
       const updated = await fetchTiendaById(storeId);
       setStore(updated);
-      setFeedback("Información de tienda actualizada correctamente.");
+      setFeedback("Informacion de tienda actualizada correctamente.");
     } catch (saveError) {
       setError(
         saveError instanceof Error
           ? saveError.message
-          : "No se pudo actualizar la tienda."
+          : "No se pudo actualizar la tienda.",
       );
     } finally {
       setIsSaving(false);
@@ -92,14 +93,14 @@ export function StoreInfoPanel({ storeId, canEdit }: StoreInfoPanelProps) {
   if (isLoading) {
     return (
       <section className="panel-card">
-        <p className="text-sm text-[var(--muted)]">Cargando información...</p>
+        <p className="text-sm text-[var(--muted)]">Cargando informacion...</p>
       </section>
     );
   }
 
   if (error && !store) {
     return (
-      <section className="panel-card">
+      <section className="">
         <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </p>
@@ -110,27 +111,34 @@ export function StoreInfoPanel({ storeId, canEdit }: StoreInfoPanelProps) {
   return (
     <section className="space-y-5">
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_340px]">
-        <form className="panel-card space-y-4" onSubmit={handleSubmit}>
+        <form
+          className="px-4 py-2 bg-white rounded-md shadow-md space-y-4"
+          onSubmit={handleSubmit}
+        >
           <div>
-            <h3 className="text-lg font-semibold text-[var(--foreground)]">
-              Información general
+            <h3 className="text-lg font-semibold text-slate-700">
+              Informacion general
             </h3>
-            <p className="text-sm text-[var(--muted)]">
-              Configura nombre, contacto, moneda, logo y estado operativo.
-            </p>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <input
+            <MaterialInput
+              id="store-nombre"
+              label="Nombre"
               value={form.nombre}
               onChange={(event) =>
-                setForm((current) => ({ ...current, nombre: event.target.value }))
+                setForm((current) => ({
+                  ...current,
+                  nombre: event.target.value,
+                }))
               }
               disabled={!canEdit}
-              placeholder="Nombre"
-              className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)] outline-none disabled:opacity-70"
+              className="disabled:opacity-70"
             />
-            <input
+            <MaterialInput
+              id="store-telefono"
+              label="Telefono"
+              type="tel"
               value={form.telefono}
               onChange={(event) =>
                 setForm((current) => ({
@@ -139,17 +147,20 @@ export function StoreInfoPanel({ storeId, canEdit }: StoreInfoPanelProps) {
                 }))
               }
               disabled={!canEdit}
-              placeholder="Teléfono"
-              className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)] outline-none disabled:opacity-70"
+              className="disabled:opacity-70"
             />
-            <input
+            <MaterialInput
+              id="store-moneda"
+              label="Moneda"
               value={form.moneda}
               onChange={(event) =>
-                setForm((current) => ({ ...current, moneda: event.target.value }))
+                setForm((current) => ({
+                  ...current,
+                  moneda: event.target.value,
+                }))
               }
               disabled={!canEdit}
-              placeholder="Moneda"
-              className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)] outline-none disabled:opacity-70"
+              className="disabled:opacity-70"
             />
             <label className="flex items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)]">
               <input
@@ -167,14 +178,18 @@ export function StoreInfoPanel({ storeId, canEdit }: StoreInfoPanelProps) {
             </label>
           </div>
 
-          <input
+          <MaterialInput
+            id="store-logo-url"
+            label="URL del logo"
             value={form.logoUrl}
             onChange={(event) =>
-              setForm((current) => ({ ...current, logoUrl: event.target.value }))
+              setForm((current) => ({
+                ...current,
+                logoUrl: event.target.value,
+              }))
             }
             disabled={!canEdit}
-            placeholder="URL del logo"
-            className="w-full rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)] outline-none disabled:opacity-70"
+            className="w-full disabled:opacity-70"
           />
 
           {feedback ? (
@@ -201,13 +216,13 @@ export function StoreInfoPanel({ storeId, canEdit }: StoreInfoPanelProps) {
             </div>
           ) : (
             <p className="text-sm text-[var(--muted)]">
-              Solo lectura según tus permisos actuales.
+              Solo lectura segun tus permisos actuales.
             </p>
           )}
         </form>
 
-        <div className="panel-card space-y-4">
-          <div className="overflow-hidden rounded-[1.75rem] border border-[var(--line)] bg-[var(--panel-muted)]">
+        <div className="p-3 bg-white shadow-md rounded-md space-y-4">
+          <div className="overflow-hidden rounded-md border border-[var(--line)] bg-[var(--panel-muted)]">
             {store?.logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -224,25 +239,19 @@ export function StoreInfoPanel({ storeId, canEdit }: StoreInfoPanelProps) {
 
           <div className="space-y-3">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
-                Slug público
-              </p>
+              <p className="text-md text-slate-700">Slug publico</p>
               <p className="text-sm font-semibold text-[var(--foreground)]">
                 /{store?.slug}
               </p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
-                Creada el
-              </p>
+              <p className="text-md text-slate-700">Creada el</p>
               <p className="text-sm font-semibold text-[var(--foreground)]">
                 {store ? formatDate(store.createdAt) : "-"}
               </p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
-                Última actualización
-              </p>
+              <p className="text-md text-slate-700">Ultima actualizacion</p>
               <p className="text-sm font-semibold text-[var(--foreground)]">
                 {store ? formatDate(store.updatedAt) : "-"}
               </p>
