@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { DataTable } from "@/modules/core/components/DataTable";
-import { PaginationControls } from "@/modules/core/components/PaginationControls";
+
 import { formatCurrency, formatDateTime } from "@/modules/core/lib/formatters";
 import { fetchSales, type Sale } from "@/modules/sales/services/sales-service";
 
@@ -158,14 +158,14 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
         isLoading={isLoading}
         rowKey="id"
         emptyMessage="No hay ventas para los filtros aplicados."
-      />
-
-      <PaginationControls
-        page={page}
-        totalPages={totalPages}
-        totalRecords={totalRecords}
-        onPageChange={setPage}
+        pagination={{
+          page,
+          totalPages,
+          totalRecords,
+          onPageChange: setPage,
+        }}
       />
     </section>
   );
 }
+

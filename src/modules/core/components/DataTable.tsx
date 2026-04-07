@@ -62,7 +62,7 @@ type DataTableProps<TData extends Record<string, unknown>> = {
   emptyMessage?: string;
   badges?: Array<DataTableBadgeConfig<TData>>;
   rowActions?: DataTableRowActionsConfig<TData>;
-  pagination?: DataTablePaginationConfig;
+  pagination: DataTablePaginationConfig;
 };
 
 function formatCellValue(value: unknown) {
@@ -175,11 +175,10 @@ export function DataTable<TData extends Record<string, unknown>>({
   const showRefreshingState = isLoading && resolvedRows.length > 0;
   const totalColumns = headers.length + (rowActions ? 1 : 0);
   const displayedRecords = resolvedRows.length;
-  const totalRecords = pagination?.totalRecords ?? displayedRecords;
-  const hasPagination = Boolean(pagination);
+  const totalRecords = pagination.totalRecords ?? displayedRecords;
 
   return (
-    <div className="relative overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--panel)]">
+    <div className="relative overflow-hidden rounded-md border border-[var(--line)] bg-[var(--panel)]">
       {showRefreshingState ? (
         <div className="data-table-refresh-indicator" aria-live="polite">
           Actualizando resultados...
@@ -324,31 +323,29 @@ export function DataTable<TData extends Record<string, unknown>>({
           {totalRecords === 1 ? "" : "s"}
         </p>
 
-        {hasPagination ? (
-          <div className="flex items-center gap-2 self-end md:self-auto">
-            <button
-              type="button"
-              className="rounded-2xl border border-[var(--line)] px-4 py-2 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-45"
-              onClick={() => pagination.onPageChange(pagination.page - 1)}
-              disabled={pagination.page <= 1}
-            >
-              Anterior
-            </button>
+        <div className="flex items-center gap-2 self-end md:self-auto">
+          <button
+            type="button"
+            className="rounded-2xl border border-[var(--line)] px-4 py-2 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-45"
+            onClick={() => pagination.onPageChange(pagination.page - 1)}
+            disabled={pagination.page <= 1}
+          >
+            Anterior
+          </button>
 
-            <span className="text-sm text-[var(--muted)]">
-              Pagina {pagination.page} de {Math.max(pagination.totalPages, 1)}
-            </span>
+          <span className="text-sm text-[var(--muted)]">
+            Pagina {pagination.page} de {Math.max(pagination.totalPages, 1)}
+          </span>
 
-            <button
-              type="button"
-              className="rounded-2xl border border-[var(--line)] px-4 py-2 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-45"
-              onClick={() => pagination.onPageChange(pagination.page + 1)}
-              disabled={pagination.page >= pagination.totalPages}
-            >
-              Siguiente
-            </button>
-          </div>
-        ) : null}
+          <button
+            type="button"
+            className="rounded-2xl border border-[var(--line)] px-4 py-2 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-45"
+            onClick={() => pagination.onPageChange(pagination.page + 1)}
+            disabled={pagination.page >= pagination.totalPages}
+          >
+            Siguiente
+          </button>
+        </div>
       </div>
     </div>
   );

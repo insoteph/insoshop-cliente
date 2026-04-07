@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { permissions } from "@/modules/auth/lib/permissions";
 import { useAdminSession } from "@/modules/auth/providers/AdminSessionProvider";
 import { DataTable } from "@/modules/core/components/DataTable";
-import { PaginationControls } from "@/modules/core/components/PaginationControls";
+
 import { fetchRoles } from "@/modules/roles/services/roles-service";
 import type { RoleListItem } from "@/modules/roles/types/roles-types";
 import {
@@ -502,14 +502,14 @@ export function UsersManagementView() {
         isLoading={isLoading}
         rowKey="id"
         emptyMessage="No hay usuarios para los filtros seleccionados."
-      />
-
-      <PaginationControls
-        page={page}
-        totalPages={totalPages}
-        totalRecords={totalRecords}
-        onPageChange={setPage}
+        pagination={{
+          page,
+          totalPages,
+          totalRecords,
+          onPageChange: setPage,
+        }}
       />
     </section>
   );
 }
+

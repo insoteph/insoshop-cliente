@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { DataTable } from "@/modules/core/components/DataTable";
-import { PaginationControls } from "@/modules/core/components/PaginationControls";
+
 import { fetchStoreUsers } from "@/modules/users/services/user-service";
 import type { UserRecord } from "@/modules/users/types/users-types";
 
@@ -150,14 +150,14 @@ export function StoreUsersPanel({ storeId }: StoreUsersPanelProps) {
         isLoading={isLoading}
         rowKey="id"
         emptyMessage="No hay usuarios asociados a esta tienda."
-      />
-
-      <PaginationControls
-        page={page}
-        totalPages={totalPages}
-        totalRecords={totalRecords}
-        onPageChange={setPage}
+        pagination={{
+          page,
+          totalPages,
+          totalRecords,
+          onPageChange: setPage,
+        }}
       />
     </section>
   );
 }
+

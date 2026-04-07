@@ -56,9 +56,6 @@ export function Sidebar({ isOpen, isCollapsed, onClose }: SidebarProps) {
               />
             </div>
             <div className={isCollapsed ? "sidebar-brand-hidden" : ""}>
-              <p className="text-md font-medium uppercase tracking-[0.24em] text-[var(--muted)]">
-                Panel
-              </p>
               <h2 className="text-lg font-semibold text-[var(--foreground)]">
                 InsoShop
               </h2>
@@ -97,7 +94,9 @@ export function Sidebar({ isOpen, isCollapsed, onClose }: SidebarProps) {
                 href={dashboardHref}
                 label={currentUser?.tieneAccesoGlobal ? "Tiendas" : "Mi tienda"}
                 icon="/icons/Cart.svg"
-                active={pathname === "/tiendas" || pathname.startsWith("/tiendas/")}
+                active={
+                  pathname === "/tiendas" || pathname.startsWith("/tiendas/")
+                }
                 collapsed={isCollapsed}
                 onClick={onClose}
               />

@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { DataTable } from "@/modules/core/components/DataTable";
-import { PaginationControls } from "@/modules/core/components/PaginationControls";
 import { ProductImageUploader } from "@/modules/products/components/ProductImageUploader";
 import {
   createProduct,
@@ -488,13 +487,12 @@ export function ProductsPanel({
         isLoading={isLoading}
         rowKey="id"
         emptyMessage="No hay productos registrados para esta tienda."
-      />
-
-      <PaginationControls
-        page={page}
-        totalPages={totalPages}
-        totalRecords={totalRecords}
-        onPageChange={setPage}
+        pagination={{
+          page,
+          totalPages,
+          totalRecords,
+          onPageChange: setPage,
+        }}
       />
     </section>
   );

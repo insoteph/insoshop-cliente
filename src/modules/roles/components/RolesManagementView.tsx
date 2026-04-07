@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { permissions } from "@/modules/auth/lib/permissions";
 import { useAdminSession } from "@/modules/auth/providers/AdminSessionProvider";
 import { DataTable } from "@/modules/core/components/DataTable";
-import { PaginationControls } from "@/modules/core/components/PaginationControls";
+
 import {
   deleteRole,
   fetchPermissionsCatalog,
@@ -509,13 +509,12 @@ export function RolesManagementView() {
             isLoading={isLoading}
             rowKey="id"
             emptyMessage="No hay roles registrados."
-          />
-
-          <PaginationControls
-            page={page}
-            totalPages={totalPages}
-            totalRecords={totalRecords}
-            onPageChange={setPage}
+            pagination={{
+              page,
+              totalPages,
+              totalRecords,
+              onPageChange: setPage,
+            }}
           />
         </div>
 
@@ -567,3 +566,4 @@ export function RolesManagementView() {
     </section>
   );
 }
+
