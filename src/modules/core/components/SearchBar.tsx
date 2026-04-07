@@ -23,7 +23,7 @@ export function SearchBar({
       onChange={(event) => onChange(event.target.value)}
       placeholder={placeholder}
       aria-label={ariaLabel}
-      className={`w-full rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)] outline-none ${className ?? ""}`}
+      className={`shadow-sm bg-white border-[1px] border-slate-200 w-full rounded-md border  px-4 py-3 text-sm text-slate-600 outline-none ${className ?? ""}`}
     />
   );
 }

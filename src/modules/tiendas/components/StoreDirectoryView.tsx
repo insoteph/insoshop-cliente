@@ -9,6 +9,11 @@ import {
   type DataTableColumn,
   type DataTableRowActionsConfig,
 } from "@/modules/core/components/DataTable";
+import {
+  DataTableToolbar,
+  ToolbarActions,
+  type DataTableToolbarAction,
+} from "@/modules/core/components/DataTableToolbar";
 import { SearchBar } from "@/modules/core/components/SearchBar";
 import { formatDate } from "@/modules/core/lib/formatters";
 import { fetchTiendas } from "@/modules/tiendas/services/tiendas-service";
@@ -18,7 +23,7 @@ export function StoreDirectoryView() {
   const router = useRouter();
   const [stores, setStores] = useState<Tienda[]>([]);
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
@@ -161,18 +166,37 @@ export function StoreDirectoryView() {
     [router],
   );
 
+  const toolbarActions = useMemo<DataTableToolbarAction[]>(
+    () => [
+      {
+        label: "Nueva Tienda",
+        iconPath: "/icons/plus.svg",
+        onClick: () => {
+          window.alert("Nueva");
+        },
+      },
+    ],
+    [],
+  );
+
   return (
     <section className="space-y-5">
-      <div className="panel-card space-y-4">
-        <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_220px]">
-          <SearchBar
-            value={searchTerm}
-            onChange={(value) => {
-              setPage(1);
-              setSearchTerm(value);
-            }}
-            placeholder="Buscar por nombre, slug, telefono o moneda"
-          />
+      <div className="space-y-4 bg-white rounded-md">
+        <div className="rounded-md px-3 py-5 shadow-lg">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center">
+            <div className="w-full">
+              <SearchBar
+                value={searchTerm}
+                onChange={(value) => {
+                  setPage(1);
+                  setSearchTerm(value);
+                }}
+                placeholder="Buscar por nombre, slug, telefono o moneda"
+              />
+            </div>
+
+            <ToolbarActions actions={toolbarActions} className="md:shrink-0" />
+          </div>
         </div>
 
         {error ? (
@@ -182,21 +206,33 @@ export function StoreDirectoryView() {
         ) : null}
       </div>
 
-      <DataTable
-        headers={columns}
-        rows={stores}
-        isLoading={isLoading}
-        rowKey="id"
-        emptyMessage="No hay tiendas que coincidan con los filtros aplicados."
-        badges={badges}
-        rowActions={rowActions}
-        pagination={{
-          page,
-          totalPages,
-          totalRecords,
-          onPageChange: setPage,
-        }}
-      />
+      <div className="py-5 rounded-md shadow-lg bg-white ">
+        <DataTableToolbar
+          pageSize={pageSize}
+          onPageSizeChange={(value) => {
+            setPage(1);
+            setPageSize(value);
+          }}
+        />
+        <div className="border-b-[1px] border-slate-200 mt-1 mb-2"></div>
+        <div className="px-3">
+          <DataTable
+            headers={columns}
+            rows={stores}
+            isLoading={isLoading}
+            rowKey="id"
+            emptyMessage="No hay tiendas que coincidan con los filtros aplicados."
+            badges={badges}
+            rowActions={rowActions}
+            pagination={{
+              page,
+              totalPages,
+              totalRecords,
+              onPageChange: setPage,
+            }}
+          />
+        </div>
+      </div>
     </section>
   );
 }

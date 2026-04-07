@@ -148,7 +148,7 @@ body {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: #f9f9fb;
 }
 
 .dark .dashboard-content {
@@ -172,7 +172,7 @@ body {
 
 .dashboard-body {
   padding: 1rem;
-  background-color: #fff;
+  background: #f9f9fb;
 }
 
 .dashboard-topbar-main {
@@ -456,7 +456,7 @@ body {
   gap: 0.22rem;
   width: 2.75rem;
   height: 2.75rem;
-  border-radius: 999px;
+  border-radius: 10px;
   border: 1px solid var(--line);
   color: var(--foreground);
   background: var(--panel);

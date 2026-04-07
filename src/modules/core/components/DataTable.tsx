@@ -178,7 +178,7 @@ export function DataTable<TData extends Record<string, unknown>>({
   const totalRecords = pagination.totalRecords ?? displayedRecords;
 
   return (
-    <div className="relative overflow-hidden rounded-md border border-[var(--line)] bg-[var(--panel)]">
+    <div className="relative overflow-hidden rounded-md border border-[var(--line)] bg-[var(--panel)] shadow-xs">
       {showRefreshingState ? (
         <div className="data-table-refresh-indicator" aria-live="polite">
           Actualizando resultados...
@@ -186,7 +186,7 @@ export function DataTable<TData extends Record<string, unknown>>({
       ) : null}
 
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-[var(--line)]">
+        <table className="min-w-full divide-y divide-[var(--line)] ">
           <thead className="bg-[var(--panel-muted)]">
             <tr>
               {headers.map((column) => (
@@ -233,7 +233,7 @@ export function DataTable<TData extends Record<string, unknown>>({
               resolvedRows.map((row, rowIndex) => (
                 <tr
                   key={getRowKey(row, rowIndex, rowKey)}
-                  className="hover:bg-[var(--panel-muted)]/70"
+                  className="odd:bg-[var(--panel)] even:bg-[var(--panel-muted)]/70 hover:bg-[var(--panel-muted)]/85"
                 >
                   {headers.map((column) => {
                     const rawValue = resolveColumnValue(row, column.key);
@@ -318,7 +318,7 @@ export function DataTable<TData extends Record<string, unknown>>({
       </div>
 
       <div className="flex flex-col gap-3 border-t border-[var(--line)] px-4 py-3 md:flex-row md:items-center md:justify-between">
-        <p className="text-sm text-[var(--muted)]">
+        <p className="text-sm text-slate-800">
           Mostrando {displayedRecords} de {totalRecords} registro
           {totalRecords === 1 ? "" : "s"}
         </p>
@@ -333,7 +333,7 @@ export function DataTable<TData extends Record<string, unknown>>({
             Anterior
           </button>
 
-          <span className="text-sm text-[var(--muted)]">
+          <span className="text-sm text-slate-800">
             Pagina {pagination.page} de {Math.max(pagination.totalPages, 1)}
           </span>
 
