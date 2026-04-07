@@ -1,15 +1,20 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
-import { DataTable } from "@/modules/core/components/DataTable";
-import { PaginationControls } from "@/modules/core/components/PaginationControls";
+import {
+  DataTable,
+  type DataTableBadgeConfig,
+  type DataTableColumn,
+  type DataTableRowActionsConfig,
+} from "@/modules/core/components/DataTable";
 import { formatDate } from "@/modules/core/lib/formatters";
 import { fetchTiendas } from "@/modules/tiendas/services/tiendas-service";
 import type { Tienda } from "@/modules/tiendas/types/tiendas-types";
 
 export function StoreDirectoryView() {
+  const router = useRouter();
   const [stores, setStores] = useState<Tienda[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
@@ -51,7 +56,7 @@ export function StoreDirectoryView() {
         setError(
           loadError instanceof Error
             ? loadError.message
-            : "No se pudo cargar el listado de tiendas."
+            : "No se pudo cargar el listado de tiendas.",
         );
       } finally {
         setIsLoading(false);
@@ -61,70 +66,101 @@ export function StoreDirectoryView() {
     void loadStores();
   }, [debouncedSearch, page, pageSize, statusFilter]);
 
-  const columns = useMemo(
+  const columns = useMemo<DataTableColumn<Tienda>[]>(
     () => [
+      {
+        key: "logoUrl",
+        header: "Logo",
+        dataType: "image",
+        imageConfig: {
+          alt: (store) => `Logo de ${store.nombre}`,
+          width: 48,
+          height: 48,
+          className: "rounded-2xl",
+          fallbackText: "Sin logo",
+        },
+      },
       {
         key: "nombre",
         header: "Tienda",
-        render: (store: Tienda) => (
-          <div className="flex items-center gap-3">
-            <div className="h-12 w-12 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)]">
-              {store.logoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={store.logoUrl}
-                  alt={store.nombre}
-                  className="h-full w-full object-cover"
-                />
-              ) : null}
-            </div>
-            <div className="space-y-1">
-              <p className="font-semibold text-[var(--foreground)]">
-                {store.nombre}
-              </p>
-              <p className="text-xs text-[var(--muted)]">/{store.slug}</p>
-            </div>
-          </div>
-        ),
+        className: "font-semibold",
+      },
+      {
+        key: "slug",
+        header: "Slug",
+        textFormatter: (value) => `/${String(value ?? "")}`,
       },
       {
         key: "telefono",
-        header: "Teléfono",
+        header: "Telefono",
       },
       {
         key: "createdAt",
-        header: "Creación",
-        render: (store: Tienda) => formatDate(store.createdAt),
+        header: "Creacion",
+        textFormatter: (value) => formatDate(String(value ?? "")),
       },
       {
         key: "estado",
         header: "Estado",
-        render: (store: Tienda) => (
-          <span
-            className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-              store.estado
-                ? "bg-emerald-100 text-emerald-700"
-                : "bg-slate-200 text-slate-700"
-            }`}
-          >
-            {store.estado ? "Activa" : "Inactiva"}
-          </span>
-        ),
-      },
-      {
-        key: "acciones",
-        header: "Acciones",
-        render: (store: Tienda) => (
-          <Link
-            href={`/tiendas/${store.id}`}
-            className="inline-flex rounded-xl border border-[var(--line)] px-3 py-2 text-xs font-semibold text-[var(--foreground)]"
-          >
-            Administrar tienda
-          </Link>
-        ),
       },
     ],
-    []
+    [],
+  );
+
+  const badges = useMemo<Array<DataTableBadgeConfig<Tienda>>>(
+    () => [
+      {
+        columnKey: "estado",
+        rules: [
+          {
+            value: true,
+            label: "Activo",
+            iconPath: "/icons/check.svg",
+            textClassName: "text-emerald-700",
+            backgroundClassName: "bg-emerald-100",
+          },
+          {
+            value: false,
+            label: "Inactivo",
+            iconPath: "/icons/cross.svg",
+            textClassName: "text-red-700",
+            backgroundClassName: "bg-red-200",
+          },
+        ],
+      },
+    ],
+    [],
+  );
+
+  const rowActions = useMemo<DataTableRowActionsConfig<Tienda>>(
+    () => ({
+      headerLabel: "Acciones",
+      primaryButtonLabel: "Administrar",
+      onPrimaryAction: (store) => {
+        router.push(`/tiendas/${store.id}`);
+      },
+      dropdownOptions: [
+        {
+          label: "Ver detalle",
+          onClick: (store) => {
+            window.alert(`Ver detalle de: ${store.nombre}`);
+          },
+        },
+        {
+          label: "Editar",
+          onClick: (store) => {
+            window.alert(`Editar tienda: ${store.nombre}`);
+          },
+        },
+        {
+          label: "Desactivar",
+          onClick: (store) => {
+            window.alert(`Desactivar tienda: ${store.nombre}`);
+          },
+        },
+      ],
+    }),
+    [router],
   );
 
   return (
@@ -133,14 +169,14 @@ export function StoreDirectoryView() {
         <div className="grid gap-6 bg-[linear-gradient(135deg,rgba(31,94,255,0.18),rgba(13,185,129,0.12))] px-6 py-8 lg:grid-cols-[minmax(0,1.3fr)_320px]">
           <div className="space-y-3">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
-              Administración global
+              Administracion global
             </p>
             <h2 className="text-3xl font-semibold text-[var(--foreground)]">
               Gestiona todas las tiendas desde un solo lugar
             </h2>
             <p className="max-w-2xl text-sm text-[var(--muted)]">
               Busca, filtra y entra al contexto de cada tienda para revisar
-              productos, categorías, ventas, usuarios e información general.
+              productos, categorias, ventas, usuarios e informacion general.
             </p>
           </div>
 
@@ -155,7 +191,7 @@ export function StoreDirectoryView() {
             </div>
             <div className="rounded-[1.25rem] border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-4">
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
-                Página actual
+                Pagina actual
               </p>
               <p className="mt-2 text-3xl font-semibold text-[var(--foreground)]">
                 {page}
@@ -173,7 +209,7 @@ export function StoreDirectoryView() {
               setPage(1);
               setSearchTerm(event.target.value);
             }}
-            placeholder="Buscar por nombre, slug, teléfono o moneda"
+            placeholder="Buscar por nombre, slug, telefono o moneda"
             className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)] outline-none"
           />
           <select
@@ -181,7 +217,7 @@ export function StoreDirectoryView() {
             onChange={(event) => {
               setPage(1);
               setStatusFilter(
-                event.target.value as "activos" | "inactivos" | "todos"
+                event.target.value as "activos" | "inactivos" | "todos",
               );
             }}
             className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)] outline-none"
@@ -201,17 +237,18 @@ export function StoreDirectoryView() {
 
       <DataTable
         headers={columns}
-        data={stores}
+        rows={stores}
         isLoading={isLoading}
         rowKey="id"
         emptyMessage="No hay tiendas que coincidan con los filtros aplicados."
-      />
-
-      <PaginationControls
-        page={page}
-        totalPages={totalPages}
-        totalRecords={totalRecords}
-        onPageChange={setPage}
+        badges={badges}
+        rowActions={rowActions}
+        pagination={{
+          page,
+          totalPages,
+          totalRecords,
+          onPageChange: setPage,
+        }}
       />
     </section>
   );
