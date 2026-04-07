@@ -1,32 +1,26 @@
 "use client";
 
-import {
-  useMemo,
-  useState,
-  type ChangeEvent,
-  type ReactNode,
-} from "react";
+import { useMemo, useState, type ChangeEvent, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
-import { useTheme } from "@/modules/core/providers/ThemeProvider";
 import { useAdminSession } from "@/modules/auth/providers/AdminSessionProvider";
 import { ProcessingModal } from "@/modules/core/components/ProcessingModal";
+import { useTheme } from "@/modules/core/providers/ThemeProvider";
 import { Sidebar } from "@/modules/navigation/components/Sidebar";
 
-export function DashboardShell({ children }: { children: ReactNode }) {
+type DashboardShellProps = {
+  children: ReactNode;
+  pageTitle: string;
+};
+
+export function DashboardShell({ children, pageTitle }: DashboardShellProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const {
-    currentUser,
-    isLoading,
-    stores,
-    activeStore,
-    activeStoreId,
-    setActiveStoreId,
-  } = useAdminSession();
+  const { currentUser, isLoading, stores, activeStoreId, setActiveStoreId } =
+    useAdminSession();
 
   const initials = useMemo(() => {
     if (!currentUser?.nombre) {
@@ -66,21 +60,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
   const canReturnToDirectory =
     currentUser?.tieneAccesoGlobal && pathname !== "/tiendas";
-  const isStoreDetailRoute = /^\/tiendas\/\d+$/.test(pathname);
-  const headerSubtitle = isStoreDetailRoute && activeStore
-    ? `Administrando ${activeStore.nombre}`
-    : "Panel administrativo multi-tienda";
-  const headerTitle = isStoreDetailRoute && activeStore
-    ? activeStore.nombre
-    : pathname === "/usuarios"
-      ? "Gestión de usuarios"
-      : pathname === "/roles"
-        ? "Gestión de roles"
-        : pathname === "/ventas"
-          ? "Ventas"
-          : pathname === "/tiendas"
-            ? "Listado de tiendas"
-            : "Centro de control";
 
   return (
     <div className="dashboard-root">
@@ -97,19 +76,14 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               type="button"
               className="sidebar-hamburger topbar-hamburger"
               onClick={handleSidebarToggle}
-              title={isSidebarCollapsed ? "Expandir menú" : "Contraer menú"}
-              aria-label={
-                isSidebarCollapsed ? "Expandir menú" : "Contraer menú"
-              }
+              title={isSidebarCollapsed ? "Expandir menu" : "Contraer menu"}
+              aria-label={isSidebarCollapsed ? "Expandir menu" : "Contraer menu"}
             >
-              <span />
-              <span />
-              <span />
+              <span className="sidebar-hamburger-icon" aria-hidden="true" />
             </button>
 
             <div className="dashboard-heading">
-              <p className="dashboard-heading-subtitle">{headerSubtitle}</p>
-              <h1 className="dashboard-heading-title">{headerTitle}</h1>
+              <h1 className="dashboard-heading-title">{pageTitle}</h1>
             </div>
           </div>
 
@@ -171,7 +145,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                   {currentUser?.nombre || "Usuario"}
                 </p>
                 <p className="dashboard-user-role">
-                  {currentUser?.rolName || "Autenticación pendiente"}
+                  {currentUser?.rolName || "Autenticacion pendiente"}
                 </p>
               </div>
             </div>

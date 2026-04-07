@@ -10,7 +10,7 @@ export default function DashboardLayout({
 }) {
   return (
     <AuthGuard>
-      <DashboardShell>{children}</DashboardShell>
+      <DashboardShell pageTitle="Dashboard">{children}</DashboardShell>
     </AuthGuard>
   );
 }

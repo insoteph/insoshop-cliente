@@ -10,7 +10,7 @@ export default function VentasLayout({
 }) {
   return (
     <AuthGuard>
-      <DashboardShell>{children}</DashboardShell>
+      <DashboardShell pageTitle="Ventas">{children}</DashboardShell>
     </AuthGuard>
   );
 }

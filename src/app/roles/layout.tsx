@@ -10,7 +10,7 @@ export default function RolesLayout({
 }) {
   return (
     <AuthGuard>
-      <DashboardShell>{children}</DashboardShell>
+      <DashboardShell pageTitle="Roles">{children}</DashboardShell>
     </AuthGuard>
   );
 }

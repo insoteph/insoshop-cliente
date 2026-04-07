@@ -10,7 +10,7 @@ export default function UsuariosLayout({
 }) {
   return (
     <AuthGuard>
-      <DashboardShell>{children}</DashboardShell>
+      <DashboardShell pageTitle="Usuarios">{children}</DashboardShell>
     </AuthGuard>
   );
 }
