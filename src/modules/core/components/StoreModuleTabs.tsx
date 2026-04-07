@@ -92,7 +92,7 @@ export function StoreModuleTabs({
             tabRefs.current[tabId] = element;
           }}
           onClick={() => onTabChange(tabId)}
-          className={`border-r border-[var(--line)] px-4 py-3 text-sm font-semibold text-slate-700 transition last:border-r-0 ${
+          className={`border-r border-[var(--line)] px-4 py-3 text-sm  text-slate-700 transition last:border-r-0 ${
             activeTab === tabId
               ? "bg-blue-100/70 text-slate-900"
               : "bg-slate-100 text-slate-700 hover:bg-slate-300"

@@ -258,6 +258,7 @@ export function ProductsPanel({
       {
         key: "nombre",
         header: "Producto",
+        className: "font-semibold",
       },
       {
         key: "categoriaNombre",
