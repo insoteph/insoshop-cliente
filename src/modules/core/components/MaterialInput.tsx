@@ -35,10 +35,8 @@ export function MaterialInput({
         type={resolvedType}
         placeholder=" "
         className={`
-          peer h-11 w-full rounded-lg border border-zinc-300 bg-white px-3
-          text-sm text-zinc-800 outline-none transition-all duration-200 
-         
-          focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10
+          app-input peer h-11 w-full rounded-xl px-3
+          text-sm outline-none transition-all duration-200
           ${isPasswordType ? "pr-10" : ""}
           ${className}
         `}
@@ -48,7 +46,7 @@ export function MaterialInput({
         <button
           type="button"
           onClick={() => setIsPasswordVisible((prev) => !prev)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 transition-colors hover:text-zinc-700"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
           aria-label={isPasswordVisible ? "Ocultar contraseña" : "Mostrar contraseña"}
           title={isPasswordVisible ? "Ocultar contraseña" : "Mostrar contraseña"}
         >
@@ -87,16 +85,11 @@ export function MaterialInput({
         htmlFor={id}
         className="
           pointer-events-none absolute left-2 px-1 transition-all duration-200
-
-          bg-white
-          
-          
-          top-0 -translate-y-1/2 text-[11px] font-medium text-blue-600
-          
+          bg-[var(--panel-strong)]
+          top-0 -translate-y-1/2 text-[11px] font-medium text-[var(--accent)]
           peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 
-          peer-placeholder-shown:text-sm peer-placeholder-shown:text-zinc-400
-          
-          peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-[11px] peer-focus:text-blue-500
+          peer-placeholder-shown:text-sm peer-placeholder-shown:text-[var(--muted)]
+          peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-[11px] peer-focus:text-[var(--accent)]
         "
       >
         {label}

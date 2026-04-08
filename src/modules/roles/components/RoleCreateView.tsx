@@ -155,12 +155,12 @@ export function RoleCreateView() {
           value={roleName}
           onChange={(event) => setRoleName(event.target.value)}
           placeholder="Nombre del rol"
-          className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)] outline-none"
+          className="app-input rounded-2xl px-4 py-3 text-sm"
         />
 
         {canManagePermissions ? (
           catalogError ? (
-            <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
               {catalogError}
             </p>
           ) : (
@@ -180,14 +180,14 @@ export function RoleCreateView() {
                 <div className="flex flex-wrap gap-2">
                   <button
                     type="button"
-                    className="rounded-xl border border-[var(--line)] px-3 py-2 text-xs font-medium text-[var(--foreground)]"
+                    className="app-button-secondary rounded-xl px-3 py-2 text-xs font-medium"
                     onClick={() => setSelectedPermissions(permissionsCatalog)}
                   >
                     Seleccionar todo
                   </button>
                   <button
                     type="button"
-                    className="rounded-xl border border-[var(--line)] px-3 py-2 text-xs font-medium text-[var(--foreground)]"
+                    className="app-button-secondary rounded-xl px-3 py-2 text-xs font-medium"
                     onClick={() => setSelectedPermissions([])}
                   >
                     Limpiar
@@ -199,7 +199,7 @@ export function RoleCreateView() {
                 {groupedPermissions.map((group) => (
                   <div
                     key={group.label}
-                    className="rounded-3xl border border-[var(--line)] bg-[var(--panel-muted)] p-4"
+                    className="app-card-muted rounded-3xl p-4"
                   >
                     <p className="mb-3 text-sm font-semibold text-[var(--foreground)]">
                       {group.label}
@@ -226,13 +226,13 @@ export function RoleCreateView() {
             </div>
           )
         ) : (
-          <p className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--muted)]">
+          <p className="app-card-muted rounded-2xl px-4 py-3 text-sm text-[var(--muted)]">
             Tu usuario puede crear roles, pero no gestionar claims de permisos.
           </p>
         )}
 
         {formError ? (
-          <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
             {formError}
           </p>
         ) : null}
@@ -241,7 +241,7 @@ export function RoleCreateView() {
           <button
             type="submit"
             disabled={isSaving}
-            className="rounded-2xl bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
+            className="app-button-primary rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
           >
             {isSaving ? "Guardando..." : "Crear rol"}
           </button>

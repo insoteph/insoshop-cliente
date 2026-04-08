@@ -64,7 +64,7 @@ export function LoginForm() {
       </div>
 
       {feedback ? (
-        <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="app-alert-error rounded-xl px-3 py-2 text-sm">
           {feedback}
         </p>
       ) : null}
@@ -72,7 +72,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full rounded-md bg-blue-600 py-2 text-sm font-bold text-white shadow-lg shadow-blue-100 transition-all hover:bg-blue-700 active:scale-[0.98]"
+        className="app-button-primary w-full rounded-xl py-2.5 text-sm font-bold active:scale-[0.98]"
       >
         {isSubmitting ? "Ingresando..." : "Iniciar sesión"}
       </button>

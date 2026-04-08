@@ -291,15 +291,15 @@ export function ProductsPanel({
             value: true,
             label: "Activo",
             iconPath: "/icons/check.svg",
-            textClassName: "text-emerald-700",
-            backgroundClassName: "bg-emerald-100",
+            textClassName: "app-badge-success",
+            backgroundClassName: "",
           },
           {
             value: false,
             label: "Inactivo",
             iconPath: "/icons/cross.svg",
-            textClassName: "text-slate-700",
-            backgroundClassName: "bg-slate-200",
+            textClassName: "app-badge-neutral",
+            backgroundClassName: "",
           },
         ],
       },
@@ -354,7 +354,7 @@ export function ProductsPanel({
         </div>
 
         {error ? (
-          <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
             {error}
           </p>
         ) : null}
@@ -394,7 +394,7 @@ export function ProductsPanel({
         />
       ) : null}
 
-      <div className="rounded-md bg-white py-2 shadow-lg">
+      <div className="app-card rounded-2xl py-2">
         <DataTableToolbar
           pageSize={pageSize}
           onPageSizeChange={(value) => {
@@ -402,7 +402,7 @@ export function ProductsPanel({
             setPageSize(value);
           }}
         />
-        <div className="mb-2 mt-1 border-b-[1px] border-slate-200"></div>
+        <div className="app-divider mb-2 mt-1 border-b" />
         <div className="px-3">
           <DataTable
             headers={columns}

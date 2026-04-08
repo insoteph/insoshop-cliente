@@ -14,10 +14,10 @@ export default function LoginPage() {
         <span className="login-ball" />
       </div>
 
-      <div className="relative z-10 rounded-2xl overflow-hidden md:w-1/2 lg:flex lg:h-[58vh] lg:min-h-[600px] lg:flex-row lg:items-center lg:bg-white/85 lg:backdrop-blur-sm lg:border  lg:shadow-xl border-none">
+      <div className="relative z-10 overflow-hidden rounded-[2rem] md:w-1/2 lg:flex lg:h-[58vh] lg:min-h-[600px] lg:flex-row lg:items-center lg:border lg:border-[var(--line)] lg:bg-[color:var(--panel)] lg:shadow-[var(--shadow)] lg:backdrop-blur-xl">
         <section
           id="section-left"
-          className="relative hidden lg:block lg:w-1/2 lg:self-stretch border-solid border-white border-8 overflow-hidden"
+          className="relative hidden overflow-hidden border-[10px] border-[color:var(--panel-strong)] lg:block lg:w-1/2 lg:self-stretch"
         >
           <Image
             src="/assets/bg-img.png"
@@ -44,14 +44,14 @@ export default function LoginPage() {
             />
           </section>
 
-          <section className="shadow-md p-10 justify-end items-center flex flex-col space-y-3 bg-white lg:bg-none lg:rounded-none lg:shadow-none  rounded-2xl">
-            <span className="text-sky-600 text-2xl font-bold">
+          <section className="app-card flex flex-col items-center justify-end space-y-3 rounded-[1.75rem] p-10 lg:bg-transparent lg:shadow-none lg:backdrop-blur-none">
+            <span className="text-2xl font-bold text-[var(--accent)]">
               Iniciar Sesión
             </span>
-            <span className="p-0 text-slate-500 text-sm">
+            <span className="p-0 text-sm text-[var(--muted)]">
               Ingresa tus credenciales para continuar
             </span>
-            <div className="my-2 w-full border-t border-slate-200" />
+            <div className="app-divider my-2 w-full border-t" />
             <Suspense fallback={null}>
               <LoginForm />
             </Suspense>

@@ -119,15 +119,15 @@ export function StoreDirectoryView() {
             value: true,
             label: "Activo",
             iconPath: "/icons/check.svg",
-            textClassName: "text-emerald-700",
-            backgroundClassName: "bg-emerald-100",
+            textClassName: "app-badge-success",
+            backgroundClassName: "",
           },
           {
             value: false,
             label: "Inactivo",
             iconPath: "/icons/cross.svg",
-            textClassName: "text-red-700",
-            backgroundClassName: "bg-red-200",
+            textClassName: "app-badge-danger",
+            backgroundClassName: "",
           },
         ],
       },
@@ -181,8 +181,8 @@ export function StoreDirectoryView() {
 
   return (
     <section className="space-y-5">
-      <div className="space-y-4 bg-white rounded-md">
-        <div className="rounded-md px-3 py-5 shadow-lg">
+      <div className="space-y-4 rounded-2xl">
+        <div className="app-card rounded-2xl px-3 py-5">
           <div className="flex flex-col gap-3 md:flex-row md:items-center">
             <div className="w-full">
               <SearchBar
@@ -200,13 +200,13 @@ export function StoreDirectoryView() {
         </div>
 
         {error ? (
-          <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
             {error}
           </p>
         ) : null}
       </div>
 
-      <div className="py-5 rounded-md shadow-lg bg-white ">
+      <div className="app-card rounded-2xl py-5">
         <DataTableToolbar
           pageSize={pageSize}
           onPageSizeChange={(value) => {
@@ -214,7 +214,7 @@ export function StoreDirectoryView() {
             setPageSize(value);
           }}
         />
-        <div className="border-b-[1px] border-slate-200 mt-1 mb-2"></div>
+        <div className="app-divider mb-2 mt-1 border-b" />
         <div className="px-3">
           <DataTable
             headers={columns}

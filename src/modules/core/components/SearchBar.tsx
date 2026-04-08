@@ -19,7 +19,7 @@ export function SearchBar({
     <div className="relative w-full">
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+        className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted)]"
         style={{
           WebkitMaskImage: "url(/icons/lupa.svg)",
           maskImage: "url(/icons/lupa.svg)",
@@ -39,7 +39,7 @@ export function SearchBar({
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         aria-label={ariaLabel}
-        className={`w-full rounded-md border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm text-slate-600 shadow-sm outline-none placeholder:text-slate-400 ${className ?? ""}`}
+        className={`app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm shadow-sm ${className ?? ""}`}
       />
     </div>
   );

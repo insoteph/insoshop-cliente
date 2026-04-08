@@ -20,14 +20,15 @@ export function ProcessingModal({
       aria-modal="true"
       aria-label={label}
     >
-      {/* El modal en sí mismo con fondo sólido o semi-sólido para que no se pierda el texto */}
-      <div className="pointer-events-auto w-[min(92vw,18rem)] rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl ">
+      <div className="app-card pointer-events-auto w-[min(92vw,18rem)] rounded-2xl p-4">
         <div className="flex items-center gap-3">
           <span
-            className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-blue-600/20 border-t-blue-600"
+            className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-[color-mix(in_srgb,var(--accent)_20%,transparent)] border-t-[var(--accent)]"
             aria-hidden="true"
           />
-          <p className="text-sm font-semibold text-slate-900">{label}</p>
+          <p className="text-sm font-semibold text-[var(--foreground-strong)]">
+            {label}
+          </p>
         </div>
       </div>
     </div>

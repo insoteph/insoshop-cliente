@@ -14,8 +14,27 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full">
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (() => {
+                const storageKey = "insoshop.theme";
+                const storedTheme = window.localStorage.getItem(storageKey);
+                const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                const resolvedTheme =
+                  storedTheme === "dark" || storedTheme === "light"
+                    ? storedTheme
+                    : systemPrefersDark
+                      ? "dark"
+                      : "light";
+
+                document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
+              })();
+            `,
+          }}
+        />
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

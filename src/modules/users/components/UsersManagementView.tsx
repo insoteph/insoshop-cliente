@@ -243,8 +243,8 @@ export function UsersManagementView() {
           <span
             className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
               user.status
-                ? "bg-emerald-100 text-emerald-700"
-                : "bg-slate-200 text-slate-700"
+                ? "app-badge-success"
+                : "app-badge-neutral"
             }`}
           >
             {user.status ? "Activo" : "Inactivo"}
@@ -295,7 +295,7 @@ export function UsersManagementView() {
           <div className="flex justify-end">
             <button
               type="button"
-              className="rounded-xl border border-[var(--line)] px-3 py-2 text-xs font-medium text-[var(--foreground)]"
+              className="app-button-secondary rounded-xl px-3 py-2 text-xs font-medium"
               onClick={() => {
                 setEditingUser(user);
                 setEditingRoleNames(
@@ -344,7 +344,7 @@ export function UsersManagementView() {
           {canCreateUser ? (
             <button
               type="button"
-              className="rounded-2xl bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white"
+              className="app-button-primary rounded-2xl px-4 py-3 text-sm font-semibold"
               onClick={() => router.push("/usuarios/nuevo")}
             >
               Crear nuevo usuario
@@ -360,7 +360,7 @@ export function UsersManagementView() {
               setSearch(event.target.value);
             }}
             placeholder="Buscar por usuario o correo"
-            className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)] outline-none"
+            className="app-input rounded-2xl px-4 py-3 text-sm"
           />
           <select
             value={statusFilter}
@@ -368,7 +368,7 @@ export function UsersManagementView() {
               setPage(1);
               setStatusFilter(event.target.value as StatusFilter);
             }}
-            className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)] outline-none"
+            className="app-input rounded-2xl px-4 py-3 text-sm"
           >
             <option value="todos">Todos los estados</option>
             <option value="activos">Solo activos</option>
@@ -385,7 +385,7 @@ export function UsersManagementView() {
                   Number.isInteger(nextValue) && nextValue > 0 ? nextValue : null
                 );
               }}
-              className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)] outline-none"
+              className="app-input rounded-2xl px-4 py-3 text-sm"
             >
               <option value="">Todas las tiendas</option>
               {stores.map((store) => (
@@ -395,7 +395,7 @@ export function UsersManagementView() {
               ))}
             </select>
           ) : (
-            <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--muted)]">
+            <div className="app-card-muted rounded-2xl px-4 py-3 text-sm text-[var(--muted)]">
               {stores.find((store) => store.id === selectedStoreId)?.nombre ??
                 "Tienda actual"}
             </div>
@@ -403,19 +403,19 @@ export function UsersManagementView() {
         </div>
 
         {error ? (
-          <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
             {error}
           </p>
         ) : null}
 
         {rolesCatalogError ? (
-          <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
             {rolesCatalogError}
           </p>
         ) : null}
 
         {userRolesError ? (
-          <p className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+          <p className="app-alert-warning rounded-2xl px-4 py-3 text-sm">
             {userRolesError}
           </p>
         ) : null}
@@ -435,7 +435,7 @@ export function UsersManagementView() {
 
             <button
               type="button"
-              className="rounded-xl border border-[var(--line)] px-3 py-2 text-sm text-[var(--foreground)]"
+              className="app-button-secondary rounded-xl px-3 py-2 text-sm"
               onClick={() => {
                 setEditingUser(null);
                 setEditingRoleNames([]);
@@ -451,7 +451,7 @@ export function UsersManagementView() {
             {availableRoles.map((role) => (
               <label
                 key={role.id}
-                className="flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)]"
+                className="app-card-muted flex items-start gap-3 rounded-2xl px-4 py-3 text-sm text-[var(--foreground)]"
               >
                 <input
                   type="checkbox"
@@ -473,13 +473,13 @@ export function UsersManagementView() {
           </div>
 
           {rolesFormError ? (
-            <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
               {rolesFormError}
             </p>
           ) : null}
 
           {rolesFormMessage ? (
-            <p className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+            <p className="app-alert-success rounded-2xl px-4 py-3 text-sm">
               {rolesFormMessage}
             </p>
           ) : null}
@@ -488,7 +488,7 @@ export function UsersManagementView() {
             <button
               type="submit"
               disabled={isSavingRoles}
-              className="rounded-2xl bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
+              className="app-button-primary rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
             >
               {isSavingRoles ? "Guardando..." : "Guardar roles"}
             </button>
@@ -512,4 +512,3 @@ export function UsersManagementView() {
     </section>
   );
 }
-

@@ -11,27 +11,51 @@
 }
 
 :root {
-  --background: #f5f7fb;
-  --foreground: #2462c6;
-  --panel: rgba(255, 255, 255, 0.92);
-  --panel-muted: rgba(244, 247, 255, 0.82);
-  --line: rgba(19, 34, 53, 0.08);
-  --muted: #617086;
-  --accent: #1f5eff;
-  --accent-soft: rgba(31, 94, 255, 0.12);
-  --shadow: 0 20px 45px rgba(18, 35, 62, 0.08);
+  color-scheme: light;
+  --background: #eef4fb;
+  --background-soft: #f7faff;
+  --foreground: #1e2d43;
+  --foreground-strong: #0f172a;
+  --panel: rgba(255, 255, 255, 0.84);
+  --panel-muted: rgba(241, 246, 255, 0.8);
+  --panel-strong: rgba(255, 255, 255, 0.96);
+  --line: rgba(21, 35, 58, 0.1);
+  --line-strong: rgba(37, 99, 235, 0.2);
+  --muted: #64748b;
+  --accent: #2563eb;
+  --accent-strong: #1d4ed8;
+  --accent-soft: rgba(37, 99, 235, 0.12);
+  --success: #059669;
+  --success-soft: rgba(5, 150, 105, 0.14);
+  --danger: #dc2626;
+  --danger-soft: rgba(220, 38, 38, 0.12);
+  --warning: #d97706;
+  --warning-soft: rgba(217, 119, 6, 0.14);
+  --shadow: 0 24px 60px rgba(15, 23, 42, 0.1);
 }
 
 .dark {
-  --background: #0d1320;
-  --foreground: #eef3ff;
-  --panel: rgba(17, 26, 43, 0.92);
-  --panel-muted: rgba(23, 34, 55, 0.82);
-  --line: rgba(201, 217, 255, 0.08);
-  --muted: #91a1be;
+  color-scheme: dark;
+  --background: #09111f;
+  --background-soft: #101a2d;
+  --foreground: #e5edf9;
+  --foreground-strong: #f8fbff;
+  --panel: rgba(14, 24, 42, 0.84);
+  --panel-muted: rgba(22, 35, 58, 0.82);
+  --panel-strong: rgba(16, 27, 46, 0.96);
+  --line: rgba(160, 177, 209, 0.14);
+  --line-strong: rgba(113, 164, 255, 0.26);
+  --muted: #94a3b8;
   --accent: #71a4ff;
-  --accent-soft: rgba(113, 164, 255, 0.14);
-  --shadow: 0 24px 48px rgba(0, 0, 0, 0.3);
+  --accent-strong: #4f8dff;
+  --accent-soft: rgba(113, 164, 255, 0.16);
+  --success: #34d399;
+  --success-soft: rgba(52, 211, 153, 0.16);
+  --danger: #f87171;
+  --danger-soft: rgba(248, 113, 113, 0.16);
+  --warning: #fbbf24;
+  --warning-soft: rgba(251, 191, 36, 0.16);
+  --shadow: 0 28px 70px rgba(2, 6, 23, 0.42);
 }
 
 @theme inline {
@@ -49,14 +73,162 @@ body {
   background-image:
     radial-gradient(
       circle at top left,
-      rgba(31, 94, 255, 0.14),
-      transparent 32%
+      color-mix(in srgb, var(--accent) 18%, transparent),
+      transparent 34%
     ),
     radial-gradient(
       circle at bottom right,
-      rgba(10, 145, 110, 0.16),
-      transparent 28%
+      color-mix(in srgb, var(--success) 20%, transparent),
+      transparent 30%
     );
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      140deg,
+      color-mix(in srgb, var(--panel-muted) 24%, transparent) 0%,
+      transparent 42%
+    ),
+    radial-gradient(
+      circle at 20% 20%,
+      color-mix(in srgb, var(--accent) 8%, transparent),
+      transparent 22%
+    );
+  opacity: 0.9;
+  z-index: -1;
+}
+
+button,
+input,
+select,
+textarea {
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.app-card {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+}
+
+.app-card-muted {
+  border: 1px solid var(--line);
+  background: var(--panel-muted);
+}
+
+.app-divider {
+  border-color: var(--line);
+}
+
+.app-input {
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--panel-strong) 72%, transparent);
+  color: var(--foreground);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.app-input::placeholder {
+  color: var(--muted);
+}
+
+.app-input:hover {
+  border-color: var(--line-strong);
+}
+
+.app-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 14%, transparent);
+  outline: none;
+}
+
+.app-button-primary {
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent) 95%, white 5%),
+    var(--accent-strong)
+  );
+  color: white;
+  box-shadow: 0 18px 32px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.app-button-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 22px 36px color-mix(in srgb, var(--accent) 26%, transparent);
+}
+
+.app-button-secondary {
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--panel-strong) 78%, transparent);
+  color: var(--foreground);
+}
+
+.app-button-secondary:hover {
+  border-color: var(--line-strong);
+  background: var(--panel-muted);
+  transform: translateY(-1px);
+}
+
+.app-button-danger {
+  border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--danger) 88%, white 12%),
+    color-mix(in srgb, var(--danger) 74%, black 26%)
+  );
+  color: white;
+}
+
+.app-button-danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 30px color-mix(in srgb, var(--danger) 22%, transparent);
+}
+
+.app-alert-error {
+  border: 1px solid color-mix(in srgb, var(--danger) 28%, transparent);
+  background: color-mix(in srgb, var(--danger-soft) 78%, var(--panel-strong) 22%);
+  color: color-mix(in srgb, var(--danger) 82%, var(--foreground) 18%);
+}
+
+.app-alert-success {
+  border: 1px solid color-mix(in srgb, var(--success) 28%, transparent);
+  background: color-mix(in srgb, var(--success-soft) 78%, var(--panel-strong) 22%);
+  color: color-mix(in srgb, var(--success) 80%, var(--foreground) 20%);
+}
+
+.app-alert-warning {
+  border: 1px solid color-mix(in srgb, var(--warning) 28%, transparent);
+  background: color-mix(in srgb, var(--warning-soft) 78%, var(--panel-strong) 22%);
+  color: color-mix(in srgb, var(--warning) 82%, var(--foreground) 18%);
+}
+
+.app-badge-neutral {
+  background: color-mix(in srgb, var(--panel-muted) 92%, transparent);
+  color: var(--foreground);
+}
+
+.app-badge-success {
+  background: color-mix(in srgb, var(--success-soft) 82%, transparent);
+  color: var(--success);
+}
+
+.app-badge-danger {
+  background: color-mix(in srgb, var(--danger-soft) 82%, transparent);
+  color: var(--danger);
 }
 
 @keyframes login-ball-move {
@@ -69,7 +241,13 @@ body {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  background: #e7efff;
+  background:
+    radial-gradient(
+      circle at top left,
+      color-mix(in srgb, var(--accent) 16%, transparent),
+      transparent 42%
+    ),
+    linear-gradient(180deg, var(--background-soft), var(--background));
   pointer-events: none;
   z-index: 0;
 }
@@ -81,7 +259,11 @@ body {
   border-radius: 50%;
   backface-visibility: hidden;
   animation: login-ball-move linear infinite;
-  color: #79a1f6;
+  color: color-mix(in srgb, var(--accent) 55%, white 45%);
+}
+
+.dark .login-ball {
+  color: color-mix(in srgb, var(--accent) 62%, white 38%);
 }
 
 .login-ball:nth-child(1) {
@@ -148,11 +330,12 @@ body {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  background: #f9f9fb;
-}
-
-.dark .dashboard-content {
-  background: var(--background);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--background-soft) 84%, transparent),
+      var(--background)
+    );
 }
 
 .dashboard-topbar {
@@ -160,7 +343,7 @@ body {
   width: 100%;
   max-width: none;
   border: 1px solid var(--line);
-  background: var(--panel);
+  background: color-mix(in srgb, var(--panel-strong) 84%, transparent);
   box-shadow: var(--shadow);
   border-radius: 0;
   padding: 0.95rem 1.25rem;
@@ -168,11 +351,12 @@ body {
   gap: 1rem;
   align-items: center;
   justify-content: space-between;
+  backdrop-filter: blur(18px);
 }
 
 .dashboard-body {
   padding: 1rem;
-  background: #f9f9fb;
+  background: transparent;
 }
 
 .dashboard-topbar-main {
@@ -189,7 +373,7 @@ body {
 .dashboard-heading-title {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #252c3b;
+  color: var(--foreground-strong);
   line-height: 1.05;
 }
 
@@ -218,16 +402,20 @@ body {
   height: 3rem;
   border-radius: 1rem;
   border: 1px solid var(--line);
-  background: var(--panel-muted);
+  background: color-mix(in srgb, var(--panel-strong) 82%, transparent);
   color: var(--foreground);
   transition:
     border-color 160ms ease,
-    transform 160ms ease;
+    transform 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .topbar-icon-button:hover {
   border-color: var(--accent);
   transform: translateY(-1px);
+  background: var(--accent-soft);
+  box-shadow: 0 12px 24px color-mix(in srgb, var(--accent) 16%, transparent);
 }
 
 .dashboard-user-card {
@@ -235,7 +423,11 @@ body {
   padding: 3px;
   align-items: center;
   gap: 0.85rem;
-  border-radius: 5px;
+  border-radius: 1rem;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--panel-strong) 78%, transparent);
+  padding-inline: 0.75rem;
+  padding-block: 0.45rem;
 }
 
 .dashboard-user-avatar {
@@ -284,7 +476,7 @@ body {
 
 .topbar-store-select {
   border: 1px solid var(--line);
-  background: var(--panel-muted);
+  background: color-mix(in srgb, var(--panel-strong) 82%, transparent);
   color: var(--foreground);
   border-radius: 1rem;
   padding: 0.78rem 1rem;
@@ -299,7 +491,7 @@ body {
   min-height: 3rem;
   border-radius: 1rem;
   border: 1px solid var(--line);
-  background: var(--panel-muted);
+  background: color-mix(in srgb, var(--panel-strong) 82%, transparent);
   color: var(--foreground);
   padding: 0 1rem;
   font-size: 0.9rem;
@@ -309,6 +501,7 @@ body {
 .topbar-ghost-button:hover,
 .topbar-store-select:hover {
   border-color: var(--accent);
+  background: var(--accent-soft);
 }
 
 .dashboard-main {
@@ -319,10 +512,15 @@ body {
 .panel-card {
   display: block;
   border: 1px solid var(--line);
-  background: var(--panel);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--panel-strong) 88%, transparent),
+    color-mix(in srgb, var(--panel) 92%, transparent)
+  );
   box-shadow: var(--shadow);
   border-radius: 1.75rem;
   padding: 1.5rem;
+  backdrop-filter: blur(18px);
 }
 
 .sidebar-shell {
@@ -340,8 +538,9 @@ body {
   gap: 1rem;
   padding: 1.25rem;
   border-right: 1px solid var(--line);
-  background: color-mix(in srgb, var(--background) 88%, white 12%);
+  background: color-mix(in srgb, var(--panel-strong) 82%, transparent);
   backdrop-filter: blur(18px);
+  box-shadow: 20px 0 40px rgba(2, 6, 23, 0.08);
 }
 
 .sidebar-shell-open {
@@ -372,7 +571,8 @@ body {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  border-radius: 5px;
+  border-radius: 1rem;
+  border: 1px solid transparent;
   padding: 0.6rem 0.95rem;
   font-size: 15px;
   font-weight: bold;
@@ -390,6 +590,7 @@ body {
 
 .sidebar-item:hover {
   background: var(--panel-muted);
+  border-color: var(--line);
   color: var(--foreground);
   transform: translateX(2px);
 }
@@ -397,6 +598,7 @@ body {
 .sidebar-item-active {
   position: relative;
   background: var(--accent-soft);
+  border-color: color-mix(in srgb, var(--accent) 22%, transparent);
   color: var(--foreground);
 }
 
@@ -418,7 +620,7 @@ body {
   width: 2rem;
   height: 2rem;
   border-radius: 0.8rem;
-  background: var(--panel);
+  background: color-mix(in srgb, var(--panel-strong) 88%, transparent);
   border: 1px solid var(--line);
   color: inherit;
 }
@@ -459,7 +661,7 @@ body {
   border-radius: 10px;
   border: 1px solid var(--line);
   color: var(--foreground);
-  background: var(--panel);
+  background: color-mix(in srgb, var(--panel-strong) 88%, transparent);
 }
 
 .sidebar-hamburger-icon {

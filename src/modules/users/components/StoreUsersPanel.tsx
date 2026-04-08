@@ -87,8 +87,8 @@ export function StoreUsersPanel({ storeId }: StoreUsersPanelProps) {
           <span
             className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
               user.status
-                ? "bg-emerald-100 text-emerald-700"
-                : "bg-slate-200 text-slate-700"
+                ? "app-badge-success"
+                : "app-badge-neutral"
             }`}
           >
             {user.status ? "Activo" : "Inactivo"}
@@ -119,7 +119,7 @@ export function StoreUsersPanel({ storeId }: StoreUsersPanelProps) {
               setSearch(event.target.value);
             }}
             placeholder="Buscar por usuario o correo"
-            className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)] outline-none"
+            className="app-input rounded-2xl px-4 py-3 text-sm"
           />
           <select
             value={statusFilter}
@@ -129,7 +129,7 @@ export function StoreUsersPanel({ storeId }: StoreUsersPanelProps) {
                 event.target.value as "activos" | "inactivos" | "todos"
               );
             }}
-            className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)] outline-none"
+            className="app-input rounded-2xl px-4 py-3 text-sm"
           >
             <option value="todos">Todos los estados</option>
             <option value="activos">Solo activos</option>
@@ -138,7 +138,7 @@ export function StoreUsersPanel({ storeId }: StoreUsersPanelProps) {
         </div>
 
         {error ? (
-          <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
             {error}
           </p>
         ) : null}
@@ -160,4 +160,3 @@ export function StoreUsersPanel({ storeId }: StoreUsersPanelProps) {
     </section>
   );
 }
-

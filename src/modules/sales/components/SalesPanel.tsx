@@ -132,7 +132,7 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
               setPage(1);
               setFechaDesde(event.target.value);
             }}
-            className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)] outline-none"
+            className="app-input rounded-2xl px-4 py-3 text-sm"
           />
           <input
             type="date"
@@ -141,12 +141,12 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
               setPage(1);
               setFechaHasta(event.target.value);
             }}
-            className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)] outline-none"
+            className="app-input rounded-2xl px-4 py-3 text-sm"
           />
         </div>
 
         {error ? (
-          <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
             {error}
           </p>
         ) : null}
@@ -168,4 +168,3 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
     </section>
   );
 }
-

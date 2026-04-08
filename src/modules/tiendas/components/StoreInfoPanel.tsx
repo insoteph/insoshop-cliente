@@ -101,7 +101,7 @@ export function StoreInfoPanel({ storeId, canEdit }: StoreInfoPanelProps) {
   if (error && !store) {
     return (
       <section className="">
-        <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
           {error}
         </p>
       </section>
@@ -112,11 +112,11 @@ export function StoreInfoPanel({ storeId, canEdit }: StoreInfoPanelProps) {
     <section className="space-y-5">
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_340px]">
         <form
-          className="px-4 py-2 bg-white rounded-md shadow-md space-y-4"
+          className="app-card space-y-4 rounded-2xl px-4 py-4"
           onSubmit={handleSubmit}
         >
-          <div className="border-b border-slate-200 pb-3">
-            <h3 className="text-lg font-semibold tracking-wide text-slate-700">
+          <div className="app-divider border-b pb-3">
+            <h3 className="text-lg font-semibold tracking-wide text-[var(--foreground-strong)]">
               Informacion general
             </h3>
           </div>
@@ -162,7 +162,7 @@ export function StoreInfoPanel({ storeId, canEdit }: StoreInfoPanelProps) {
               disabled={!canEdit}
               className="disabled:opacity-70"
             />
-            <label className="flex items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)]">
+            <label className="app-card-muted flex items-center gap-3 rounded-2xl px-4 py-3 text-sm text-[var(--foreground)]">
               <input
                 type="checkbox"
                 checked={form.estado}
@@ -193,13 +193,13 @@ export function StoreInfoPanel({ storeId, canEdit }: StoreInfoPanelProps) {
           />
 
           {feedback ? (
-            <p className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+            <p className="app-alert-success rounded-2xl px-4 py-3 text-sm">
               {feedback}
             </p>
           ) : null}
 
           {error ? (
-            <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
               {error}
             </p>
           ) : null}
@@ -209,7 +209,7 @@ export function StoreInfoPanel({ storeId, canEdit }: StoreInfoPanelProps) {
               <button
                 type="submit"
                 disabled={isSaving}
-                className="rounded-md bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
+                className="app-button-primary rounded-xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
               >
                 {isSaving ? "Guardando..." : "Guardar cambios"}
               </button>
@@ -221,8 +221,8 @@ export function StoreInfoPanel({ storeId, canEdit }: StoreInfoPanelProps) {
           )}
         </form>
 
-        <div className="p-3 bg-white shadow-md rounded-md space-y-4">
-          <div className="overflow-hidden rounded-md border border-[var(--line)] bg-[var(--panel-muted)]">
+        <div className="app-card space-y-4 rounded-2xl p-3">
+          <div className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)]">
             {store?.logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -239,19 +239,19 @@ export function StoreInfoPanel({ storeId, canEdit }: StoreInfoPanelProps) {
 
           <div className="space-y-3">
             <div>
-              <p className="text-md text-slate-700">Slug publico</p>
+              <p className="text-md text-[var(--muted)]">Slug publico</p>
               <p className="text-sm font-semibold text-[var(--foreground)]">
                 /{store?.slug}
               </p>
             </div>
             <div>
-              <p className="text-md text-slate-700">Creada el</p>
+              <p className="text-md text-[var(--muted)]">Creada el</p>
               <p className="text-sm font-semibold text-[var(--foreground)]">
                 {store ? formatDate(store.createdAt) : "-"}
               </p>
             </div>
             <div>
-              <p className="text-md text-slate-700">Ultima actualizacion</p>
+              <p className="text-md text-[var(--muted)]">Ultima actualizacion</p>
               <p className="text-sm font-semibold text-[var(--foreground)]">
                 {store ? formatDate(store.updatedAt) : "-"}
               </p>

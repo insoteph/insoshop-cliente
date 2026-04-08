@@ -103,7 +103,7 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
   if (error || !store) {
     return (
       <section className="panel-card">
-        <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
           {error || "No fue posible cargar la tienda seleccionada."}
         </p>
       </section>
@@ -132,7 +132,7 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
           className="rounded-b-none border-b-0"
         />
 
-        <div className="flex-1 rounded-b-md border border-[var(--line)] bg-[var(--panel)] p-4 shadow-lg">
+        <div className="app-card flex-1 rounded-b-2xl border p-4">
           {activeTab === "informacion" ? (
             <StoreInfoPanel storeId={storeId} canEdit={canEditStore} />
           ) : null}

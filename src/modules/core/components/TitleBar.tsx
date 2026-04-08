@@ -8,13 +8,15 @@ export function TitleBar({ title, status }: TitleBarProps) {
   const statusLabel = status ? "Activo" : "Inactivo";
   const statusIconPath = status ? "/icons/check.svg" : "/icons/cross.svg";
   const statusClasses = status
-    ? "bg-emerald-100 text-emerald-700"
-    : "bg-red-100 text-red-700";
+    ? "app-badge-success"
+    : "app-badge-danger";
 
   return (
-    <div className="rounded-md border border-[var(--line)] bg-[var(--panel)] px-4 py-3 shadow-md">
+    <div className="app-card rounded-2xl px-4 py-3">
       <div className="flex items-center gap-2">
-        <h2 className="text-xl font-semibold text-slate-700">{title}</h2>
+        <h2 className="text-xl font-semibold text-[var(--foreground-strong)]">
+          {title}
+        </h2>
         {showStatus ? (
           <span
             className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${statusClasses}`}

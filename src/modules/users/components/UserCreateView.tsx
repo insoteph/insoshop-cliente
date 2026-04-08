@@ -284,7 +284,7 @@ export function UserCreateView() {
               {availableRoles.map((role) => (
                 <label
                   key={role.id}
-                  className="flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)]"
+                  className="app-card-muted flex items-start gap-3 rounded-2xl px-4 py-3 text-sm text-[var(--foreground)]"
                 >
                   <input
                     type="checkbox"
@@ -300,13 +300,13 @@ export function UserCreateView() {
         ) : null}
 
         {rolesCatalogError ? (
-          <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
             {rolesCatalogError}
           </p>
         ) : null}
 
         {formError ? (
-          <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
             {formError}
           </p>
         ) : null}
@@ -315,7 +315,7 @@ export function UserCreateView() {
           <button
             type="submit"
             disabled={isSaving}
-            className="rounded-2xl bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
+            className="app-button-primary rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
           >
             {isSaving ? "Guardando..." : "Crear usuario"}
           </button>

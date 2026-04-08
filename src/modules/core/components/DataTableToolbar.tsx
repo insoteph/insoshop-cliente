@@ -24,7 +24,7 @@ export function ToolbarActions({ actions = [], className }: ToolbarActionsProps)
           key={`${action.label}-${index}`}
           type="button"
           onClick={action.onClick}
-          className="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors"
+          className="app-button-primary inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium"
         >
           <span
             aria-hidden="true"
@@ -55,14 +55,14 @@ export function DataTableToolbar({
 }: DataTableToolbarProps) {
   return (
     <div
-      className={`flex flex-col gap-3 rounded-md  bg-[var(--panel)] px-4 py-2 md:flex-row md:items-center md:justify-between ${className ?? ""}`}
+      className={`flex flex-col gap-3 rounded-xl bg-transparent px-4 py-2 md:flex-row md:items-center md:justify-between ${className ?? ""}`}
     >
-      <label className="inline-flex items-center gap-2 text-sm text-slate-700">
+      <label className="inline-flex items-center gap-2 text-sm text-[var(--foreground)]">
         <span className="font-medium text-[var(--muted)]">Mostrar:</span>
         <select
           value={pageSize}
           onChange={(event) => onPageSizeChange(Number(event.target.value))}
-          className="bg-slate-50 rounded-md border border-slate-100  px-3 py-2 text-sm text-slate-700 outline-none font-bold"
+          className="app-input rounded-xl px-3 py-2 text-sm font-bold"
           aria-label="Cantidad de elementos por pagina"
         >
           {pageSizeOptions.map((option) => (

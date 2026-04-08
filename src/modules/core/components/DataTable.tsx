@@ -178,7 +178,7 @@ export function DataTable<TData extends Record<string, unknown>>({
   const totalRecords = pagination.totalRecords ?? displayedRecords;
 
   return (
-    <div className="relative overflow-hidden rounded-md border border-[var(--line)] bg-[var(--panel)] shadow-xs">
+    <div className="app-card relative overflow-hidden rounded-2xl">
       {showRefreshingState ? (
         <div className="data-table-refresh-indicator" aria-live="polite">
           Actualizando resultados...
@@ -186,7 +186,7 @@ export function DataTable<TData extends Record<string, unknown>>({
       ) : null}
 
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-[var(--line)] ">
+        <table className="min-w-full divide-y divide-[var(--line)]">
           <thead className="bg-[var(--panel-muted)]">
             <tr>
               {headers.map((column) => (
@@ -278,7 +278,7 @@ export function DataTable<TData extends Record<string, unknown>>({
                     return (
                       <td
                         key={`${rowIndex}-${String(column.key)}`}
-                        className={`px-4 py-1 text-sm text-slate-700 ${
+                        className={`px-4 py-3 text-sm text-[var(--foreground)] ${
                           column.className ?? ""
                         }`}
                       >
@@ -288,7 +288,7 @@ export function DataTable<TData extends Record<string, unknown>>({
                   })}
 
                   {rowActions ? (
-                    <td className="px-4 py-3 text-sm text-slate-700">
+                    <td className="px-4 py-3 text-sm text-[var(--foreground)]">
                       <TableRowActions
                         primaryButtonLabel={rowActions.primaryButtonLabel}
                         onPrimaryAction={() => rowActions.onPrimaryAction(row)}
@@ -321,7 +321,7 @@ export function DataTable<TData extends Record<string, unknown>>({
       </div>
 
       <div className="flex flex-col gap-3 border-t border-[var(--line)] px-4 py-3 md:flex-row md:items-center md:justify-between">
-        <p className="text-sm text-slate-800">
+        <p className="text-sm text-[var(--foreground)]">
           Mostrando {displayedRecords} de {totalRecords} registro
           {totalRecords === 1 ? "" : "s"}
         </p>
@@ -329,20 +329,20 @@ export function DataTable<TData extends Record<string, unknown>>({
         <div className="flex items-center gap-2 self-end md:self-auto">
           <button
             type="button"
-            className="rounded-2xl border border-[var(--line)] px-4 py-2 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-45"
+            className="app-button-secondary rounded-2xl px-4 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-45"
             onClick={() => pagination.onPageChange(pagination.page - 1)}
             disabled={pagination.page <= 1}
           >
             Anterior
           </button>
 
-          <span className="text-sm text-slate-800">
+          <span className="text-sm text-[var(--foreground)]">
             Pagina {pagination.page} de {Math.max(pagination.totalPages, 1)}
           </span>
 
           <button
             type="button"
-            className="rounded-2xl border border-[var(--line)] px-4 py-2 text-sm font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-45"
+            className="app-button-secondary rounded-2xl px-4 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-45"
             onClick={() => pagination.onPageChange(pagination.page + 1)}
             disabled={pagination.page >= pagination.totalPages}
           >

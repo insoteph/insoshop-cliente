@@ -64,7 +64,7 @@ export function ProductFormPanel({
       >
         <div className="flex items-center justify-between gap-3">
           <div>
-            <h4 className="text-lg font-semibold text-slate-700">
+            <h4 className="text-lg font-semibold text-[var(--foreground-strong)]">
               {editingProductId ? "Editar producto" : "Crear producto"}
             </h4>
             <p className="text-sm text-[var(--muted)]">
@@ -74,7 +74,7 @@ export function ProductFormPanel({
           </div>
           <button
             type="button"
-            className="rounded-md bg-red-700 border border-[var(--line)] px-3 py-2 text-sm text-white"
+            className="app-button-danger rounded-xl px-3 py-2 text-sm"
             onClick={onClose}
           >
             Cerrar
@@ -96,7 +96,7 @@ export function ProductFormPanel({
               onChange={(event) => onDescripcionChange(event.target.value)}
               placeholder="Descripcion del producto"
               rows={7}
-              className="h-full min-h-[11rem] w-full rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)] outline-none"
+              className="app-input h-full min-h-[11rem] w-full rounded-2xl px-4 py-3 text-sm"
             />
           </div>
 
@@ -105,7 +105,7 @@ export function ProductFormPanel({
               required
               value={form.categoriaId || ""}
               onChange={(event) => onCategoriaChange(Number(event.target.value))}
-              className="w-full justify-self-start rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)] outline-none md:w-auto md:min-w-[260px] md:max-w-[320px]"
+              className="app-input w-full justify-self-start rounded-2xl px-4 py-3 text-sm md:w-auto md:min-w-[260px] md:max-w-[320px]"
             >
               <option value="">Selecciona una categoria</option>
               {categories.map((category) => (
@@ -154,7 +154,7 @@ export function ProductFormPanel({
         />
 
         {formError ? (
-          <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
             {formError}
           </p>
         ) : null}
@@ -163,7 +163,7 @@ export function ProductFormPanel({
           <button
             type="submit"
             disabled={isSaving}
-            className="inline-flex items-center gap-2 rounded-md bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
+            className="app-button-primary inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
           >
             <span>{isSaving ? "Guardando..." : "Guardar"}</span>
           </button>
