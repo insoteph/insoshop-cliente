@@ -3,6 +3,8 @@ import type {
   TiendaDetalle,
   TiendasPageResult,
   TiendasQueryParams,
+  TiendaUsuariosPageResult,
+  TiendaUsuariosQueryParams,
 } from "@/modules/tiendas/types/tiendas-types";
 
 function buildTiendasQuery(params: TiendasQueryParams = {}) {
@@ -21,6 +23,23 @@ function buildTiendasQuery(params: TiendasQueryParams = {}) {
 
   if (params.tiendaId) {
     query.set("tiendaId", String(params.tiendaId));
+  }
+
+  return query.toString();
+}
+
+function buildTiendaUsuariosQuery(params: TiendaUsuariosQueryParams = {}) {
+  const query = new URLSearchParams();
+
+  query.set("page", String(params.page ?? 1));
+  query.set("pageSize", String(params.pageSize ?? 10));
+
+  if (params.search?.trim()) {
+    query.set("search", params.search.trim());
+  }
+
+  if (params.estadoFiltro && params.estadoFiltro !== "todos") {
+    query.set("estadoFiltro", params.estadoFiltro);
   }
 
   return query.toString();
@@ -49,5 +68,45 @@ export async function updateTiendaApi(
   return apiFetch(`/tiendas/${tiendaId}`, {
     method: "PUT",
     body: payload,
+  });
+}
+
+export async function fetchTiendaUsuariosApi(
+  tiendaId: number,
+  params: TiendaUsuariosQueryParams = {}
+) {
+  return apiFetch<TiendaUsuariosPageResult>(
+    `/tiendas/${tiendaId}/usuarios?${buildTiendaUsuariosQuery(params)}`,
+    {
+      storeId: tiendaId,
+    }
+  );
+}
+
+export async function assignUsuarioTiendaApi(
+  tiendaId: number,
+  usuarioId: string
+) {
+  return apiFetch("/tiendas/asignar-usuario", {
+    method: "POST",
+    storeId: tiendaId,
+    body: {
+      tiendaId,
+      usuarioId,
+    },
+  });
+}
+
+export async function unassignUsuarioTiendaApi(
+  tiendaId: number,
+  usuarioId: string
+) {
+  return apiFetch("/tiendas/desasignar-usuario", {
+    method: "POST",
+    storeId: tiendaId,
+    body: {
+      tiendaId,
+      usuarioId,
+    },
   });
 }

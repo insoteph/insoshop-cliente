@@ -3,6 +3,7 @@ export const permissions = {
     ver: "Tiendas.Ver",
     accesoGlobal: "Tiendas.AccesoGlobal",
     editar: "Tiendas.Editar",
+    verUsuarios: "Tiendas.VerUsuarios",
   },
   productos: {
     ver: "Productos.Ver",

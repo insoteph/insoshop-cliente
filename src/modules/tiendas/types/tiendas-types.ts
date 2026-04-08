@@ -34,3 +34,27 @@ export type TiendasQueryParams = {
   estadoFiltro?: "activos" | "inactivos" | "todos";
   tiendaId?: number | null;
 };
+
+export type TiendaUsuario = {
+  usuarioId: string;
+  username: string;
+  email: string;
+  telefono: string | null;
+  estado: boolean;
+  esPrincipal: boolean;
+  detalleUsuario: {
+    nombres: string;
+    apellidos: string;
+    dni: string;
+    fechaNac: string;
+  } | null;
+};
+
+export type TiendaUsuariosPageResult = PagedResult<TiendaUsuario>;
+
+export type TiendaUsuariosQueryParams = {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  estadoFiltro?: "activos" | "inactivos" | "todos";
+};

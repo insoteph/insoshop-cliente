@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   DataTable,
@@ -15,12 +15,17 @@ import {
   type DataTableToolbarAction,
 } from "@/modules/core/components/DataTableToolbar";
 import { SearchBar } from "@/modules/core/components/SearchBar";
+import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
 import { formatDate } from "@/modules/core/lib/formatters";
-import { fetchTiendas } from "@/modules/tiendas/services/tiendas-service";
+import {
+  fetchTiendas,
+  toggleTiendaStatus,
+} from "@/modules/tiendas/services/tiendas-service";
 import type { Tienda } from "@/modules/tiendas/types/tiendas-types";
 
 export function StoreDirectoryView() {
   const router = useRouter();
+  const { confirm } = useConfirmationDialog();
   const [stores, setStores] = useState<Tienda[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -39,35 +44,68 @@ export function StoreDirectoryView() {
     return () => window.clearTimeout(timeoutId);
   }, [searchTerm]);
 
+  const loadStores = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await fetchTiendas({
+        page,
+        pageSize,
+        search: debouncedSearch,
+        estadoFiltro: "todos",
+      });
+
+      setStores(result.items);
+      setTotalPages(result.totalPages);
+      setTotalRecords(result.totalRecords);
+    } catch (loadError) {
+      setError(
+        loadError instanceof Error
+          ? loadError.message
+          : "No se pudo cargar el listado de tiendas.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, [debouncedSearch, page, pageSize]);
+
   useEffect(() => {
-    async function loadStores() {
-      setIsLoading(true);
-      setError(null);
+    void loadStores();
+  }, [loadStores]);
+
+  const handleToggleStoreStatus = useCallback(
+    async (store: Tienda) => {
+      const action = store.estado ? "inactivar" : "activar";
+      const shouldContinue = await confirm({
+        title: "Confirmar accion",
+        description: `Deseas ${action} la tienda ${store.nombre}?`,
+        confirmLabel: store.estado ? "Inactivar" : "Activar",
+        variant: store.estado ? "danger" : "primary",
+      });
+      if (!shouldContinue) {
+        return;
+      }
 
       try {
-        const result = await fetchTiendas({
-          page,
-          pageSize,
-          search: debouncedSearch,
-          estadoFiltro: "todos",
+        await toggleTiendaStatus(store.id, {
+          nombre: store.nombre,
+          telefono: store.telefono,
+          moneda: store.moneda,
+          logoUrl: store.logoUrl,
+          estado: store.estado,
         });
-
-        setStores(result.items);
-        setTotalPages(result.totalPages);
-        setTotalRecords(result.totalRecords);
-      } catch (loadError) {
+        await loadStores();
+      } catch (toggleError) {
         setError(
-          loadError instanceof Error
-            ? loadError.message
-            : "No se pudo cargar el listado de tiendas.",
+          toggleError instanceof Error
+            ? toggleError.message
+            : "No se pudo actualizar el estado de la tienda.",
         );
-      } finally {
-        setIsLoading(false);
       }
-    }
-
-    void loadStores();
-  }, [debouncedSearch, page, pageSize]);
+    },
+    [confirm, loadStores],
+  );
 
   const columns = useMemo<DataTableColumn<Tienda>[]>(
     () => [
@@ -144,26 +182,12 @@ export function StoreDirectoryView() {
       },
       dropdownOptions: [
         {
-          label: "Ver detalle",
-          onClick: (store) => {
-            window.alert(`Ver detalle de: ${store.nombre}`);
-          },
-        },
-        {
-          label: "Editar",
-          onClick: (store) => {
-            window.alert(`Editar tienda: ${store.nombre}`);
-          },
-        },
-        {
-          label: "Desactivar",
-          onClick: (store) => {
-            window.alert(`Desactivar tienda: ${store.nombre}`);
-          },
+          label: (store) => (store.estado ? "Inactivar" : "Activar"),
+          onClick: handleToggleStoreStatus,
         },
       ],
     }),
-    [router],
+    [handleToggleStoreStatus, router],
   );
 
   const toolbarActions = useMemo<DataTableToolbarAction[]>(

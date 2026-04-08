@@ -12,6 +12,7 @@ import {
   ToolbarActions,
   type DataTableToolbarAction,
 } from "@/modules/core/components/DataTableToolbar";
+import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
 import { SearchBar } from "@/modules/core/components/SearchBar";
 import {
   ProductFormPanel,
@@ -53,6 +54,7 @@ export function ProductsPanel({
   canManage,
   currency,
 }: ProductsPanelProps) {
+  const { confirm } = useConfirmationDialog();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [page, setPage] = useState(1);
@@ -235,7 +237,13 @@ export function ProductsPanel({
   const handleToggleStatus = useCallback(
     async (product: Product) => {
       const nextAction = product.estado ? "inactivar" : "activar";
-      if (!window.confirm(`Deseas ${nextAction} este producto?`)) {
+      const shouldContinue = await confirm({
+        title: "Confirmar accion",
+        description: `Deseas ${nextAction} este producto?`,
+        confirmLabel: product.estado ? "Inactivar" : "Activar",
+        variant: product.estado ? "danger" : "primary",
+      });
+      if (!shouldContinue) {
         return;
       }
 
@@ -250,7 +258,7 @@ export function ProductsPanel({
         );
       }
     },
-    [loadProducts, storeId],
+    [confirm, loadProducts, storeId],
   );
 
   const columns = useMemo<DataTableColumn<Product>[]>(

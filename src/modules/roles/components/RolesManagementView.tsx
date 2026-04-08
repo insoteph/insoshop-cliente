@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { permissions } from "@/modules/auth/lib/permissions";
 import { useAdminSession } from "@/modules/auth/providers/AdminSessionProvider";
 import { DataTable } from "@/modules/core/components/DataTable";
+import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
 
 import {
   deleteRole,
@@ -24,6 +25,7 @@ type EditingRole = {
   id: string;
   name: string;
 } | null;
+const FORM_ANIMATION_MS = 400;
 
 function buildPermissionGroups(items: string[]) {
   const groups = new Map<string, string[]>();
@@ -45,6 +47,7 @@ function buildPermissionGroups(items: string[]) {
 
 export function RolesManagementView() {
   const router = useRouter();
+  const { confirm } = useConfirmationDialog();
   const { hasPermission } = useAdminSession();
   const canCreateRole = hasPermission(permissions.roles.crear);
   const canEditRole = hasPermission(permissions.roles.editar);
@@ -81,6 +84,9 @@ export function RolesManagementView() {
   const [formMessage, setFormMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeletingRoleId, setIsDeletingRoleId] = useState<string | null>(null);
+  const [isEditFormMounted, setIsEditFormMounted] = useState(false);
+  const [isEditFormVisible, setIsEditFormVisible] = useState(false);
+  const closeEditFormTimeoutRef = useRef<number | null>(null);
 
   const loadRoles = useCallback(async () => {
     setIsLoading(true);
@@ -173,12 +179,47 @@ export function RolesManagementView() {
     void loadDetailPermissions();
   }, [canManagePermissions, selectedRoleId]);
 
-  function resetEditForm() {
+  const resetEditForm = useCallback(() => {
     setEditingRole(null);
     setEditingName("");
     setEditingPermissions([]);
     setFormError(null);
-  }
+  }, []);
+
+  const clearCloseEditFormTimeout = useCallback(() => {
+    if (closeEditFormTimeoutRef.current) {
+      window.clearTimeout(closeEditFormTimeoutRef.current);
+      closeEditFormTimeoutRef.current = null;
+    }
+  }, []);
+
+  const openEditFormPanel = useCallback(() => {
+    clearCloseEditFormTimeout();
+    setIsEditFormMounted(true);
+    window.requestAnimationFrame(() => {
+      setIsEditFormVisible(true);
+    });
+  }, [clearCloseEditFormTimeout]);
+
+  const closeEditFormPanel = useCallback(
+    (shouldReset = true) => {
+      setIsEditFormVisible(false);
+      clearCloseEditFormTimeout();
+      closeEditFormTimeoutRef.current = window.setTimeout(() => {
+        setIsEditFormMounted(false);
+        if (shouldReset) {
+          resetEditForm();
+        }
+      }, FORM_ANIMATION_MS);
+    },
+    [clearCloseEditFormTimeout, resetEditForm],
+  );
+
+  useEffect(() => {
+    return () => {
+      clearCloseEditFormTimeout();
+    };
+  }, [clearCloseEditFormTimeout]);
 
   function toggleEditingPermission(permissionValue: string) {
     setEditingPermissions((currentPermissions) =>
@@ -203,6 +244,7 @@ export function RolesManagementView() {
 
     if (!canManagePermissions) {
       setEditingPermissions([]);
+      openEditFormPanel();
       return;
     }
 
@@ -211,14 +253,16 @@ export function RolesManagementView() {
       setEditingPermissions(
         rolePermissions.map((permissionItem) => permissionItem.claimValue)
       );
+      openEditFormPanel();
     } catch (loadError) {
       setFormError(
         loadError instanceof Error
           ? loadError.message
           : "No se pudieron cargar los permisos del rol."
       );
+      openEditFormPanel();
     }
-  }, [canManagePermissions]);
+  }, [canManagePermissions, openEditFormPanel]);
 
   async function handleSubmitEdit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -258,7 +302,7 @@ export function RolesManagementView() {
       setSelectedRoleId(editingRole.id);
       setSelectedRoleName(editingName.trim());
       setFormMessage("Rol actualizado correctamente.");
-      resetEditForm();
+      closeEditFormPanel(true);
       await loadRoles();
     } catch (saveError) {
       setFormError(
@@ -316,9 +360,12 @@ export function RolesManagementView() {
                 disabled={isDeletingRoleId === role.id}
                 className="app-button-danger rounded-xl px-3 py-2 text-xs font-medium disabled:opacity-60"
                 onClick={async () => {
-                  const confirmed = window.confirm(
-                    `Se eliminará el rol "${role.name}".`
-                  );
+                  const confirmed = await confirm({
+                    title: "Eliminar rol",
+                    description: `Se eliminara el rol "${role.name}".`,
+                    confirmLabel: "Eliminar",
+                    variant: "danger",
+                  });
 
                   if (!confirmed) {
                     return;
@@ -336,7 +383,7 @@ export function RolesManagementView() {
                       setSelectedRolePermissions([]);
                     }
                     if (editingRole?.id === role.id) {
-                      resetEditForm();
+                      closeEditFormPanel(true);
                     }
                     setFormMessage("Rol eliminado correctamente.");
                     await loadRoles();
@@ -358,7 +405,7 @@ export function RolesManagementView() {
         ),
       },
     ],
-    [canDeleteRole, canEditRole, editingRole?.id, handleEditRole, isDeletingRoleId, loadRoles, selectedRoleId]
+    [canDeleteRole, canEditRole, closeEditFormPanel, confirm, editingRole?.id, handleEditRole, isDeletingRoleId, loadRoles, selectedRoleId]
   );
 
   return (
@@ -413,92 +460,100 @@ export function RolesManagementView() {
         ) : null}
       </div>
 
-      {editingRole ? (
-        <form className="panel-card space-y-4" onSubmit={handleSubmitEdit}>
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-semibold text-[var(--foreground)]">
-                Editar rol
-              </h2>
-              <p className="text-sm text-[var(--muted)]">
-                Actualiza el nombre del rol y sus permisos.
-              </p>
+      {isEditFormMounted && editingRole ? (
+        <div
+          className={`origin-top overflow-hidden transition-all duration-500 ease-in-out ${
+            isEditFormVisible
+              ? "max-h-[1800px] translate-y-0 opacity-100"
+              : "pointer-events-none max-h-0 -translate-y-2 opacity-0"
+          }`}
+        >
+          <form className="panel-card space-y-4" onSubmit={handleSubmitEdit}>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-semibold text-[var(--foreground)]">
+                  Editar rol
+                </h2>
+                <p className="text-sm text-[var(--muted)]">
+                  Actualiza el nombre del rol y sus permisos.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="app-button-secondary rounded-xl px-3 py-2 text-sm"
+                onClick={() => closeEditFormPanel(true)}
+              >
+                Cerrar
+              </button>
             </div>
 
-            <button
-              type="button"
-              className="app-button-secondary rounded-xl px-3 py-2 text-sm"
-              onClick={resetEditForm}
-            >
-              Cerrar
-            </button>
-          </div>
+            <input
+              required
+              value={editingName}
+              onChange={(event) => setEditingName(event.target.value)}
+              placeholder="Nombre del rol"
+              className="app-input rounded-2xl px-4 py-3 text-sm"
+            />
 
-          <input
-            required
-            value={editingName}
-            onChange={(event) => setEditingName(event.target.value)}
-            placeholder="Nombre del rol"
-            className="app-input rounded-2xl px-4 py-3 text-sm"
-          />
-
-          {canManagePermissions ? (
-            catalogError ? (
-              <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
-                {catalogError}
-              </p>
-            ) : (
-              <div className="grid gap-4 xl:grid-cols-2">
-                {buildPermissionGroups(permissionsCatalog).map((group) => (
-                  <div
-                    key={group.label}
-                    className="app-card-muted rounded-3xl p-4"
-                  >
-                    <p className="mb-3 text-sm font-semibold text-[var(--foreground)]">
-                      {group.label}
-                    </p>
-                    <div className="space-y-3">
-                      {group.items.map((permissionValue) => (
-                        <label
-                          key={permissionValue}
-                          className="flex items-start gap-3 text-sm text-[var(--foreground)]"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={editingPermissions.includes(permissionValue)}
-                            onChange={() => toggleEditingPermission(permissionValue)}
-                            className="mt-1"
-                          />
-                          <span>{permissionValue}</span>
-                        </label>
-                      ))}
+            {canManagePermissions ? (
+              catalogError ? (
+                <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
+                  {catalogError}
+                </p>
+              ) : (
+                <div className="grid gap-4 xl:grid-cols-2">
+                  {buildPermissionGroups(permissionsCatalog).map((group) => (
+                    <div
+                      key={group.label}
+                      className="app-card-muted rounded-3xl p-4"
+                    >
+                      <p className="mb-3 text-sm font-semibold text-[var(--foreground)]">
+                        {group.label}
+                      </p>
+                      <div className="space-y-3">
+                        {group.items.map((permissionValue) => (
+                          <label
+                            key={permissionValue}
+                            className="flex items-start gap-3 text-sm text-[var(--foreground)]"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={editingPermissions.includes(permissionValue)}
+                              onChange={() => toggleEditingPermission(permissionValue)}
+                              className="mt-1"
+                            />
+                            <span>{permissionValue}</span>
+                          </label>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )
-          ) : (
-            <p className="app-card-muted rounded-2xl px-4 py-3 text-sm text-[var(--muted)]">
-              Tu usuario puede editar roles, pero no claims de permisos.
-            </p>
-          )}
+                  ))}
+                </div>
+              )
+            ) : (
+              <p className="app-card-muted rounded-2xl px-4 py-3 text-sm text-[var(--muted)]">
+                Tu usuario puede editar roles, pero no claims de permisos.
+              </p>
+            )}
 
-          {formError ? (
-            <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
-              {formError}
-            </p>
-          ) : null}
+            {formError ? (
+              <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
+                {formError}
+              </p>
+            ) : null}
 
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={isSaving}
-              className="app-button-primary rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
-            >
-              {isSaving ? "Guardando..." : "Guardar cambios"}
-            </button>
-          </div>
-        </form>
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="app-button-primary rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
+              >
+                {isSaving ? "Guardando..." : "Guardar cambios"}
+              </button>
+            </div>
+          </form>
+        </div>
       ) : null}
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.5fr)_minmax(320px,1fr)]">
@@ -566,3 +621,4 @@ export function RolesManagementView() {
     </section>
   );
 }
+

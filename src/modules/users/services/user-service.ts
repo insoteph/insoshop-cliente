@@ -99,3 +99,13 @@ export async function createUser(payload: CreateUserPayload) {
 
   return response.data;
 }
+
+export async function toggleUserStatus(
+  userId: string,
+  storeId?: number | null
+) {
+  return apiFetch(`/usuarios/${userId}`, {
+    method: "DELETE",
+    storeId: storeId ?? null,
+  });
+}

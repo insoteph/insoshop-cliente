@@ -13,6 +13,7 @@ import { TitleBar } from "@/modules/core/components/TitleBar";
 import { ProductsPanel } from "@/modules/products/components/ProductsPanel";
 import { SalesPanel } from "@/modules/sales/components/SalesPanel";
 import { StoreInfoPanel } from "@/modules/tiendas/components/StoreInfoPanel";
+import { StoreUsersTabPanel } from "@/modules/tiendas/components/StoreUsersTabPanel";
 import { fetchTiendaById } from "@/modules/tiendas/services/tiendas-service";
 import type { TiendaDetalle } from "@/modules/tiendas/types/tiendas-types";
 
@@ -79,10 +80,17 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
           currentUser?.tieneAccesoGlobal ||
           hasPermission(permissions.ventas.ver),
       },
+      {
+        id: "usuarios",
+        visible:
+          hasPermission(permissions.tiendas.verUsuarios) &&
+          (currentUser?.tieneAccesoGlobal ||
+            Boolean(currentUser?.tiendas.some((tienda) => tienda.id === storeId))),
+      },
     ];
 
     return availableTabs.filter((tab) => tab.visible).map((tab) => tab.id);
-  }, [currentUser?.tieneAccesoGlobal, hasPermission]);
+  }, [currentUser?.tiendas, currentUser?.tieneAccesoGlobal, hasPermission, storeId]);
 
   useEffect(() => {
     if (!visibleTabs.includes(activeTab)) {
@@ -151,6 +159,10 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
 
           {activeTab === "ventas" ? (
             <SalesPanel storeId={storeId} currency={store.moneda} />
+          ) : null}
+
+          {activeTab === "usuarios" ? (
+            <StoreUsersTabPanel storeId={storeId} />
           ) : null}
         </div>
       </div>
