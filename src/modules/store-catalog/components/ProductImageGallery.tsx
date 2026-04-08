@@ -23,16 +23,16 @@ export function ProductImageGallery({
 
   if (!activeImage) {
     return (
-      <div className="app-card-muted flex h-[420px] items-center justify-center rounded-3xl border border-dashed border-[var(--line)] text-sm text-[var(--muted)]">
+      <div className="app-card-muted flex h-[460px] items-center justify-center rounded-3xl border border-dashed border-[var(--line)] text-sm text-[var(--muted)]">
         Imagenes no disponibles
       </div>
     );
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div
-        className="relative h-[420px] overflow-hidden rounded-3xl border border-[var(--line)] bg-[var(--panel-muted)]"
+        className="relative h-[460px] overflow-hidden rounded-3xl border border-[var(--line)] bg-[var(--panel-muted)]"
         onMouseEnter={() => setIsZooming(true)}
         onMouseLeave={() => {
           setIsZooming(false);
@@ -62,7 +62,7 @@ export function ProductImageGallery({
             <button
               key={`${imageUrl}-${index}`}
               type="button"
-              className={`relative h-20 overflow-hidden rounded-xl border ${
+              className={`relative h-24 overflow-hidden rounded-xl border ${
                 activeIndex === index
                   ? "border-[var(--accent)]"
                   : "border-[var(--line)]"

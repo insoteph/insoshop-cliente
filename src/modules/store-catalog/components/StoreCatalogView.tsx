@@ -2,8 +2,15 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { StoreCartButton } from "@/modules/store-catalog/components/StoreCartButton";
 import { StoreCatalogFilters } from "@/modules/store-catalog/components/StoreCatalogFilters";
+import { StoreCatalogFooter } from "@/modules/store-catalog/components/StoreCatalogFooter";
 import { StoreProductCard } from "@/modules/store-catalog/components/StoreProductCard";
+import { FloatingWhatsAppButton } from "@/modules/store-catalog/components/FloatingWhatsAppButton";
+import {
+  StoreCartProvider,
+  useStoreCart,
+} from "@/modules/store-catalog/providers/StoreCartProvider";
 import {
   fetchPublicStoreCategories,
   fetchPublicStoreProducts,
@@ -18,7 +25,8 @@ type StoreCatalogViewProps = {
   slug: string;
 };
 
-export function StoreCatalogView({ slug }: StoreCatalogViewProps) {
+function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
+  const { totalItems } = useStoreCart();
   const [store, setStore] = useState<PublicStoreSummary | null>(null);
   const [products, setProducts] = useState<PublicStoreProduct[]>([]);
   const [categories, setCategories] = useState<PublicStoreCategory[]>([]);
@@ -82,25 +90,14 @@ export function StoreCatalogView({ slug }: StoreCatalogViewProps) {
     () => `Pagina ${page} de ${Math.max(totalPages, 1)}`,
     [page, totalPages],
   );
-  const whatsappHref = useMemo(() => {
-    const phone = store?.telefono ?? "";
-    const digitsOnly = phone.replace(/\D+/g, "");
-    if (!digitsOnly) {
-      return null;
-    }
-
-    return `https://wa.me/${digitsOnly}`;
-  }, [store?.telefono]);
 
   return (
-    <main className="min-h-screen bg-[var(--background)] px-4 py-8 md:px-8 lg:px-12">
-      <section className="mx-auto w-full max-w-7xl space-y-6">
-        <header className="relative overflow-hidden rounded-3xl border border-[var(--line)] bg-[var(--panel-strong)] p-6 shadow-[var(--shadow)]">
-          <div className="absolute -right-12 -top-12 h-48 w-48 rounded-full bg-[var(--accent-soft)] blur-2xl" />
-
-          <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-4">
-              <div className="h-16 w-16 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)]">
+    <main className="min-h-screen bg-[var(--background)] px-4 py-6 md:px-8 lg:px-12 lg:py-8">
+      <section className="mx-auto w-full max-w-7xl space-y-5">
+        <header className="app-card rounded-3xl p-4 md:p-5">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-14 w-14 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)]">
                 {store?.logoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -121,139 +118,115 @@ export function StoreCatalogView({ slug }: StoreCatalogViewProps) {
                 <p className="text-sm text-[var(--muted)]">/{slug}</p>
               </div>
             </div>
+
+            <StoreCartButton slug={slug} totalItems={totalItems} />
           </div>
         </header>
 
-        <div className="sticky top-3 z-30">
-          <StoreCatalogFilters
-            search={search}
-            onSearchChange={(value) => {
-              setPage(1);
-              setSearch(value);
-            }}
-            categories={categories}
-            selectedCategoryId={selectedCategoryId}
-            onCategoryChange={(value) => {
-              setPage(1);
-              setSelectedCategoryId(value);
-            }}
-          />
+        <div className="grid items-start gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
+          <aside className="lg:sticky lg:top-3">
+            <StoreCatalogFilters
+              search={search}
+              onSearchChange={(value) => {
+                setPage(1);
+                setSearch(value);
+              }}
+              categories={categories}
+              selectedCategoryId={selectedCategoryId}
+              onCategoryChange={(value) => {
+                setPage(1);
+                setSelectedCategoryId(value);
+              }}
+            />
+          </aside>
+
+          <section className="space-y-4">
+            <div className="app-card sticky top-3 z-20 rounded-2xl px-4 py-3">
+              <p className="text-sm font-medium text-[var(--foreground)]">
+                {totalRecords > 0
+                  ? "Explora el catalogo y elige tus productos."
+                  : "Sin resultados para los filtros actuales"}
+              </p>
+            </div>
+
+            {error ? (
+              <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">{error}</p>
+            ) : null}
+
+            {isLoading ? (
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {Array.from({ length: 9 }).map((_, index) => (
+                  <div
+                    key={`catalog-skeleton-${index}`}
+                    className="app-card data-table-skeleton h-80 rounded-3xl"
+                  />
+                ))}
+              </div>
+            ) : products.length > 0 ? (
+              <>
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {products.map((product) => (
+                    <StoreProductCard
+                      key={product.id}
+                      slug={slug}
+                      product={product}
+                      currency={store?.moneda ?? "HNL"}
+                    />
+                  ))}
+                </div>
+
+                <div className="app-card flex flex-col items-center justify-between gap-3 rounded-2xl px-4 py-3 md:flex-row">
+                  <p className="text-sm text-[var(--foreground)]">{pageLabel}</p>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setPage((current) => Math.max(current - 1, 1))}
+                      disabled={page <= 1}
+                      className="app-button-secondary rounded-xl px-3 py-2 text-sm font-medium disabled:opacity-50"
+                    >
+                      Anterior
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setPage((current) =>
+                          current >= totalPages ? current : current + 1,
+                        )
+                      }
+                      disabled={page >= totalPages}
+                      className="app-button-secondary rounded-xl px-3 py-2 text-sm font-medium disabled:opacity-50"
+                    >
+                      Siguiente
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="app-card rounded-3xl px-4 py-14 text-center">
+                <p className="text-lg font-semibold text-[var(--foreground)]">
+                  No hay productos para mostrar.
+                </p>
+                <p className="mt-2 text-sm text-[var(--muted)]">
+                  Prueba cambiar la categoria o el texto de busqueda.
+                </p>
+              </div>
+            )}
+          </section>
         </div>
 
-        {error ? (
-          <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">{error}</p>
-        ) : null}
-
-        {isLoading ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, index) => (
-              <div
-                key={`catalog-skeleton-${index}`}
-                className="app-card data-table-skeleton h-80 rounded-3xl"
-              />
-            ))}
-          </div>
-        ) : products.length > 0 ? (
-          <>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {products.map((product) => (
-                <StoreProductCard
-                  key={product.id}
-                  slug={slug}
-                  product={product}
-                  currency={store?.moneda ?? "HNL"}
-                />
-              ))}
-            </div>
-
-            <div className="flex flex-col items-center justify-between gap-3 rounded-2xl border border-[var(--line)] bg-[var(--panel)] px-4 py-3 md:flex-row">
-              <p className="text-sm text-[var(--foreground)]">{pageLabel}</p>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setPage((current) => Math.max(current - 1, 1))}
-                  disabled={page <= 1}
-                  className="app-button-secondary rounded-xl px-3 py-2 text-sm font-medium disabled:opacity-50"
-                >
-                  Anterior
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setPage((current) =>
-                      current >= totalPages ? current : current + 1,
-                    )
-                  }
-                  disabled={page >= totalPages}
-                  className="app-button-secondary rounded-xl px-3 py-2 text-sm font-medium disabled:opacity-50"
-                >
-                  Siguiente
-                </button>
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="app-card rounded-3xl px-4 py-14 text-center">
-            <p className="text-lg font-semibold text-[var(--foreground)]">
-              No hay productos para mostrar.
-            </p>
-            <p className="mt-2 text-sm text-[var(--muted)]">
-              Prueba cambiar la categoria o el texto de busqueda.
-            </p>
-          </div>
-        )}
-
-        <footer className="mt-10 rounded-3xl border border-[var(--line)] bg-[var(--panel)] px-5 py-4">
-          <div className="flex flex-col gap-3 text-sm text-[var(--muted)] md:flex-row md:items-center md:justify-between">
-            <p>
-              Sitio web desarrollado por{" "}
-              <a
-                href="https://insoteph.com"
-                target="_blank"
-                rel="noreferrer"
-                className="font-semibold text-[var(--accent)] hover:underline"
-              >
-                Insoteph
-              </a>
-            </p>
-
-            <div className="flex items-center gap-2">
-              <a
-                href="#"
-                className="app-button-secondary rounded-full px-3 py-2 text-xs font-semibold"
-              >
-                Facebook
-              </a>
-              <a
-                href="#"
-                className="app-button-secondary rounded-full px-3 py-2 text-xs font-semibold"
-              >
-                Instagram
-              </a>
-              <a
-                href="#"
-                className="app-button-secondary rounded-full px-3 py-2 text-xs font-semibold"
-              >
-                TikTok
-              </a>
-            </div>
-          </div>
-        </footer>
+        <StoreCatalogFooter />
       </section>
 
-      {whatsappHref ? (
-        <a
-          href={whatsappHref}
-          target="_blank"
-          rel="noreferrer"
-          className="fixed bottom-5 right-5 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full border border-[#1f9c59] bg-[#25d366] text-white shadow-xl transition-transform hover:scale-105"
-          aria-label="Contactar por WhatsApp"
-          title="Contactar por WhatsApp"
-        >
-          WA
-        </a>
-      ) : null}
+      <FloatingWhatsAppButton phone={store?.telefono} />
     </main>
+  );
+}
+
+export function StoreCatalogView({ slug }: StoreCatalogViewProps) {
+  return (
+    <StoreCartProvider slug={slug}>
+      <StoreCatalogContent slug={slug} />
+    </StoreCartProvider>
   );
 }

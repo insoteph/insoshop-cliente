@@ -2,27 +2,41 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { formatCurrency } from "@/modules/core/lib/formatters";
+import { FloatingWhatsAppButton } from "@/modules/store-catalog/components/FloatingWhatsAppButton";
 import { ProductImageGallery } from "@/modules/store-catalog/components/ProductImageGallery";
+import { RelatedProductsSection } from "@/modules/store-catalog/components/RelatedProductsSection";
+import { StoreCartButton } from "@/modules/store-catalog/components/StoreCartButton";
+import { StoreCatalogFooter } from "@/modules/store-catalog/components/StoreCatalogFooter";
+import {
+  StoreCartProvider,
+  useStoreCart,
+} from "@/modules/store-catalog/providers/StoreCartProvider";
 import {
   fetchPublicStoreProductById,
   fetchPublicStoreProducts,
 } from "@/modules/store-catalog/services/store-catalog-service";
-import type { PublicStoreProduct } from "@/modules/store-catalog/types/store-catalog-types";
+import type {
+  PublicStoreProduct,
+  PublicStoreSummary,
+} from "@/modules/store-catalog/types/store-catalog-types";
 
 type ProductDetailViewProps = {
   slug: string;
   productId: number;
 };
 
-export function ProductDetailView({ slug, productId }: ProductDetailViewProps) {
+function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
+  const router = useRouter();
+  const { addItem, totalItems } = useStoreCart();
   const [product, setProduct] = useState<PublicStoreProduct | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [note, setNote] = useState<string | null>(null);
   const [currency, setCurrency] = useState("HNL");
+  const [store, setStore] = useState<PublicStoreSummary | null>(null);
 
   const loadProduct = useCallback(async () => {
     setIsLoading(true);
@@ -34,6 +48,7 @@ export function ProductDetailView({ slug, productId }: ProductDetailViewProps) {
         fetchPublicStoreProducts({ slug, page: 1, pageSize: 1 }),
       ]);
       setProduct(productResult);
+      setStore(catalogResult.tienda);
       setCurrency(catalogResult.tienda.moneda || "HNL");
       setQuantity(productResult.cantidadDisponible > 0 ? 1 : 0);
     } catch (loadError) {
@@ -84,24 +99,28 @@ export function ProductDetailView({ slug, productId }: ProductDetailViewProps) {
 
   return (
     <main className="min-h-screen bg-[var(--background)] px-4 py-8 md:px-8 lg:px-12">
-      <section className="mx-auto w-full max-w-6xl space-y-5">
-        <Link
-          href={`/${encodeURIComponent(slug)}`}
-          className="inline-flex rounded-xl border border-[var(--line)] bg-[var(--panel)] px-3 py-2 text-sm text-[var(--foreground)]"
-        >
-          Volver al catalogo
-        </Link>
+      <section className="mx-auto w-full max-w-7xl space-y-5">
+        <header className="app-card flex items-center justify-between gap-3 rounded-2xl px-4 py-3">
+          <Link
+            href={`/${encodeURIComponent(slug)}`}
+            className="app-button-secondary rounded-xl px-3 py-2 text-sm font-medium"
+          >
+            Volver al catalogo
+          </Link>
 
-        <div className="grid gap-6 rounded-3xl border border-[var(--line)] bg-[var(--panel)] p-5 shadow-[var(--shadow)] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+          <StoreCartButton slug={slug} totalItems={totalItems} />
+        </header>
+
+        <div className="app-card grid gap-6 rounded-3xl p-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
           <ProductImageGallery
             productName={product.nombre}
             imageUrls={product.imagenes}
           />
 
           <div className="space-y-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+            <span className="app-badge-neutral w-fit rounded-full px-3 py-1 text-xs font-semibold">
               {product.categoria}
-            </p>
+            </span>
             <h1 className="text-3xl font-bold text-[var(--foreground-strong)]">
               {product.nombre}
             </h1>
@@ -159,7 +178,17 @@ export function ProductDetailView({ slug, productId }: ProductDetailViewProps) {
                 type="button"
                 disabled={isOutOfStock}
                 className="app-button-secondary rounded-xl px-4 py-3 text-sm font-semibold disabled:opacity-50"
-                onClick={() => setNote("Carrito en construccion. Esta accion quedo provisional.")}
+                onClick={() =>
+                  addItem({
+                    productId: product.id,
+                    nombre: product.nombre,
+                    precio: product.precio,
+                    cantidad: quantity,
+                    cantidadDisponible: product.cantidadDisponible,
+                    categoria: product.categoria,
+                    imagenUrl: product.imagenes[0]?.trim() || null,
+                  })
+                }
               >
                 Agregar al carrito
               </button>
@@ -167,22 +196,44 @@ export function ProductDetailView({ slug, productId }: ProductDetailViewProps) {
                 type="button"
                 disabled={isOutOfStock}
                 className="app-button-primary rounded-xl px-4 py-3 text-sm font-semibold disabled:opacity-50"
-                onClick={() =>
-                  setNote("Compra directa en construccion. Esta accion quedo provisional.")
-                }
+                onClick={() => {
+                  addItem({
+                    productId: product.id,
+                    nombre: product.nombre,
+                    precio: product.precio,
+                    cantidad: quantity,
+                    cantidadDisponible: product.cantidadDisponible,
+                    categoria: product.categoria,
+                    imagenUrl: product.imagenes[0]?.trim() || null,
+                  });
+                  router.push(`/${encodeURIComponent(slug)}/carrito`);
+                }}
               >
                 Comprar ahora
               </button>
             </div>
-
-            {note ? (
-              <p className="app-alert-warning rounded-2xl px-4 py-3 text-sm">
-                {note}
-              </p>
-            ) : null}
           </div>
         </div>
+
+        <RelatedProductsSection
+          slug={slug}
+          categoryName={product.categoria}
+          currentProductId={product.id}
+          currency={currency}
+        />
+
+        <StoreCatalogFooter />
       </section>
+
+      <FloatingWhatsAppButton phone={store?.telefono} />
     </main>
+  );
+}
+
+export function ProductDetailView({ slug, productId }: ProductDetailViewProps) {
+  return (
+    <StoreCartProvider slug={slug}>
+      <ProductDetailContent slug={slug} productId={productId} />
+    </StoreCartProvider>
   );
 }

@@ -19,41 +19,51 @@ export function StoreCatalogFilters({
   onCategoryChange,
 }: StoreCatalogFiltersProps) {
   return (
-    <section className="space-y-4 rounded-3xl border border-[var(--line)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
-      <SearchBar
-        value={search}
-        onChange={onSearchChange}
-        placeholder="Buscar productos por nombre o descripcion"
-        ariaLabel="Buscar productos"
-      />
+    <section className="app-card space-y-5 rounded-3xl p-4 md:p-5">
+      <div className="space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+          Busqueda
+        </p>
+        <SearchBar
+          value={search}
+          onChange={onSearchChange}
+          placeholder="Buscar productos"
+          ariaLabel="Buscar productos"
+        />
+      </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+          Categorias
+        </p>
         <button
           type="button"
           onClick={() => onCategoryChange(null)}
-          className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
+          className={`flex w-full items-center justify-start rounded-xl border px-3 py-2.5 text-sm font-medium transition ${
             selectedCategoryId === null
               ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--foreground-strong)]"
-              : "border-[var(--line)] bg-[var(--panel-strong)] text-[var(--muted)] hover:border-[var(--line-strong)]"
+              : "border-[var(--line)] bg-[var(--panel-strong)] text-[var(--foreground)] hover:border-[var(--line-strong)]"
           }`}
         >
           Todas
         </button>
 
-        {categories.map((category) => (
-          <button
-            key={category.id}
-            type="button"
-            onClick={() => onCategoryChange(category.id)}
-            className={`rounded-full border px-4 py-2 text-sm font-medium transition ${
-              selectedCategoryId === category.id
-                ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--foreground-strong)]"
-                : "border-[var(--line)] bg-[var(--panel-strong)] text-[var(--muted)] hover:border-[var(--line-strong)]"
-            }`}
-          >
-            {category.nombre}
-          </button>
-        ))}
+        <div className="max-h-[340px] space-y-2 overflow-y-auto pr-1">
+          {categories.map((category) => (
+            <button
+              key={category.id}
+              type="button"
+              onClick={() => onCategoryChange(category.id)}
+              className={`flex w-full items-center justify-start rounded-xl border px-3 py-2.5 text-sm font-medium transition ${
+                selectedCategoryId === category.id
+                  ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--foreground-strong)]"
+                  : "border-[var(--line)] bg-[var(--panel-strong)] text-[var(--foreground)] hover:border-[var(--line-strong)]"
+              }`}
+            >
+              {category.nombre}
+            </button>
+          ))}
+        </div>
       </div>
     </section>
   );
