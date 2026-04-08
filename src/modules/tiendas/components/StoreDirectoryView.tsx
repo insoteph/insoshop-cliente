@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   DataTable,
@@ -19,9 +19,24 @@ import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDial
 import { formatDate } from "@/modules/core/lib/formatters";
 import {
   fetchTiendas,
+  createTienda,
   toggleTiendaStatus,
 } from "@/modules/tiendas/services/tiendas-service";
+import {
+  StoreCreateFormPanel,
+  type StoreCreateFormState,
+} from "@/modules/tiendas/components/StoreCreateFormPanel";
 import type { Tienda } from "@/modules/tiendas/types/tiendas-types";
+
+const INITIAL_CREATE_FORM: StoreCreateFormState = {
+  nombre: "",
+  codigoPais: "+504",
+  numeroTelefono: "",
+  moneda: "L",
+  logoUrl: "",
+  estado: true,
+};
+const FORM_ANIMATION_MS = 500;
 
 export function StoreDirectoryView() {
   const router = useRouter();
@@ -35,6 +50,13 @@ export function StoreDirectoryView() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const [createFormError, setCreateFormError] = useState<string | null>(null);
+  const [createForm, setCreateForm] =
+    useState<StoreCreateFormState>(INITIAL_CREATE_FORM);
+  const [isCreateFormMounted, setIsCreateFormMounted] = useState(false);
+  const [isCreateFormVisible, setIsCreateFormVisible] = useState(false);
+  const closeCreateFormTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -73,6 +95,46 @@ export function StoreDirectoryView() {
   useEffect(() => {
     void loadStores();
   }, [loadStores]);
+
+  const resetCreateForm = useCallback(() => {
+    setCreateForm(INITIAL_CREATE_FORM);
+    setCreateFormError(null);
+  }, []);
+
+  const clearCloseCreateFormTimeout = useCallback(() => {
+    if (closeCreateFormTimeoutRef.current) {
+      window.clearTimeout(closeCreateFormTimeoutRef.current);
+      closeCreateFormTimeoutRef.current = null;
+    }
+  }, []);
+
+  const openCreateFormPanel = useCallback(() => {
+    clearCloseCreateFormTimeout();
+    setIsCreateFormMounted(true);
+    window.requestAnimationFrame(() => {
+      setIsCreateFormVisible(true);
+    });
+  }, [clearCloseCreateFormTimeout]);
+
+  const closeCreateFormPanel = useCallback(
+    (shouldReset = true) => {
+      setIsCreateFormVisible(false);
+      clearCloseCreateFormTimeout();
+      closeCreateFormTimeoutRef.current = window.setTimeout(() => {
+        setIsCreateFormMounted(false);
+        if (shouldReset) {
+          resetCreateForm();
+        }
+      }, FORM_ANIMATION_MS);
+    },
+    [clearCloseCreateFormTimeout, resetCreateForm],
+  );
+
+  useEffect(() => {
+    return () => {
+      clearCloseCreateFormTimeout();
+    };
+  }, [clearCloseCreateFormTimeout]);
 
   const handleToggleStoreStatus = useCallback(
     async (store: Tienda) => {
@@ -182,6 +244,12 @@ export function StoreDirectoryView() {
       },
       dropdownOptions: [
         {
+          label: "Ver catalogo",
+          onClick: (store) => {
+            router.push(`/${store.slug}`);
+          },
+        },
+        {
           label: (store) => (store.estado ? "Inactivar" : "Activar"),
           onClick: handleToggleStoreStatus,
         },
@@ -190,17 +258,63 @@ export function StoreDirectoryView() {
     [handleToggleStoreStatus, router],
   );
 
+  const handleCreateStore = useCallback(
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+      setCreateFormError(null);
+
+      const phoneNumber = createForm.numeroTelefono.replace(/\s+/g, "").trim();
+      const countryCode = createForm.codigoPais.trim();
+
+      if (!phoneNumber) {
+        setCreateFormError("Debes ingresar un numero telefonico.");
+        return;
+      }
+
+      if (!countryCode.startsWith("+")) {
+        setCreateFormError("El codigo de pais debe incluir el prefijo +.");
+        return;
+      }
+
+      setIsCreating(true);
+
+      try {
+        await createTienda({
+          nombre: createForm.nombre.trim(),
+          telefono: `${countryCode}${phoneNumber}`,
+          moneda: createForm.moneda.trim(),
+          logoUrl: createForm.logoUrl.trim(),
+          estado: createForm.estado,
+        });
+
+        closeCreateFormPanel(true);
+        setPage(1);
+        await loadStores();
+      } catch (saveError) {
+        setCreateFormError(
+          saveError instanceof Error
+            ? saveError.message
+            : "No se pudo crear la tienda.",
+        );
+      } finally {
+        setIsCreating(false);
+      }
+    },
+    [closeCreateFormPanel, createForm, loadStores],
+  );
+
   const toolbarActions = useMemo<DataTableToolbarAction[]>(
     () => [
       {
         label: "Nueva Tienda",
         iconPath: "/icons/plus.svg",
         onClick: () => {
-          window.alert("Nueva");
+          resetCreateForm();
+          openCreateFormPanel();
         },
       },
     ],
-    [],
+    [openCreateFormPanel, resetCreateForm],
   );
 
   return (
@@ -229,6 +343,35 @@ export function StoreDirectoryView() {
           </p>
         ) : null}
       </div>
+
+      {isCreateFormMounted ? (
+        <StoreCreateFormPanel
+          isVisible={isCreateFormVisible}
+          form={createForm}
+          isSaving={isCreating}
+          formError={createFormError}
+          onSubmit={handleCreateStore}
+          onClose={() => closeCreateFormPanel(true)}
+          onNombreChange={(value) =>
+            setCreateForm((current) => ({ ...current, nombre: value }))
+          }
+          onCodigoPaisChange={(value) =>
+            setCreateForm((current) => ({ ...current, codigoPais: value }))
+          }
+          onNumeroTelefonoChange={(value) =>
+            setCreateForm((current) => ({ ...current, numeroTelefono: value }))
+          }
+          onMonedaChange={(value) =>
+            setCreateForm((current) => ({ ...current, moneda: value }))
+          }
+          onLogoUrlChange={(value) =>
+            setCreateForm((current) => ({ ...current, logoUrl: value }))
+          }
+          onEstadoChange={(value) =>
+            setCreateForm((current) => ({ ...current, estado: value }))
+          }
+        />
+      ) : null}
 
       <div className="app-card rounded-2xl py-5">
         <DataTableToolbar

@@ -71,6 +71,19 @@ export async function updateTiendaApi(
   });
 }
 
+export async function createTiendaApi(payload: {
+  nombre: string;
+  telefono: string;
+  moneda: string;
+  logoUrl: string;
+  estado: boolean;
+}) {
+  return apiFetch("/tiendas", {
+    method: "POST",
+    body: payload,
+  });
+}
+
 export async function fetchTiendaUsuariosApi(
   tiendaId: number,
   params: TiendaUsuariosQueryParams = {}

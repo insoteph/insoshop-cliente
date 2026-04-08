@@ -1,5 +1,6 @@
 import {
   assignUsuarioTiendaApi,
+  createTiendaApi,
   fetchTiendaByIdApi,
   fetchTiendaUsuariosApi,
   fetchTiendasApi,
@@ -19,6 +20,16 @@ export async function fetchTiendas(params: TiendasQueryParams = {}) {
 export async function fetchTiendaById(tiendaId: number) {
   const response = await fetchTiendaByIdApi(tiendaId);
   return response.data;
+}
+
+export async function createTienda(payload: {
+  nombre: string;
+  telefono: string;
+  moneda: string;
+  logoUrl: string;
+  estado: boolean;
+}) {
+  return createTiendaApi(payload);
 }
 
 export async function updateTienda(

@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 
 import { StoreCatalogView } from "@/modules/store-catalog/components/StoreCatalogView";
 
-export default function SlugPage() {
+export default function StoreSlugAliasPage() {
   const params = useParams<{ slug: string }>();
   const slug = params.slug?.trim();
 
