@@ -260,7 +260,6 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
 
       <StoreCatalogFooter
         storeName={store?.nombre}
-        slug={slug}
         phone={store?.telefono}
       />
     </>

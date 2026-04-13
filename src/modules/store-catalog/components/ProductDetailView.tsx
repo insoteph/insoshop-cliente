@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import type { CSSProperties } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { formatCurrency } from "@/modules/core/lib/formatters";
 import { FloatingWhatsAppButton } from "@/modules/store-catalog/components/FloatingWhatsAppButton";
@@ -11,6 +10,18 @@ import { ProductImageGallery } from "@/modules/store-catalog/components/ProductI
 import { RelatedProductsSection } from "@/modules/store-catalog/components/RelatedProductsSection";
 import { StoreCartButton } from "@/modules/store-catalog/components/StoreCartButton";
 import { StoreCatalogFooter } from "@/modules/store-catalog/components/StoreCatalogFooter";
+import { StoreCatalogThemeToggle } from "@/modules/store-catalog/components/StoreCatalogThemeToggle";
+import {
+  readStoreCatalogTheme,
+  writeStoreCatalogTheme,
+  type StoreCatalogTheme,
+} from "@/modules/store-catalog/lib/store-catalog-theme-storage";
+import { storeCatalogThemeTokens } from "@/modules/store-catalog/lib/store-catalog-theme-tokens";
+import {
+  readStoreFavorites,
+  writeStoreFavorites,
+  type StoreFavoriteProduct,
+} from "@/modules/store-catalog/lib/store-favorites-storage";
 import {
   StoreCartProvider,
   useStoreCart,
@@ -29,38 +40,52 @@ type ProductDetailViewProps = {
   productId: number;
 };
 
-const lightCatalogTheme = {
-  "--background": "#f3f0ea",
-  "--background-soft": "#fbf7f1",
-  "--foreground": "#2c241b",
-  "--foreground-strong": "#1b160f",
-  "--panel": "rgba(255, 251, 245, 0.94)",
-  "--panel-muted": "rgba(243, 235, 223, 0.92)",
-  "--panel-strong": "rgba(255, 255, 255, 0.98)",
-  "--line": "rgba(92, 74, 51, 0.12)",
-  "--line-strong": "rgba(143, 118, 84, 0.28)",
-  "--muted": "#726553",
-  "--accent": "#1f1912",
-  "--accent-strong": "#16110b",
-  "--accent-soft": "rgba(31, 25, 18, 0.08)",
-  "--success": "#227447",
-  "--success-soft": "rgba(34, 116, 71, 0.12)",
-  "--danger": "#b54235",
-  "--danger-soft": "rgba(181, 66, 53, 0.12)",
-  "--warning": "#a56a1f",
-  "--warning-soft": "rgba(165, 106, 31, 0.12)",
-  "--shadow": "0 24px 60px rgba(35, 28, 20, 0.08)",
-} as CSSProperties;
+function toFavoriteProduct(product: PublicStoreProduct): StoreFavoriteProduct {
+  return {
+    id: product.id,
+    nombre: product.nombre,
+    categoria: product.categoria,
+    precio: product.precio,
+    cantidadDisponible: product.cantidadDisponible,
+    imagenUrl: product.imagenes[0]?.trim() || null,
+  };
+}
 
 function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
   const router = useRouter();
   const { addItem, totalItems } = useStoreCart();
+  const [theme, setTheme] = useState<StoreCatalogTheme>("light");
   const [product, setProduct] = useState<PublicStoreProduct | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currency, setCurrency] = useState("HNL");
   const [store, setStore] = useState<PublicStoreSummary | null>(null);
+  const [favoriteItems, setFavoriteItems] = useState<StoreFavoriteProduct[]>([]);
+  const [favoritesLoadedSlug, setFavoritesLoadedSlug] = useState<string | null>(
+    null,
+  );
+
+  useEffect(() => {
+    setTheme(readStoreCatalogTheme());
+  }, []);
+
+  useEffect(() => {
+    writeStoreCatalogTheme(theme);
+  }, [theme]);
+
+  useEffect(() => {
+    setFavoriteItems(readStoreFavorites(slug));
+    setFavoritesLoadedSlug(slug);
+  }, [slug]);
+
+  useEffect(() => {
+    if (favoritesLoadedSlug !== slug) {
+      return;
+    }
+
+    writeStoreFavorites(slug, favoriteItems);
+  }, [favoriteItems, favoritesLoadedSlug, slug]);
 
   const loadProduct = useCallback(async () => {
     setIsLoading(true);
@@ -90,17 +115,35 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
     void loadProduct();
   }, [loadProduct]);
 
+  const favoriteIds = useMemo(
+    () => new Set(favoriteItems.map((item) => item.id)),
+    [favoriteItems],
+  );
   const maxQuantity = useMemo(() => product?.cantidadDisponible ?? 0, [product]);
   const isOutOfStock = maxQuantity <= 0;
+  const isFavorite = product ? favoriteIds.has(product.id) : false;
+
+  const handleToggleFavorite = useCallback((targetProduct: PublicStoreProduct) => {
+    const favorite = toFavoriteProduct(targetProduct);
+
+    setFavoriteItems((currentItems) => {
+      const exists = currentItems.some((item) => item.id === favorite.id);
+      if (exists) {
+        return currentItems.filter((item) => item.id !== favorite.id);
+      }
+
+      return [favorite, ...currentItems];
+    });
+  }, []);
 
   if (isLoading) {
     return (
       <main
-        className="min-h-screen bg-[#f3f0ea] px-4 py-8 md:px-8 lg:px-12"
-        style={lightCatalogTheme}
+        className="min-h-screen bg-[var(--background)] px-4 py-8 md:px-8 lg:px-12"
+        style={storeCatalogThemeTokens[theme]}
       >
         <div className="mx-auto max-w-6xl">
-          <div className="h-[560px] rounded-[32px] border border-[#e4d9cb] bg-white/80" />
+          <div className="h-[560px] rounded-[32px] border border-[var(--line)] bg-[var(--panel-strong)]" />
         </div>
       </main>
     );
@@ -109,17 +152,17 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
   if (error || !product) {
     return (
       <main
-        className="min-h-screen bg-[#f3f0ea] px-4 py-8 md:px-8 lg:px-12"
-        style={lightCatalogTheme}
+        className="min-h-screen bg-[var(--background)] px-4 py-8 md:px-8 lg:px-12"
+        style={storeCatalogThemeTokens[theme]}
       >
         <div className="mx-auto max-w-3xl space-y-4">
           <Link
             href={`/${encodeURIComponent(slug)}`}
-            className="inline-flex rounded-2xl border border-[#d8cbb9] bg-white px-4 py-2.5 text-sm font-semibold text-[#1f1912]"
+            className="inline-flex rounded-2xl border border-[var(--line)] bg-[var(--panel-strong)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)]"
           >
             Volver al catalogo
           </Link>
-          <p className="rounded-2xl border border-[#f0c8c4] bg-[#fff1ef] px-4 py-3 text-sm text-[#9d3d34]">
+          <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
             {error ?? "No se encontro el producto solicitado."}
           </p>
         </div>
@@ -128,73 +171,103 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
   }
 
   return (
-    <>
-      <main
-        className="min-h-screen bg-[#f3f0ea] px-4 py-8 md:px-8 lg:px-12"
-        style={lightCatalogTheme}
-      >
+    <div className="bg-[var(--background)]" style={storeCatalogThemeTokens[theme]}>
+      <main className="min-h-screen bg-[var(--background)] px-4 py-8 md:px-8 lg:px-12">
         <section className="mx-auto w-full max-w-7xl space-y-5">
-          <header className="flex items-center justify-between gap-3 rounded-[28px] border border-[#e7ddcf] bg-[#fbf8f2] px-4 py-3 shadow-[0_16px_36px_rgba(40,32,23,0.06)]">
+          <header className="flex flex-wrap items-center justify-between gap-3 rounded-[28px] border border-[var(--line)] bg-[var(--panel-strong)] px-4 py-3 shadow-[var(--shadow)]">
             <Link
               href={`/${encodeURIComponent(slug)}`}
-              className="inline-flex rounded-2xl border border-[#d8cbb9] bg-white px-4 py-2.5 text-sm font-semibold text-[#1f1912]"
+              className="inline-flex rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)]"
             >
               Volver al catalogo
             </Link>
 
-            <StoreCartButton slug={slug} totalItems={totalItems} />
+            <div className="flex flex-wrap items-center gap-2">
+              <StoreCatalogThemeToggle
+                theme={theme}
+                onToggle={() =>
+                  setTheme((current) => (current === "dark" ? "light" : "dark"))
+                }
+              />
+              <StoreCartButton slug={slug} totalItems={totalItems} />
+            </div>
           </header>
 
-          <div className="grid gap-6 rounded-[34px] border border-[#e7ddcf] bg-[#fbf7f1] p-5 shadow-[0_24px_60px_rgba(35,28,20,0.08)] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+          <div className="grid gap-6 rounded-[34px] border border-[var(--line)] bg-[var(--panel)] p-5 shadow-[var(--shadow)] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
             <ProductImageGallery
               productName={product.nombre}
               imageUrls={product.imagenes}
             />
 
-            <div className="space-y-5 rounded-[28px] bg-white/78 p-5">
-              <span className="inline-flex w-fit rounded-full bg-[#f3ede4] px-3 py-1 text-xs font-semibold text-[#1f1912]">
-                {product.categoria}
-              </span>
-              <h1 className="text-3xl font-semibold text-[#1b160f]">
+            <div className="space-y-5 rounded-[28px] border border-[var(--line)] bg-[var(--panel-strong)] p-5">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <span className="inline-flex w-fit rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold text-[var(--accent)]">
+                  {product.categoria}
+                </span>
+                <button
+                  type="button"
+                  aria-label={
+                    isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"
+                  }
+                  onClick={() => handleToggleFavorite(product)}
+                  className={`inline-flex h-10 w-10 items-center justify-center rounded-full border bg-[var(--panel-strong)] transition-all ${
+                    isFavorite
+                      ? "border-[#ffd2d0] text-[#e53935] shadow-[0_10px_20px_rgba(229,57,53,0.24)]"
+                      : "border-[var(--line)] text-[var(--muted)] hover:border-[var(--line-strong)]"
+                  }`}
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="h-5 w-5"
+                    fill={isFavorite ? "currentColor" : "none"}
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 21s-6.716-4.313-9.141-8.005C1.347 10.699 2.02 7.59 4.554 6.273c2.062-1.071 4.544-.459 5.946 1.29 1.402-1.749 3.884-2.361 5.946-1.29 2.534 1.317 3.207 4.426 1.695 6.722C18.716 16.687 12 21 12 21z" />
+                  </svg>
+                </button>
+              </div>
+              <h1 className="text-3xl font-semibold text-[var(--foreground-strong)]">
                 {product.nombre}
               </h1>
-              <p className="text-sm leading-7 text-[#6e6254]">
+              <p className="text-sm leading-7 text-[var(--muted)]">
                 {product.descripcion}
               </p>
 
               <div className="flex flex-wrap items-center gap-3">
-                <p className="text-3xl font-bold text-[#1f1912]">
+                <p className="text-3xl font-bold text-[var(--foreground-strong)]">
                   {formatCurrency(product.precio, currency)}
                 </p>
 
                 {product.cantidadDisponible > 0 ? (
-                  <span className="rounded-full bg-[#edf7ef] px-3 py-1 text-xs font-semibold text-[#227447]">
+                  <span className="rounded-full bg-[var(--success-soft)] px-3 py-1 text-xs font-semibold text-[var(--success)]">
                     Disponible ({product.cantidadDisponible})
                   </span>
                 ) : (
-                  <span className="rounded-full bg-[#fff0ef] px-3 py-1 text-xs font-semibold text-[#b54235]">
+                  <span className="rounded-full bg-[var(--danger-soft)] px-3 py-1 text-xs font-semibold text-[var(--danger)]">
                     Agotado
                   </span>
                 )}
               </div>
 
               <div className="space-y-2">
-                <p className="text-sm font-medium text-[#2c241b]">Cantidad</p>
-                <div className="inline-flex items-center gap-2 rounded-2xl border border-[#ddd2c5] bg-[#f5efe6] p-2">
+                <p className="text-sm font-medium text-[var(--foreground)]">Cantidad</p>
+                <div className="inline-flex items-center gap-2 rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] p-2">
                   <button
                     type="button"
-                    className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#d8cbb9] bg-white text-lg font-semibold text-[#1f1912] disabled:opacity-50"
+                    className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] text-lg font-semibold text-[var(--foreground)] disabled:opacity-50"
                     onClick={() => setQuantity((current) => Math.max(current - 1, 1))}
                     disabled={isOutOfStock || quantity <= 1}
                   >
                     -
                   </button>
-                  <span className="w-12 text-center text-sm font-semibold text-[#2c241b]">
+                  <span className="w-12 text-center text-sm font-semibold text-[var(--foreground)]">
                     {quantity}
                   </span>
                   <button
                     type="button"
-                    className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#d8cbb9] bg-white text-lg font-semibold text-[#1f1912] disabled:opacity-50"
+                    className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] text-lg font-semibold text-[var(--foreground)] disabled:opacity-50"
                     onClick={() =>
                       setQuantity((current) =>
                         Math.min(current + 1, Math.max(maxQuantity, 1)),
@@ -211,7 +284,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                 <button
                   type="button"
                   disabled={isOutOfStock}
-                  className="rounded-2xl border border-[#d8cbb9] bg-white px-4 py-3 text-sm font-semibold text-[#1f1912] disabled:opacity-50"
+                  className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm font-semibold text-[var(--foreground)] disabled:opacity-50"
                   onClick={() =>
                     addItem({
                       productId: product.id,
@@ -229,7 +302,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                 <button
                   type="button"
                   disabled={isOutOfStock}
-                  className="rounded-2xl bg-[#1f1912] px-4 py-3 text-sm font-semibold text-white shadow-[0_16px_26px_rgba(31,25,18,0.16)] disabled:opacity-50"
+                  className="rounded-2xl bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white shadow-[0_16px_26px_rgba(109,56,255,0.2)] disabled:opacity-50"
                   onClick={() => {
                     addItem({
                       productId: product.id,
@@ -254,18 +327,16 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
             categoryName={product.categoria}
             currentProductId={product.id}
             currency={currency}
+            favoriteIds={favoriteIds}
+            onToggleFavorite={handleToggleFavorite}
           />
         </section>
 
         <FloatingWhatsAppButton phone={store?.telefono} />
       </main>
 
-      <StoreCatalogFooter
-        storeName={store?.nombre}
-        slug={slug}
-        phone={store?.telefono}
-      />
-    </>
+      <StoreCatalogFooter storeName={store?.nombre} phone={store?.telefono} />
+    </div>
   );
 }
 

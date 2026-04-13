@@ -11,6 +11,8 @@ type RelatedProductsSectionProps = {
   categoryName: string;
   currentProductId: number;
   currency: string;
+  favoriteIds?: Set<number>;
+  onToggleFavorite?: (product: PublicStoreProduct) => void;
 };
 
 export function RelatedProductsSection({
@@ -18,6 +20,8 @@ export function RelatedProductsSection({
   categoryName,
   currentProductId,
   currency,
+  favoriteIds,
+  onToggleFavorite,
 }: RelatedProductsSectionProps) {
   const [items, setItems] = useState<PublicStoreProduct[]>([]);
 
@@ -64,10 +68,10 @@ export function RelatedProductsSection({
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="text-xl font-semibold text-[#1b160f]">
-          Productos relacionados
+        <h2 className="text-xl font-semibold text-[var(--foreground-strong)]">
+          Tambien puede interesarte
         </h2>
-        <p className="text-sm text-[#6e6254]">
+        <p className="text-sm text-[var(--muted)]">
           Otros productos disponibles dentro de la misma categoria.
         </p>
       </div>
@@ -79,6 +83,8 @@ export function RelatedProductsSection({
             slug={slug}
             product={product}
             currency={currency}
+            isFavorite={favoriteIds?.has(product.id) ?? false}
+            onToggleFavorite={onToggleFavorite}
           />
         ))}
       </div>

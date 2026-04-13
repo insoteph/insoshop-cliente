@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 
 import { formatCurrency } from "@/modules/core/lib/formatters";
 import { useStoreCart } from "@/modules/store-catalog/providers/StoreCartProvider";
@@ -10,13 +11,23 @@ type StoreProductCardProps = {
   slug: string;
   product: PublicStoreProduct;
   currency: string;
+  isFavorite?: boolean;
+  onToggleFavorite?: (product: PublicStoreProduct) => void;
 };
 
-export function StoreProductCard({ slug, product, currency }: StoreProductCardProps) {
+export function StoreProductCard({
+  slug,
+  product,
+  currency,
+  isFavorite = false,
+  onToggleFavorite,
+}: StoreProductCardProps) {
   const { addItem } = useStoreCart();
   const primaryImage = product.imagenes[0]?.trim();
   const isAvailable = product.cantidadDisponible > 0;
   const detailHref = `/${encodeURIComponent(slug)}/productos/${product.id}`;
+  const [isHeartAnimating, setIsHeartAnimating] = useState(false);
+  const canToggleFavorite = typeof onToggleFavorite === "function";
 
   const handleAddToCart = () => {
     addItem({
@@ -30,10 +41,18 @@ export function StoreProductCard({ slug, product, currency }: StoreProductCardPr
     });
   };
 
+  const handleFavoriteClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsHeartAnimating(true);
+    window.setTimeout(() => setIsHeartAnimating(false), 220);
+    onToggleFavorite?.(product);
+  };
+
   return (
-    <article className="group overflow-hidden rounded-[24px] border border-[#e8ebf5] bg-white p-3 shadow-[0_14px_30px_rgba(41,54,111,0.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_36px_rgba(41,54,111,0.1)]">
+    <article className="group overflow-hidden rounded-[20px] border border-[var(--line)] bg-[var(--panel-strong)] p-2 shadow-[var(--shadow)] transition duration-300 hover:-translate-y-1 sm:rounded-[24px] sm:p-3">
       <Link href={detailHref} className="block">
-        <div className="relative h-64 w-full overflow-hidden rounded-[20px] bg-[#f4f6fb]">
+        <div className="relative h-36 w-full overflow-hidden rounded-[16px] bg-[var(--panel-muted)] sm:h-64 sm:rounded-[20px]">
           {primaryImage ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -42,14 +61,14 @@ export function StoreProductCard({ slug, product, currency }: StoreProductCardPr
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-sm font-medium text-[#8e95ab]">
-              Imagen no disponible
+            <div className="flex h-full items-center justify-center text-sm font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+              NO IMAGE
             </div>
           )}
 
-          <div className="absolute left-3 top-3 flex items-center gap-2">
+          <div className="absolute left-2 top-2 flex items-center gap-2 sm:left-3 sm:top-3">
             <span
-              className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] ${
+              className={`rounded-full px-2 py-1 text-[9px] font-bold uppercase tracking-[0.16em] sm:px-2.5 sm:text-[10px] sm:tracking-[0.18em] ${
                 isAvailable
                   ? "bg-[#efeaff] text-[#6d38ff]"
                   : "bg-[#fff1f0] text-[#c8493d]"
@@ -59,33 +78,55 @@ export function StoreProductCard({ slug, product, currency }: StoreProductCardPr
             </span>
           </div>
 
-          <div className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full border border-[#edf0f8] bg-white/92 text-[#a5abc0]">
-            <span aria-hidden="true">♡</span>
-          </div>
+          {canToggleFavorite ? (
+            <button
+              type="button"
+              aria-label={isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"}
+              onClick={handleFavoriteClick}
+              className={`absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full border bg-[var(--panel-strong)] transition-all sm:right-3 sm:top-3 sm:h-9 sm:w-9 ${
+                isFavorite
+                  ? "border-[#ffd2d0] text-[#e53935] shadow-[0_10px_20px_rgba(229,57,53,0.24)]"
+                  : "border-[var(--line)] text-[var(--muted)]"
+              } ${isHeartAnimating ? "scale-90" : "scale-100 hover:scale-105"}`}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className={`h-4 w-4 transition-all ${
+                  isHeartAnimating ? "scale-125" : "scale-100"
+                }`}
+                fill={isFavorite ? "currentColor" : "none"}
+                stroke="currentColor"
+                strokeWidth="1.8"
+                aria-hidden="true"
+              >
+                <path d="M12 21s-6.716-4.313-9.141-8.005C1.347 10.699 2.02 7.59 4.554 6.273c2.062-1.071 4.544-.459 5.946 1.29 1.402-1.749 3.884-2.361 5.946-1.29 2.534 1.317 3.207 4.426 1.695 6.722C18.716 16.687 12 21 12 21z" />
+              </svg>
+            </button>
+          ) : null}
         </div>
 
-        <div className="space-y-3 px-1 pb-1 pt-4">
+        <div className="space-y-2 px-1 pb-1 pt-3 sm:space-y-3 sm:pt-4">
           <div className="space-y-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#8a91ac]">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)] sm:text-[11px] sm:tracking-[0.22em]">
               {product.categoria}
             </p>
-            <p className="line-clamp-1 text-[1.02rem] font-semibold text-[#191b2a]">
+            <p className="line-clamp-1 text-sm font-semibold text-[var(--foreground-strong)] sm:text-[1.02rem]">
               {product.nombre}
             </p>
           </div>
 
-          <p className="line-clamp-2 min-h-10 text-sm leading-5 text-[#6a728d]">
+          <p className="line-clamp-2 min-h-8 text-xs leading-4 text-[var(--muted)] sm:min-h-10 sm:text-sm sm:leading-5">
             {product.descripcion}
           </p>
 
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-2 sm:gap-3">
             <div>
-              <p className="text-[11px] text-[#8a91ac]">Precio</p>
-              <p className="text-lg font-bold text-[#191b2a]">
+              <p className="text-[11px] text-[var(--muted)]">Precio</p>
+              <p className="text-sm font-bold text-[var(--foreground-strong)] sm:text-lg">
                 {formatCurrency(product.precio, currency)}
               </p>
             </div>
-            <span className="text-xs font-medium text-[#8a91ac]">
+            <span className="text-[10px] font-medium text-[var(--muted)] sm:text-xs">
               {isAvailable
                 ? `${product.cantidadDisponible} disponibles`
                 : "Sin inventario"}
@@ -94,17 +135,17 @@ export function StoreProductCard({ slug, product, currency }: StoreProductCardPr
         </div>
       </Link>
 
-      <div className="mt-2 grid grid-cols-[minmax(0,1fr)_44px] gap-2">
+      <div className="mt-2 grid grid-cols-[minmax(0,1fr)_38px] gap-2 sm:grid-cols-[minmax(0,1fr)_44px]">
         <Link
           href={detailHref}
-          className="inline-flex items-center justify-center rounded-2xl border border-[#e6e9f4] bg-[#f8f9fe] px-3 py-3 text-sm font-semibold text-[#20253d] hover:border-[#d7dcf0]"
+          className="inline-flex items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--panel-muted)] px-2 py-2 text-xs font-semibold text-[var(--foreground)] hover:border-[var(--line-strong)] sm:rounded-2xl sm:px-3 sm:py-3 sm:text-sm"
         >
           Ver detalles
         </Link>
         <button
           type="button"
           disabled={!isAvailable}
-          className="inline-flex items-center justify-center rounded-2xl bg-[#6d38ff] text-sm font-semibold text-white shadow-[0_16px_26px_rgba(109,56,255,0.18)] disabled:pointer-events-none disabled:opacity-50"
+          className="inline-flex items-center justify-center rounded-xl bg-[var(--accent)] text-sm font-semibold text-white shadow-[0_16px_26px_rgba(109,56,255,0.2)] disabled:pointer-events-none disabled:opacity-50 sm:rounded-2xl"
           onClick={handleAddToCart}
         >
           <span

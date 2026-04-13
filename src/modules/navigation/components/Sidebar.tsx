@@ -25,8 +25,6 @@ export function Sidebar({ isOpen, isCollapsed, onClose }: SidebarProps) {
     hasPermission(permissions.usuarios.ver);
   const canSeeUsers = hasPermission(permissions.usuarios.ver);
   const canSeeRoles = hasPermission(permissions.roles.ver);
-  const canSeeSales =
-    currentUser?.tieneAccesoGlobal || hasPermission(permissions.ventas.ver);
 
   const dashboardHref = currentUser?.tieneAccesoGlobal
     ? "/tiendas"
@@ -97,17 +95,6 @@ export function Sidebar({ isOpen, isCollapsed, onClose }: SidebarProps) {
                 active={
                   pathname === "/tiendas" || pathname.startsWith("/tiendas/")
                 }
-                collapsed={isCollapsed}
-                onClick={onClose}
-              />
-            ) : null}
-
-            {canSeeSales ? (
-              <SidebarItem
-                href="/ventas"
-                label="Ventas"
-                icon="/icons/dashboard.svg"
-                active={pathname === "/ventas"}
                 collapsed={isCollapsed}
                 onClick={onClose}
               />

@@ -3,11 +3,24 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { SearchBar } from "@/modules/core/components/SearchBar";
+import { FloatingWhatsAppButton } from "@/modules/store-catalog/components/FloatingWhatsAppButton";
 import { StoreCartButton } from "@/modules/store-catalog/components/StoreCartButton";
 import { StoreCatalogFilters } from "@/modules/store-catalog/components/StoreCatalogFilters";
 import { StoreCatalogFooter } from "@/modules/store-catalog/components/StoreCatalogFooter";
+import { StoreCatalogThemeToggle } from "@/modules/store-catalog/components/StoreCatalogThemeToggle";
+import { StoreFavoritesPanel } from "@/modules/store-catalog/components/StoreFavoritesPanel";
 import { StoreProductCard } from "@/modules/store-catalog/components/StoreProductCard";
-import { FloatingWhatsAppButton } from "@/modules/store-catalog/components/FloatingWhatsAppButton";
+import {
+  readStoreCatalogTheme,
+  writeStoreCatalogTheme,
+  type StoreCatalogTheme,
+} from "@/modules/store-catalog/lib/store-catalog-theme-storage";
+import { storeCatalogThemeTokens } from "@/modules/store-catalog/lib/store-catalog-theme-tokens";
+import {
+  readStoreFavorites,
+  writeStoreFavorites,
+  type StoreFavoriteProduct,
+} from "@/modules/store-catalog/lib/store-favorites-storage";
 import {
   StoreCartProvider,
   useStoreCart,
@@ -26,8 +39,21 @@ type StoreCatalogViewProps = {
   slug: string;
 };
 
+function toFavoriteProduct(product: PublicStoreProduct): StoreFavoriteProduct {
+  return {
+    id: product.id,
+    nombre: product.nombre,
+    categoria: product.categoria,
+    precio: product.precio,
+    cantidadDisponible: product.cantidadDisponible,
+    imagenUrl: product.imagenes[0]?.trim() || null,
+  };
+}
+
 function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
   const { totalItems } = useStoreCart();
+
+  const [theme, setTheme] = useState<StoreCatalogTheme>("light");
   const [store, setStore] = useState<PublicStoreSummary | null>(null);
   const [products, setProducts] = useState<PublicStoreProduct[]>([]);
   const [categories, setCategories] = useState<PublicStoreCategory[]>([]);
@@ -42,6 +68,19 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
   const [totalRecords, setTotalRecords] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [favoriteItems, setFavoriteItems] = useState<StoreFavoriteProduct[]>([]);
+  const [favoritesLoadedSlug, setFavoritesLoadedSlug] = useState<string | null>(
+    null,
+  );
+  const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
+
+  useEffect(() => {
+    setTheme(readStoreCatalogTheme());
+  }, []);
+
+  useEffect(() => {
+    writeStoreCatalogTheme(theme);
+  }, [theme]);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -50,6 +89,19 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
 
     return () => window.clearTimeout(timeoutId);
   }, [search]);
+
+  useEffect(() => {
+    setFavoriteItems(readStoreFavorites(slug));
+    setFavoritesLoadedSlug(slug);
+  }, [slug]);
+
+  useEffect(() => {
+    if (favoritesLoadedSlug !== slug) {
+      return;
+    }
+
+    writeStoreFavorites(slug, favoriteItems);
+  }, [favoriteItems, favoritesLoadedSlug, slug]);
 
   const loadCatalog = useCallback(async () => {
     setIsLoading(true);
@@ -92,10 +144,17 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
       categories.find((category) => category.id === selectedCategoryId) ?? null,
     [categories, selectedCategoryId],
   );
+
+  const favoriteIds = useMemo(
+    () => new Set(favoriteItems.map((item) => item.id)),
+    [favoriteItems],
+  );
+
   const pageLabel = useMemo(
     () => `Pagina ${page} de ${Math.max(totalPages, 1)}`,
     [page, totalPages],
   );
+
   const resultsLabel = useMemo(() => {
     if (totalRecords <= 0) {
       return "Sin resultados";
@@ -103,16 +162,36 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
 
     return `${totalRecords} producto${totalRecords === 1 ? "" : "s"}`;
   }, [totalRecords]);
+
   const visibleCategories = useMemo(() => categories.slice(0, 8), [categories]);
 
+  const handleToggleFavorite = useCallback((product: PublicStoreProduct) => {
+    const favorite = toFavoriteProduct(product);
+
+    setFavoriteItems((currentItems) => {
+      const exists = currentItems.some((item) => item.id === favorite.id);
+      if (exists) {
+        return currentItems.filter((item) => item.id !== favorite.id);
+      }
+
+      return [favorite, ...currentItems];
+    });
+  }, []);
+
+  const handleRemoveFavorite = useCallback((productId: number) => {
+    setFavoriteItems((currentItems) =>
+      currentItems.filter((item) => item.id !== productId),
+    );
+  }, []);
+
   return (
-    <>
-      <main className="min-h-screen bg-[#f5f6fb]">
+    <div className="bg-[var(--background)]" style={storeCatalogThemeTokens[theme]}>
+      <main className="min-h-screen bg-[var(--background)]">
         <section className="mx-auto w-full max-w-[1440px] px-4 py-4 md:px-6 lg:px-8 lg:py-6">
-          <header className="rounded-[28px] border border-[#e8ebf5] bg-white p-4 shadow-[0_16px_40px_rgba(32,40,84,0.06)] md:p-5">
+          <header className="rounded-[28px] border border-[var(--line)] bg-[var(--panel-strong)] p-4 shadow-[var(--shadow)] md:p-5">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border border-[#eceef7] bg-[#f7f8fd]">
+                <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)]">
                   {store?.logoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -121,21 +200,21 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <span className="text-sm font-bold uppercase text-[#1c2140]">
+                    <span className="text-sm font-bold uppercase text-[var(--foreground-strong)]">
                       {(store?.nombre ?? "IS").slice(0, 2)}
                     </span>
                   )}
                 </div>
 
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8a91ac]">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
                     {store?.nombre ?? "Tienda"}
                   </p>
-                  <p className="text-sm text-[#646d88]">/{slug}</p>
+                  <p className="text-sm text-[var(--muted)]">/{slug}</p>
                 </div>
               </div>
 
-              <div className="w-full xl:max-w-xl">
+              <div className="order-3 w-full xl:order-2 xl:max-w-xl">
                 <SearchBar
                   value={search}
                   onChange={(value) => {
@@ -144,14 +223,25 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
                   }}
                   placeholder="Buscar producto"
                   ariaLabel="Buscar producto"
-                  className="!rounded-2xl !border-[#e6e9f4] !bg-white !text-[#1a1d2d] !shadow-none placeholder:!text-[#9aa1ba] focus:!border-[#d8def0] focus:!shadow-[0_0_0_4px_rgba(109,56,255,0.08)]"
+                  className="!rounded-2xl"
                 />
               </div>
 
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="rounded-2xl border border-[#eceef7] bg-[#f8f9fd] px-4 py-2 text-sm font-semibold text-[#59617c]">
-                  {store?.moneda ?? "HNL"}
-                </div>
+              <div className="order-2 flex w-full items-center justify-end gap-2 xl:order-3 xl:w-auto xl:gap-3">
+                <StoreCatalogThemeToggle
+                  theme={theme}
+                  onToggle={() =>
+                    setTheme((current) => (current === "dark" ? "light" : "dark"))
+                  }
+                />
+                <StoreFavoritesPanel
+                  slug={slug}
+                  currency={store?.moneda ?? "HNL"}
+                  items={favoriteItems}
+                  isOpen={isFavoritesOpen}
+                  onToggle={() => setIsFavoritesOpen((current) => !current)}
+                  onRemoveFavorite={handleRemoveFavorite}
+                />
                 <StoreCartButton slug={slug} totalItems={totalItems} />
               </div>
             </div>
@@ -165,8 +255,8 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
                 }}
                 className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${
                   selectedCategoryId === null
-                    ? "bg-[#6d38ff] text-white"
-                    : "bg-[#f4f6fc] text-[#535b77]"
+                    ? "bg-[var(--accent)] text-white"
+                    : "bg-[var(--panel-muted)] text-[var(--muted)]"
                 }`}
               >
                 Todas
@@ -182,8 +272,8 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
                   }}
                   className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${
                     selectedCategoryId === category.id
-                      ? "bg-[#6d38ff] text-white"
-                      : "bg-[#f4f6fc] text-[#535b77]"
+                      ? "bg-[var(--accent)] text-white"
+                      : "bg-[var(--panel-muted)] text-[var(--muted)]"
                   }`}
                 >
                   {category.nombre}
@@ -210,18 +300,18 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
             </aside>
 
             <section className="space-y-5">
-              <div className="rounded-[28px] border border-[#e8ebf5] bg-white px-4 py-4 shadow-[0_16px_40px_rgba(32,40,84,0.05)] md:px-5">
+              <div className="rounded-[28px] border border-[var(--line)] bg-[var(--panel-strong)] px-4 py-4 shadow-[var(--shadow)] md:px-5">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                   <div className="space-y-2">
-                    <p className="text-xs text-[#9aa1ba]">
+                    <p className="text-xs text-[var(--muted)]">
                       Inicio / {store?.nombre ?? "Tienda"} /{" "}
                       {activeCategory?.nombre ?? "Catalogo"}
                     </p>
                     <div>
-                      <h1 className="text-3xl font-semibold text-[#1a1d2d]">
+                      <h1 className="text-3xl font-semibold text-[var(--foreground-strong)]">
                         {activeCategory?.nombre ?? "Catalogo"}
                       </h1>
-                      <p className="mt-1 text-sm text-[#67708c]">
+                      <p className="mt-1 text-sm text-[var(--muted)]">
                         {resultsLabel}
                         {search.trim() ? ` para "${search.trim()}"` : ""}
                       </p>
@@ -229,10 +319,10 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2">
-                    <div className="rounded-2xl border border-[#eceef7] bg-[#f8f9fd] px-4 py-2 text-sm text-[#5f6781]">
+                    <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-2 text-sm text-[var(--muted)]">
                       Orden: mas recientes
                     </div>
-                    <div className="rounded-2xl border border-[#eceef7] bg-[#f8f9fd] px-4 py-2 text-sm text-[#5f6781]">
+                    <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-2 text-sm text-[var(--muted)]">
                       {pageLabel}
                     </div>
                   </div>
@@ -240,42 +330,44 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
               </div>
 
               {error ? (
-                <p className="rounded-2xl border border-[#f0c8c4] bg-[#fff1ef] px-4 py-3 text-sm text-[#9d3d34]">
+                <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
                   {error}
                 </p>
               ) : null}
 
               {isLoading ? (
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
                   {Array.from({ length: 8 }).map((_, index) => (
                     <div
                       key={`catalog-skeleton-${index}`}
-                      className="h-[420px] rounded-[24px] border border-[#e8ebf5] bg-white"
+                      className="h-[280px] rounded-[24px] border border-[var(--line)] bg-[var(--panel-strong)] sm:h-[360px]"
                     />
                   ))}
                 </div>
               ) : products.length > 0 ? (
                 <>
-                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  <div className="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
                     {products.map((product) => (
                       <StoreProductCard
                         key={product.id}
                         slug={slug}
                         product={product}
                         currency={store?.moneda ?? "HNL"}
+                        isFavorite={favoriteIds.has(product.id)}
+                        onToggleFavorite={handleToggleFavorite}
                       />
                     ))}
                   </div>
 
-                  <div className="flex flex-col items-center justify-between gap-3 rounded-[24px] border border-[#e8ebf5] bg-white px-4 py-4 md:flex-row">
-                    <p className="text-sm text-[#646d88]">{pageLabel}</p>
+                  <div className="flex flex-col items-center justify-between gap-3 rounded-[24px] border border-[var(--line)] bg-[var(--panel-strong)] px-4 py-4 md:flex-row">
+                    <p className="text-sm text-[var(--muted)]">{pageLabel}</p>
 
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => setPage((current) => Math.max(current - 1, 1))}
                         disabled={page <= 1}
-                        className="rounded-2xl border border-[#e3e7f3] bg-[#f8f9fd] px-4 py-2.5 text-sm font-semibold text-[#212640] disabled:cursor-not-allowed disabled:opacity-50"
+                        className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         Anterior
                       </button>
@@ -287,7 +379,7 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
                           )
                         }
                         disabled={page >= totalPages}
-                        className="rounded-2xl bg-[#6d38ff] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_16px_26px_rgba(109,56,255,0.18)] disabled:cursor-not-allowed disabled:opacity-50"
+                        className="rounded-2xl bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_16px_26px_rgba(109,56,255,0.2)] disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         Siguiente
                       </button>
@@ -295,11 +387,11 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
                   </div>
                 </>
               ) : (
-                <div className="rounded-[28px] border border-[#e8ebf5] bg-white px-4 py-16 text-center">
-                  <p className="text-lg font-semibold text-[#1a1d2d]">
+                <div className="rounded-[28px] border border-[var(--line)] bg-[var(--panel-strong)] px-4 py-16 text-center">
+                  <p className="text-lg font-semibold text-[var(--foreground-strong)]">
                     No hay productos para mostrar
                   </p>
-                  <p className="mt-2 text-sm text-[#67708c]">
+                  <p className="mt-2 text-sm text-[var(--muted)]">
                     Ajusta la categoria o la busqueda para ver otros resultados.
                   </p>
                 </div>
@@ -307,16 +399,12 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
             </section>
           </div>
         </section>
+
+        <FloatingWhatsAppButton phone={store?.telefono} />
       </main>
 
-      <StoreCatalogFooter
-        storeName={store?.nombre}
-        slug={slug}
-        phone={store?.telefono}
-      />
-
-      <FloatingWhatsAppButton phone={store?.telefono} />
-    </>
+      <StoreCatalogFooter storeName={store?.nombre} phone={store?.telefono} />
+    </div>
   );
 }
 

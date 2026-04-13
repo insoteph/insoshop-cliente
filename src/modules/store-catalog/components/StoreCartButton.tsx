@@ -16,12 +16,12 @@ export function StoreCartButton({
   return (
     <Link
       href={`/${encodeURIComponent(slug)}/carrito`}
-      className={`relative inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-[#e6e8f2] bg-white px-4 text-sm font-semibold text-[#4736c7] shadow-[0_12px_26px_rgba(104,82,255,0.08)] ${className ?? ""}`}
+      className={`relative inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-[var(--line)] bg-[var(--panel-strong)] px-4 text-sm font-semibold text-[var(--accent)] shadow-[var(--shadow)] ${className ?? ""}`}
       aria-label="Ver carrito"
     >
       <span
         aria-hidden="true"
-        className="h-4 w-4 text-[#4736c7]"
+        className="h-4 w-4 text-[var(--accent)]"
         style={{
           WebkitMaskImage: "url(/icons/Cart.svg)",
           maskImage: "url(/icons/Cart.svg)",
@@ -36,7 +36,7 @@ export function StoreCartButton({
       />
       <span>Carrito</span>
       {totalItems > 0 ? (
-        <span className="absolute -right-2 -top-2 inline-flex min-h-6 min-w-6 items-center justify-center rounded-full bg-[#6d38ff] px-1 text-xs font-bold text-white">
+        <span className="absolute -right-2 -top-2 inline-flex min-h-6 min-w-6 items-center justify-center rounded-full bg-[var(--accent)] px-1 text-xs font-bold text-white">
           {totalItems}
         </span>
       ) : null}

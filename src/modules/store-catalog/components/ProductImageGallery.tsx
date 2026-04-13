@@ -23,8 +23,8 @@ export function ProductImageGallery({
 
   if (!activeImage) {
     return (
-      <div className="app-card-muted flex h-[460px] items-center justify-center rounded-3xl border border-dashed border-[var(--line)] text-sm text-[var(--muted)]">
-        Imagenes no disponibles
+      <div className="app-card-muted flex h-[460px] items-center justify-center rounded-3xl border border-dashed border-[var(--line)] text-sm font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+        NO IMAGE
       </div>
     );
   }

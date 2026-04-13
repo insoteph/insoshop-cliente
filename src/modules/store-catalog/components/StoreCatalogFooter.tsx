@@ -1,10 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import Image from "next/image";
 
 type StoreCatalogFooterProps = {
   storeName?: string;
-  slug?: string;
   phone?: string | null;
 };
 
@@ -46,65 +45,43 @@ const footerColumns = [
 
 export function StoreCatalogFooter({
   storeName,
-  slug,
   phone,
 }: StoreCatalogFooterProps) {
   return (
-    <footer className="w-full border-t border-[#eceff7] bg-white">
+    <footer className="w-full border-t border-[var(--line)] bg-[var(--panel-strong)]">
       <div className="w-full px-4 py-10 md:px-8 lg:px-12 lg:py-12">
         <div className="grid gap-10 xl:grid-cols-[minmax(240px,0.9fr)_minmax(0,1fr)]">
           <div className="space-y-5">
             <div className="space-y-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#8b93af]">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[var(--muted)]">
                 {storeName ?? "InsoShop"}
               </p>
               <div>
-                <p className="text-lg font-semibold uppercase tracking-[0.18em] text-[#191d2d]">
+                <p className="text-lg font-semibold uppercase tracking-[0.18em] text-[var(--foreground-strong)]">
                   Insoteph
                 </p>
-                <p className="text-xs uppercase tracking-[0.3em] text-[#9ca3bc]">
-                  Technology Company
-                </p>
               </div>
-              <p className="max-w-sm text-sm leading-7 text-[#66708c]">
+              <p className="max-w-sm text-sm leading-7 text-[var(--muted)]">
                 Plataforma desarrollada por Insoteph para administrar catalogos,
                 pedidos y operaciones comerciales desde un mismo entorno.
               </p>
             </div>
 
-            <div className="space-y-2 text-sm text-[#66708c]">
+            <div className="space-y-2 text-sm text-[var(--muted)]">
               <p>contacto@insoteph.com</p>
               <p>+504 9317-3894</p>
               <p>{phone?.trim() ? `Tienda: ${phone}` : "Santa Rosa de Copan, Honduras"}</p>
             </div>
 
-            <div className="flex flex-wrap gap-3">
-              {slug ? (
-                <Link
-                  href={`/${encodeURIComponent(slug)}`}
-                  className="inline-flex items-center rounded-full border border-[#e5e9f4] bg-[#f7f8fd] px-4 py-2 text-sm font-semibold text-[#202540] hover:border-[#d5dbed]"
-                >
-                  Volver al catalogo
-                </Link>
-              ) : null}
-              <a
-                href={INSOTEPH_CHANNELS.website}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center rounded-full bg-[#6d38ff] px-4 py-2 text-sm font-semibold text-white shadow-[0_16px_26px_rgba(109,56,255,0.18)]"
-              >
-                Sitio de Insoteph
-              </a>
-            </div>
           </div>
 
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {footerColumns.map((column) => (
               <div key={column.title} className="space-y-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#7f88a4]">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
                   {column.title}
                 </p>
-                <div className="space-y-2 text-sm text-[#626c88]">
+                <div className="space-y-2 text-sm text-[var(--muted)]">
                   {column.links.map((link) =>
                     link.href ? (
                       <a
@@ -112,7 +89,7 @@ export function StoreCatalogFooter({
                         href={link.href}
                         target="_blank"
                         rel="noreferrer"
-                        className="block transition hover:text-[#191d2d]"
+                        className="block transition hover:text-[var(--foreground-strong)]"
                       >
                         {link.label}
                       </a>
@@ -130,10 +107,10 @@ export function StoreCatalogFooter({
             ))}
 
             <div className="space-y-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#7f88a4]">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
                 Follow Us
               </p>
-              <p className="text-sm leading-6 text-[#626c88]">
+              <p className="text-sm leading-6 text-[var(--muted)]">
                 Canales oficiales de Insoteph para soporte y seguimiento.
               </p>
               <div className="flex items-center gap-3">
@@ -141,14 +118,14 @@ export function StoreCatalogFooter({
                   href={INSOTEPH_CHANNELS.website}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#e4e8f3] text-xs font-bold text-[#202540] hover:border-[#cfd6ea]"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--line)] text-xs font-bold text-[var(--foreground)] hover:border-[var(--line-strong)]"
                   aria-label="Sitio web de Insoteph"
                 >
                   W
                 </a>
                 <a
                   href={INSOTEPH_CHANNELS.email}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#e4e8f3] text-xs font-bold text-[#202540] hover:border-[#cfd6ea]"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--line)] text-xs font-bold text-[var(--foreground)] hover:border-[var(--line-strong)]"
                   aria-label="Correo de Insoteph"
                 >
                   @
@@ -157,10 +134,16 @@ export function StoreCatalogFooter({
                   href={INSOTEPH_CHANNELS.whatsapp}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#e4e8f3] text-xs font-bold text-[#202540] hover:border-[#cfd6ea]"
+                  className="inline-flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[var(--panel-muted)] shadow-[0_6px_14px_rgba(30,40,72,0.12)] ring-1 ring-[var(--line)] transition hover:bg-[var(--panel-strong)] hover:shadow-[0_10px_18px_rgba(30,40,72,0.16)]"
                   aria-label="WhatsApp de Insoteph"
                 >
-                  WA
+                  <Image
+                    src="/assets/whatsapp_icon.png"
+                    alt="WhatsApp"
+                    width={28}
+                    height={28}
+                    className="h-7 w-7 rounded-full object-cover"
+                  />
                 </a>
               </div>
             </div>
