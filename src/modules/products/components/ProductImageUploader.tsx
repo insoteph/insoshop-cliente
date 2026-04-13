@@ -89,16 +89,28 @@ export function ProductImageUploader({
           Sube al menos 3 imágenes por producto.
         </p>
         <p className="mt-1 text-sm text-[var(--muted)]">
-          Las imágenes se almacenan en S3 y el producto guarda únicamente sus
-          URLs públicas.
+          Agrega imágenes claras y atractivas para mostrar mejor tu producto.
         </p>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            disabled={isUploading}
+            className="app-button-primary inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
+          >
+            {isUploading ? "Subiendo imágenes..." : "Subir imagen"}
+          </button>
+          <p className="text-sm text-[var(--muted)]">
+            Formatos permitidos: JPG, PNG y WEBP.
+          </p>
+        </div>
         <input
           ref={inputRef}
           type="file"
           accept="image/png,image/jpeg,image/webp"
           multiple
           onChange={handleFiles}
-          className="mt-4 block w-full text-sm text-[var(--muted)]"
+          className="sr-only"
         />
         {feedback ? <p className="mt-3 text-sm text-red-600">{feedback}</p> : null}
         {isUploading ? (
