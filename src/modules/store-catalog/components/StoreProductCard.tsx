@@ -81,7 +81,9 @@ export function StoreProductCard({
           {canToggleFavorite ? (
             <button
               type="button"
-              aria-label={isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"}
+              aria-label={
+                isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"
+              }
               onClick={handleFavoriteClick}
               className={`absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full border bg-[var(--panel-strong)] transition-all sm:right-3 sm:top-3 sm:h-9 sm:w-9 ${
                 isFavorite

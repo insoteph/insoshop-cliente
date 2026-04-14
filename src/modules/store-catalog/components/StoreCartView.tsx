@@ -44,13 +44,17 @@ const INITIAL_CHECKOUT_FORM: CheckoutFormState = {
 };
 
 function StoreCartContent({ slug }: StoreCartViewProps) {
-  const { items, subtotal, removeItem, setItemQuantity, clearCart } = useStoreCart();
+  const { items, subtotal, removeItem, setItemQuantity, clearCart } =
+    useStoreCart();
   const [store, setStore] = useState<PublicStoreSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [checkoutForm, setCheckoutForm] =
-    useState<CheckoutFormState>(INITIAL_CHECKOUT_FORM);
-  const [paymentMethods, setPaymentMethods] = useState<PublicPaymentMethod[]>([]);
+  const [checkoutForm, setCheckoutForm] = useState<CheckoutFormState>(
+    INITIAL_CHECKOUT_FORM,
+  );
+  const [paymentMethods, setPaymentMethods] = useState<PublicPaymentMethod[]>(
+    [],
+  );
   const [isLoadingPaymentMethods, setIsLoadingPaymentMethods] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [isSubmittingCheckout, setIsSubmittingCheckout] = useState(false);
@@ -132,49 +136,6 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
 
   const total = useMemo(() => subtotal, [subtotal]);
 
-  const proceedWhatsappHref = useMemo(() => {
-    const digitsOnly = (store?.telefono ?? "").replace(/\D+/g, "");
-    if (!digitsOnly) {
-      return null;
-    }
-
-    const lines = [
-      `Hola ${store?.nombre ?? ""}, confirme una compra desde el catalogo digital.`,
-      `Cliente: ${checkoutForm.nombreCompleto.trim() || "Sin nombre"}`,
-      `Telefono: ${checkoutForm.telefono.trim() || "Sin telefono"}`,
-      `Entrega: ${
-        checkoutForm.tipoEntrega === "Domicilio" ? "A domicilio" : "Recoger en local"
-      }`,
-      checkoutForm.tipoEntrega === "Domicilio" && checkoutForm.direccion.trim()
-        ? `Direccion: ${checkoutForm.direccion.trim()}`
-        : null,
-      checkoutForm.observacion.trim()
-        ? `Observacion: ${checkoutForm.observacion.trim()}`
-        : null,
-      ...items.map(
-        (item) =>
-          `- ${item.nombre} x${item.cantidad} = ${formatCurrency(
-            item.precio * item.cantidad,
-            store?.moneda ?? "HNL",
-          )}`,
-      ),
-      `Total: ${formatCurrency(total, store?.moneda ?? "HNL")}`,
-    ].filter(Boolean);
-
-    return `https://wa.me/${digitsOnly}?text=${encodeURIComponent(lines.join("\n"))}`;
-  }, [
-    checkoutForm.direccion,
-    checkoutForm.nombreCompleto,
-    checkoutForm.observacion,
-    checkoutForm.telefono,
-    checkoutForm.tipoEntrega,
-    items,
-    store?.moneda,
-    store?.nombre,
-    store?.telefono,
-    total,
-  ]);
-
   async function handleCheckoutSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setCheckoutError(null);
@@ -189,8 +150,13 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
       return;
     }
 
-    if (checkoutForm.tipoEntrega === "Domicilio" && !checkoutForm.direccion.trim()) {
-      setCheckoutError("La direccion es obligatoria para entregas a domicilio.");
+    if (
+      checkoutForm.tipoEntrega === "Domicilio" &&
+      !checkoutForm.direccion.trim()
+    ) {
+      setCheckoutError(
+        "La direccion es obligatoria para entregas a domicilio.",
+      );
       return;
     }
 
@@ -202,13 +168,15 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
     setIsSubmittingCheckout(true);
 
     try {
+      // 1. Crear cliente
       const createdClient = await createPublicClient({
         nombreCompleto: checkoutForm.nombreCompleto.trim(),
         telefono: checkoutForm.telefono.trim(),
         tiendaId: store.tiendaId,
       });
 
-      await createPublicSale({
+      // 2. Crear venta y capturar respuesta
+      const saleResponse = await createPublicSale({
         tiendaId: store.tiendaId,
         metodoPagoId: checkoutForm.metodoPagoId,
         estadoVentaId: 1,
@@ -225,10 +193,57 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
         })),
       });
 
-      if (proceedWhatsappHref) {
-        window.open(proceedWhatsappHref, "_blank", "noopener,noreferrer");
+      // 3. Obtener numero de orden
+      const numeroOrden = saleResponse?.numeroOrden ?? "N/A";
+
+      // 4. Construir mensaje de WhatsApp dinámicamente
+      const digitsOnly = (store?.telefono ?? "").replace(/\D+/g, "");
+
+      if (digitsOnly) {
+        const lines = [
+          `Hola ${store?.nombre ?? ""}👋`,
+          `Quisiera adquirir estos productos desde el catalogo digital.`,
+          ``,
+          `🧾Detalle de la orden`,
+          `Numero de orden: ${numeroOrden}`,
+          ``,
+          `👤Cliente:`,
+          `${checkoutForm.nombreCompleto.trim() || "Sin nombre"}`,
+          `Telefono: ${checkoutForm.telefono.trim() || "Sin telefono"}`,
+          ``,
+          `🚚Tipo de Entrega:`,
+          `${
+            checkoutForm.tipoEntrega === "Domicilio"
+              ? "A domicilio"
+              : "Recoger en local"
+          }`,
+          ``,
+          checkoutForm.tipoEntrega === "Domicilio" &&
+          checkoutForm.direccion.trim()
+            ? `📍Direccion de Entrega:\n${checkoutForm.direccion.trim()}\n`
+            : null,
+          `🛒Productos:`,
+          ...items.map(
+            (item) =>
+              `- ${item.nombre} x ${item.cantidad} = ${formatCurrency(
+                item.precio * item.cantidad,
+                store?.moneda ?? "HNL",
+              )}`,
+          ),
+          ``,
+          `💰Total a pagar:`,
+          `${formatCurrency(total, store?.moneda ?? "HNL")}`,
+          ``,
+          `Por favor espera mientras un encargado termina de procesar tu compra, agradecemos mucho tu preferencia al comprar en ${store?.nombre ?? ""}🤝`,
+        ].filter(Boolean);
+
+        const message = lines.join("\n");
+        const whatsappUrl = `https://wa.me/${digitsOnly}?text=${encodeURIComponent(message)}`;
+
+        window.open(whatsappUrl, "_blank", "noopener,noreferrer");
       }
 
+      // 5. Limpiar estado
       clearCart();
       setCheckoutForm(INITIAL_CHECKOUT_FORM);
       setIsCheckoutOpen(false);
@@ -244,7 +259,10 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
   }
 
   return (
-    <div className="bg-[var(--background)]" style={storeCatalogThemeTokens.light}>
+    <div
+      className="bg-[var(--background)]"
+      style={storeCatalogThemeTokens.light}
+    >
       <main className="min-h-screen bg-[var(--background)] px-4 py-8 md:px-8 lg:px-12">
         <section className="mx-auto w-full max-w-7xl space-y-5">
           <header className="rounded-[28px] border border-[var(--line)] bg-[var(--panel-strong)] p-5 shadow-[var(--shadow)] md:flex md:items-center md:justify-between">
@@ -280,7 +298,9 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
           </header>
 
           {error ? (
-            <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">{error}</p>
+            <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
+              {error}
+            </p>
           ) : null}
 
           {items.length === 0 ? (
@@ -316,7 +336,9 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
                       <p className="truncate text-base font-semibold text-[var(--foreground-strong)]">
                         {item.nombre}
                       </p>
-                      <p className="text-sm text-[var(--muted)]">{item.categoria}</p>
+                      <p className="text-sm text-[var(--muted)]">
+                        {item.categoria}
+                      </p>
                       <p className="text-sm font-medium text-[var(--accent)]">
                         {formatCurrency(item.precio, store?.moneda ?? "HNL")}
                       </p>
@@ -326,7 +348,9 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
                       <button
                         type="button"
                         className="flex h-8 w-8 items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] text-[var(--foreground)] disabled:opacity-50"
-                        onClick={() => setItemQuantity(item.productId, item.cantidad - 1)}
+                        onClick={() =>
+                          setItemQuantity(item.productId, item.cantidad - 1)
+                        }
                         disabled={item.cantidad <= 1}
                       >
                         -
@@ -337,7 +361,9 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
                       <button
                         type="button"
                         className="flex h-8 w-8 items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] text-[var(--foreground)] disabled:opacity-50"
-                        onClick={() => setItemQuantity(item.productId, item.cantidad + 1)}
+                        onClick={() =>
+                          setItemQuantity(item.productId, item.cantidad + 1)
+                        }
                         disabled={item.cantidad >= item.cantidadDisponible}
                       >
                         +
@@ -376,7 +402,9 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
                     </span>
                   </div>
                   <div className="flex items-center justify-between border-t border-[var(--line)] pt-3">
-                    <span className="font-semibold text-[var(--foreground)]">Total</span>
+                    <span className="font-semibold text-[var(--foreground)]">
+                      Total
+                    </span>
                     <span className="text-lg font-bold text-[var(--accent)]">
                       {formatCurrency(total, store?.moneda ?? "HNL")}
                     </span>

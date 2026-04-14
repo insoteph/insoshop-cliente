@@ -74,7 +74,10 @@ export function StoreCartProvider({
             productId: payload.productId,
             nombre: payload.nombre,
             precio: payload.precio,
-            cantidad: Math.max(1, Math.min(payload.cantidad, payload.cantidadDisponible)),
+            cantidad: Math.max(
+              1,
+              Math.min(payload.cantidad, payload.cantidadDisponible),
+            ),
             cantidadDisponible: payload.cantidadDisponible,
             categoria: payload.categoria,
             imagenUrl: payload.imagenUrl,
@@ -104,7 +107,10 @@ export function StoreCartProvider({
           item.productId === productId
             ? {
                 ...item,
-                cantidad: Math.max(1, Math.min(quantity, item.cantidadDisponible)),
+                cantidad: Math.max(
+                  1,
+                  Math.min(quantity, item.cantidadDisponible),
+                ),
               }
             : item,
         )
@@ -142,11 +148,21 @@ export function StoreCartProvider({
       setItemQuantity,
       clearCart,
     }),
-    [addItem, clearCart, items, removeItem, setItemQuantity, subtotal, totalItems],
+    [
+      addItem,
+      clearCart,
+      items,
+      removeItem,
+      setItemQuantity,
+      subtotal,
+      totalItems,
+    ],
   );
 
   return (
-    <StoreCartContext.Provider value={value}>{children}</StoreCartContext.Provider>
+    <StoreCartContext.Provider value={value}>
+      {children}
+    </StoreCartContext.Provider>
   );
 }
 

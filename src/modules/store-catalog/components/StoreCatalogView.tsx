@@ -61,7 +61,9 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [favoriteItems, setFavoriteItems] = useState<StoreFavoriteProduct[]>([]);
+  const [favoriteItems, setFavoriteItems] = useState<StoreFavoriteProduct[]>(
+    [],
+  );
   const [favoritesLoadedSlug, setFavoritesLoadedSlug] = useState<string | null>(
     null,
   );
@@ -157,34 +159,39 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
   }, []);
 
   return (
-    <div className="bg-[var(--background)]" style={storeCatalogThemeTokens.light}>
+    <div
+      className="bg-[var(--background)]"
+      style={storeCatalogThemeTokens.light}
+    >
       <main className="min-h-screen bg-[var(--background)]">
         <section className="mx-auto w-full max-w-[1440px] px-4 py-4 md:px-6 lg:px-8 lg:py-6">
           <header className="sticky top-0 z-30 rounded-[24px] border border-[var(--line)] bg-[var(--panel-strong)] p-3 shadow-[var(--shadow)] backdrop-blur lg:static lg:rounded-[28px] lg:p-5">
             <div className="space-y-3 lg:space-y-4">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] sm:h-12 sm:w-12">
-                  {store?.logoUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={store.logoUrl}
-                      alt={store.nombre}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-sm font-bold uppercase text-[var(--foreground-strong)]">
-                      {(store?.nombre ?? "IS").slice(0, 2)}
-                    </span>
-                  )}
-                </div>
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] sm:h-12 sm:w-12">
+                    {store?.logoUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={store.logoUrl}
+                        alt={store.nombre}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-sm font-bold uppercase text-[var(--foreground-strong)]">
+                        {(store?.nombre ?? "IS").slice(0, 2)}
+                      </span>
+                    )}
+                  </div>
 
-                <div className="min-w-0">
-                  <p className="max-w-[42vw] truncate text-xs font-semibold uppercase tracking-[0.1em] text-[var(--muted)] sm:max-w-[320px] sm:tracking-[0.18em]">
-                    {store?.nombre ?? "Tienda"}
-                  </p>
-                  <p className="text-xs text-[var(--muted)] sm:text-sm">/{slug}</p>
-                </div>
+                  <div className="min-w-0">
+                    <p className="max-w-[42vw] truncate text-xs font-semibold uppercase tracking-[0.1em] text-[var(--muted)] sm:max-w-[320px] sm:tracking-[0.18em]">
+                      {store?.nombre ?? "Tienda"}
+                    </p>
+                    <p className="text-xs text-[var(--muted)] sm:text-sm">
+                      /{slug}
+                    </p>
+                  </div>
                 </div>
 
                 <div className="flex shrink-0 items-center gap-2">
@@ -214,38 +221,38 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
               </div>
 
               <div className="flex gap-2 overflow-x-auto pb-1">
-              <button
-                type="button"
-                onClick={() => {
-                  setPage(1);
-                  setSelectedCategoryId(null);
-                }}
-                className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:py-2 sm:text-sm ${
-                  selectedCategoryId === null
-                    ? "bg-[var(--accent)] text-white"
-                    : "bg-[var(--panel-muted)] text-[var(--muted)]"
-                }`}
-              >
-                Todas
-              </button>
-
-              {visibleCategories.map((category) => (
                 <button
-                  key={category.id}
                   type="button"
                   onClick={() => {
                     setPage(1);
-                    setSelectedCategoryId(category.id);
+                    setSelectedCategoryId(null);
                   }}
                   className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:py-2 sm:text-sm ${
-                    selectedCategoryId === category.id
+                    selectedCategoryId === null
                       ? "bg-[var(--accent)] text-white"
                       : "bg-[var(--panel-muted)] text-[var(--muted)]"
                   }`}
                 >
-                  {category.nombre}
+                  Todas
                 </button>
-              ))}
+
+                {visibleCategories.map((category) => (
+                  <button
+                    key={category.id}
+                    type="button"
+                    onClick={() => {
+                      setPage(1);
+                      setSelectedCategoryId(category.id);
+                    }}
+                    className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:py-2 sm:text-sm ${
+                      selectedCategoryId === category.id
+                        ? "bg-[var(--accent)] text-white"
+                        : "bg-[var(--panel-muted)] text-[var(--muted)]"
+                    }`}
+                  >
+                    {category.nombre}
+                  </button>
+                ))}
               </div>
             </div>
           </header>
@@ -304,7 +311,9 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
-                        onClick={() => setPage((current) => Math.max(current - 1, 1))}
+                        onClick={() =>
+                          setPage((current) => Math.max(current - 1, 1))
+                        }
                         disabled={page <= 1}
                         className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
                       >

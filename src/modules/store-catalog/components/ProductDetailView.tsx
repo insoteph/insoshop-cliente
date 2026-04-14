@@ -29,6 +29,7 @@ import type {
   PublicStoreProduct,
   PublicStoreSummary,
 } from "@/modules/store-catalog/types/store-catalog-types";
+import CartFeedbackModal from "./CartFeedbackModal";
 
 type ProductDetailViewProps = {
   slug: string;
@@ -48,6 +49,13 @@ function toFavoriteProduct(product: PublicStoreProduct): StoreFavoriteProduct {
 
 function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
   const router = useRouter();
+  const [modal, setModal] = useState<{
+    show: boolean;
+    type: "success" | "cancel";
+  }>({
+    show: false,
+    type: "success",
+  });
   const { addItem, totalItems } = useStoreCart();
   const [product, setProduct] = useState<PublicStoreProduct | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -55,7 +63,9 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
   const [error, setError] = useState<string | null>(null);
   const [currency, setCurrency] = useState("HNL");
   const [store, setStore] = useState<PublicStoreSummary | null>(null);
-  const [favoriteItems, setFavoriteItems] = useState<StoreFavoriteProduct[]>([]);
+  const [favoriteItems, setFavoriteItems] = useState<StoreFavoriteProduct[]>(
+    [],
+  );
   const [favoritesLoadedSlug, setFavoritesLoadedSlug] = useState<string | null>(
     null,
   );
@@ -107,22 +117,28 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
     () => new Set(favoriteItems.map((item) => item.id)),
     [favoriteItems],
   );
-  const maxQuantity = useMemo(() => product?.cantidadDisponible ?? 0, [product]);
+  const maxQuantity = useMemo(
+    () => product?.cantidadDisponible ?? 0,
+    [product],
+  );
   const isOutOfStock = maxQuantity <= 0;
   const isFavorite = product ? favoriteIds.has(product.id) : false;
 
-  const handleToggleFavorite = useCallback((targetProduct: PublicStoreProduct) => {
-    const favorite = toFavoriteProduct(targetProduct);
+  const handleToggleFavorite = useCallback(
+    (targetProduct: PublicStoreProduct) => {
+      const favorite = toFavoriteProduct(targetProduct);
 
-    setFavoriteItems((currentItems) => {
-      const exists = currentItems.some((item) => item.id === favorite.id);
-      if (exists) {
-        return currentItems.filter((item) => item.id !== favorite.id);
-      }
+      setFavoriteItems((currentItems) => {
+        const exists = currentItems.some((item) => item.id === favorite.id);
+        if (exists) {
+          return currentItems.filter((item) => item.id !== favorite.id);
+        }
 
-      return [favorite, ...currentItems];
-    });
-  }, []);
+        return [favorite, ...currentItems];
+      });
+    },
+    [],
+  );
 
   if (isLoading) {
     return (
@@ -159,7 +175,10 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
   }
 
   return (
-    <div className="bg-[var(--background)]" style={storeCatalogThemeTokens.light}>
+    <div
+      className="bg-[var(--background)]"
+      style={storeCatalogThemeTokens.light}
+    >
       <main className="min-h-screen bg-[var(--background)] px-4 py-8 md:px-8 lg:px-12">
         <section className="mx-auto w-full max-w-7xl space-y-5">
           <header className="flex flex-wrap items-center justify-between gap-3 rounded-[28px] border border-[var(--line)] bg-[var(--panel-strong)] px-4 py-3 shadow-[var(--shadow)]">
@@ -240,12 +259,16 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
               </div>
 
               <div className="space-y-2">
-                <p className="text-sm font-medium text-[var(--foreground)]">Cantidad</p>
+                <p className="text-sm font-medium text-[var(--foreground)]">
+                  Cantidad
+                </p>
                 <div className="inline-flex items-center gap-2 rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] p-2">
                   <button
                     type="button"
                     className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] text-lg font-semibold text-[var(--foreground)] disabled:opacity-50"
-                    onClick={() => setQuantity((current) => Math.max(current - 1, 1))}
+                    onClick={() =>
+                      setQuantity((current) => Math.max(current - 1, 1))
+                    }
                     disabled={isOutOfStock || quantity <= 1}
                   >
                     -
@@ -273,20 +296,31 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                   type="button"
                   disabled={isOutOfStock}
                   className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm font-semibold text-[var(--foreground)] disabled:opacity-50"
-                  onClick={() =>
-                    addItem({
-                      productId: product.id,
-                      nombre: product.nombre,
-                      precio: product.precio,
-                      cantidad: quantity,
-                      cantidadDisponible: product.cantidadDisponible,
-                      categoria: product.categoria,
-                      imagenUrl: product.imagenes[0]?.trim() || null,
-                    })
-                  }
+                  onClick={() => {
+                    try {
+                      addItem({
+                        productId: product.id,
+                        nombre: product.nombre,
+                        precio: product.precio,
+                        cantidad: quantity,
+                        cantidadDisponible: product.cantidadDisponible,
+                        categoria: product.categoria,
+                        imagenUrl: product.imagenes[0]?.trim() || null,
+                      });
+
+                      setModal({ show: true, type: "success" });
+                    } catch (error) {
+                      setModal({ show: true, type: "cancel" });
+                    }
+                  }}
                 >
                   Agregar al carrito
                 </button>
+                <CartFeedbackModal
+                  show={modal.show}
+                  type={modal.type}
+                  onClose={() => setModal({ ...modal, show: false })}
+                />
                 <button
                   type="button"
                   disabled={isOutOfStock}
