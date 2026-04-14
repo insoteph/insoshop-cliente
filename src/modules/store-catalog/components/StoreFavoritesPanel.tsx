@@ -27,19 +27,26 @@ export function StoreFavoritesPanel({
       <button
         type="button"
         onClick={onToggle}
-        className="relative inline-flex h-11 items-center gap-2 rounded-2xl border border-[var(--line)] bg-[var(--panel-strong)] px-4 text-sm font-semibold text-[var(--foreground)] shadow-[var(--shadow)] hover:border-[var(--line-strong)]"
+        className="relative inline-flex h-11 w-11 items-center justify-center gap-2 rounded-2xl border border-[var(--line)] bg-[var(--panel-strong)] px-3 text-sm font-semibold text-[var(--foreground)] shadow-[var(--shadow)] hover:border-[var(--line-strong)] sm:w-auto sm:px-4"
       >
-        <svg
-          viewBox="0 0 24 24"
-          className="h-4 w-4 text-[#e53935]"
-          fill="currentColor"
+        <span
           aria-hidden="true"
-        >
-          <path d="M12 21s-6.716-4.313-9.141-8.005C1.347 10.699 2.02 7.59 4.554 6.273c2.062-1.071 4.544-.459 5.946 1.29 1.402-1.749 3.884-2.361 5.946-1.29 2.534 1.317 3.207 4.426 1.695 6.722C18.716 16.687 12 21 12 21z" />
-        </svg>
-        <span>Favoritos</span>
+          className="h-4 w-4 text-[#e53935]"
+          style={{
+            WebkitMaskImage: "url(/icons/heart.svg)",
+            maskImage: "url(/icons/heart.svg)",
+            WebkitMaskRepeat: "no-repeat",
+            maskRepeat: "no-repeat",
+            WebkitMaskPosition: "center",
+            maskPosition: "center",
+            WebkitMaskSize: "contain",
+            maskSize: "contain",
+            backgroundColor: "currentColor",
+          }}
+        />
+        <span className="hidden sm:inline">Favoritos</span>
         {items.length > 0 ? (
-          <span className="inline-flex min-h-5 min-w-5 items-center justify-center rounded-full bg-[var(--accent)] px-1 text-[11px] font-bold text-white">
+          <span className="absolute -right-2 -top-2 inline-flex min-h-6 min-w-6 items-center justify-center rounded-full bg-[var(--accent)] px-1 text-xs font-bold text-white">
             {items.length}
           </span>
         ) : null}

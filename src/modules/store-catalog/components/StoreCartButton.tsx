@@ -16,7 +16,7 @@ export function StoreCartButton({
   return (
     <Link
       href={`/${encodeURIComponent(slug)}/carrito`}
-      className={`relative inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-[var(--line)] bg-[var(--panel-strong)] px-4 text-sm font-semibold text-[var(--accent)] shadow-[var(--shadow)] ${className ?? ""}`}
+      className={`relative inline-flex h-11 w-11 items-center justify-center gap-2 rounded-2xl border border-[var(--line)] bg-[var(--panel-strong)] px-3 text-sm font-semibold text-[var(--accent)] shadow-[var(--shadow)] sm:w-auto sm:px-4 ${className ?? ""}`}
       aria-label="Ver carrito"
     >
       <span
@@ -34,7 +34,7 @@ export function StoreCartButton({
           backgroundColor: "currentColor",
         }}
       />
-      <span>Carrito</span>
+      <span className="hidden sm:inline">Carrito</span>
       {totalItems > 0 ? (
         <span className="absolute -right-2 -top-2 inline-flex min-h-6 min-w-6 items-center justify-center rounded-full bg-[var(--accent)] px-1 text-xs font-bold text-white">
           {totalItems}

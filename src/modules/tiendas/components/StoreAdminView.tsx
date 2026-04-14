@@ -12,6 +12,7 @@ import {
 import { TitleBar } from "@/modules/core/components/TitleBar";
 import { ProductsPanel } from "@/modules/products/components/ProductsPanel";
 import { SalesPanel } from "@/modules/sales/components/SalesPanel";
+import { StoreSettingsPanel } from "@/modules/settings/components/StoreSettingsPanel";
 import { StoreInfoPanel } from "@/modules/tiendas/components/StoreInfoPanel";
 import { StoreUsersTabPanel } from "@/modules/tiendas/components/StoreUsersTabPanel";
 import { fetchTiendaById } from "@/modules/tiendas/services/tiendas-service";
@@ -86,6 +87,10 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
           hasPermission(permissions.tiendas.verUsuarios) &&
           (currentUser?.tieneAccesoGlobal ||
             Boolean(currentUser?.tiendas.some((tienda) => tienda.id === storeId))),
+      },
+      {
+        id: "configuraciones",
+        visible: hasPermission(permissions.metodosPago.ver),
       },
     ];
 
@@ -163,6 +168,16 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
 
           {activeTab === "usuarios" ? (
             <StoreUsersTabPanel storeId={storeId} />
+          ) : null}
+
+          {activeTab === "configuraciones" ? (
+            <StoreSettingsPanel
+              storeId={storeId}
+              hasGlobalAccess={Boolean(currentUser?.tieneAccesoGlobal)}
+              canTogglePaymentMethods={hasPermission(
+                permissions.metodosPago.cambiarEstado,
+              )}
+            />
           ) : null}
         </div>
       </div>

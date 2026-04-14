@@ -33,7 +33,7 @@ export function RelatedProductsSection({
         const result = await fetchPublicStoreProducts({
           slug,
           page: 1,
-          pageSize: 80,
+          pageSize: 120,
         });
 
         const related = result.productos.items.filter(
@@ -44,7 +44,7 @@ export function RelatedProductsSection({
         );
 
         if (active) {
-          setItems(related.slice(0, 8));
+          setItems(related);
         }
       } catch {
         if (active) {
@@ -66,17 +66,17 @@ export function RelatedProductsSection({
   }
 
   return (
-    <section className="space-y-4">
-      <div>
-        <h2 className="text-xl font-semibold text-[var(--foreground-strong)]">
-          Tambien puede interesarte
+    <section className="rounded-[28px] border border-[var(--line)] bg-[var(--panel-strong)] p-4 shadow-[var(--shadow)] md:p-5">
+      <div className="mb-4">
+        <h2 className="text-lg font-semibold text-[var(--foreground-strong)] md:text-xl">
+          Tambien podria interesarte
         </h2>
-        <p className="text-sm text-[var(--muted)]">
-          Otros productos disponibles dentro de la misma categoria.
+        <p className="text-xs text-[var(--muted)] md:text-sm">
+          Otros productos de esta tienda en la misma categoria.
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-3 xl:grid-cols-4">
         {items.map((product) => (
           <StoreProductCard
             key={product.id}

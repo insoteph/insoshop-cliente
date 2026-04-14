@@ -70,7 +70,7 @@ export function StoreProductCard({
             <span
               className={`rounded-full px-2 py-1 text-[9px] font-bold uppercase tracking-[0.16em] sm:px-2.5 sm:text-[10px] sm:tracking-[0.18em] ${
                 isAvailable
-                  ? "bg-[#efeaff] text-[#6d38ff]"
+                  ? "bg-[var(--accent-soft)] text-[var(--accent)]"
                   : "bg-[#fff1f0] text-[#c8493d]"
               }`}
             >
@@ -89,18 +89,22 @@ export function StoreProductCard({
                   : "border-[var(--line)] text-[var(--muted)]"
               } ${isHeartAnimating ? "scale-90" : "scale-100 hover:scale-105"}`}
             >
-              <svg
-                viewBox="0 0 24 24"
-                className={`h-4 w-4 transition-all ${
-                  isHeartAnimating ? "scale-125" : "scale-100"
-                }`}
-                fill={isFavorite ? "currentColor" : "none"}
-                stroke="currentColor"
-                strokeWidth="1.8"
+              <span
                 aria-hidden="true"
-              >
-                <path d="M12 21s-6.716-4.313-9.141-8.005C1.347 10.699 2.02 7.59 4.554 6.273c2.062-1.071 4.544-.459 5.946 1.29 1.402-1.749 3.884-2.361 5.946-1.29 2.534 1.317 3.207 4.426 1.695 6.722C18.716 16.687 12 21 12 21z" />
-              </svg>
+                className={`h-4 w-4 transition-all ${isHeartAnimating ? "scale-125" : "scale-100"}`}
+                style={{
+                  WebkitMaskImage: "url(/icons/heart.svg)",
+                  maskImage: "url(/icons/heart.svg)",
+                  WebkitMaskRepeat: "no-repeat",
+                  maskRepeat: "no-repeat",
+                  WebkitMaskPosition: "center",
+                  maskPosition: "center",
+                  WebkitMaskSize: "contain",
+                  maskSize: "contain",
+                  backgroundColor: "currentColor",
+                  opacity: isFavorite ? 1 : 0.84,
+                }}
+              />
             </button>
           ) : null}
         </div>
@@ -145,7 +149,7 @@ export function StoreProductCard({
         <button
           type="button"
           disabled={!isAvailable}
-          className="inline-flex items-center justify-center rounded-xl bg-[var(--accent)] text-sm font-semibold text-white shadow-[0_16px_26px_rgba(109,56,255,0.2)] disabled:pointer-events-none disabled:opacity-50 sm:rounded-2xl"
+          className="inline-flex items-center justify-center rounded-xl bg-[var(--accent)] text-sm font-semibold text-white shadow-[var(--shadow)] disabled:pointer-events-none disabled:opacity-50 sm:rounded-2xl"
           onClick={handleAddToCart}
         >
           <span

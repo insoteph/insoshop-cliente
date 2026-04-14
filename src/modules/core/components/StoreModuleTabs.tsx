@@ -7,7 +7,8 @@ export type StoreModuleTabId =
   | "productos"
   | "categorias"
   | "ventas"
-  | "usuarios";
+  | "usuarios"
+  | "configuraciones";
 
 const TAB_LABELS: Record<StoreModuleTabId, string> = {
   informacion: "Informacion",
@@ -15,6 +16,7 @@ const TAB_LABELS: Record<StoreModuleTabId, string> = {
   categorias: "Categorias",
   ventas: "Ventas",
   usuarios: "Usuarios",
+  configuraciones: "Configuraciones",
 };
 
 type StoreModuleTabsProps = {

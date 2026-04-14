@@ -216,16 +216,22 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                       : "border-[var(--line)] text-[var(--muted)] hover:border-[var(--line-strong)]"
                   }`}
                 >
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="h-5 w-5"
-                    fill={isFavorite ? "currentColor" : "none"}
-                    stroke="currentColor"
-                    strokeWidth="1.8"
+                  <span
                     aria-hidden="true"
-                  >
-                    <path d="M12 21s-6.716-4.313-9.141-8.005C1.347 10.699 2.02 7.59 4.554 6.273c2.062-1.071 4.544-.459 5.946 1.29 1.402-1.749 3.884-2.361 5.946-1.29 2.534 1.317 3.207 4.426 1.695 6.722C18.716 16.687 12 21 12 21z" />
-                  </svg>
+                    className="h-5 w-5"
+                    style={{
+                      WebkitMaskImage: "url(/icons/heart.svg)",
+                      maskImage: "url(/icons/heart.svg)",
+                      WebkitMaskRepeat: "no-repeat",
+                      maskRepeat: "no-repeat",
+                      WebkitMaskPosition: "center",
+                      maskPosition: "center",
+                      WebkitMaskSize: "contain",
+                      maskSize: "contain",
+                      backgroundColor: "currentColor",
+                      opacity: isFavorite ? 1 : 0.84,
+                    }}
+                  />
                 </button>
               </div>
               <h1 className="text-3xl font-semibold text-[var(--foreground-strong)]">
@@ -302,7 +308,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                 <button
                   type="button"
                   disabled={isOutOfStock}
-                  className="rounded-2xl bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white shadow-[0_16px_26px_rgba(109,56,255,0.2)] disabled:opacity-50"
+                  className="rounded-2xl bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white shadow-[var(--shadow)] disabled:opacity-50"
                   onClick={() => {
                     addItem({
                       productId: product.id,

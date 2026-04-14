@@ -20,6 +20,10 @@ export const permissions = {
   ventas: {
     ver: "Ventas.Ver",
   },
+  metodosPago: {
+    ver: "MetodosPago.Ver",
+    cambiarEstado: "MetodosPago.Eliminar",
+  },
   usuarios: {
     ver: "Usuarios.Ver",
     crear: "Usuarios.Crear",

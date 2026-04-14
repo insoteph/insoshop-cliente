@@ -25,7 +25,7 @@ export function StoreCatalogThemeToggle({
     >
       <span
         aria-hidden="true"
-        className={`h-5 w-5 ${isDark ? "text-[#fbbf24]" : "text-[#6d38ff]"}`}
+        className={`h-5 w-5 ${isDark ? "text-[#fbbf24]" : "text-[var(--accent)]"}`}
         style={{
           WebkitMaskImage: `url(${iconPath})`,
           maskImage: `url(${iconPath})`,
