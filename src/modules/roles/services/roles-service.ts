@@ -73,6 +73,11 @@ export async function syncRolePermissions(payload: {
     (permissionValue) => !payload.nextPermissions.includes(permissionValue)
   );
 
-  await assignPermissionsToRoleApi(payload.roleId, permissionsToAssign);
-  await removePermissionsFromRoleApi(payload.roleId, permissionsToRemove);
+  if (permissionsToAssign.length > 0) {
+    await assignPermissionsToRoleApi(payload.roleId, permissionsToAssign);
+  }
+
+  if (permissionsToRemove.length > 0) {
+    await removePermissionsFromRoleApi(payload.roleId, permissionsToRemove);
+  }
 }

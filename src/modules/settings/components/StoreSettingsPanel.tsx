@@ -5,12 +5,16 @@ import { PaymentMethodsSettingsPanel } from "@/modules/settings/components/Payme
 type StoreSettingsPanelProps = {
   storeId: number;
   hasGlobalAccess: boolean;
+  canCreatePaymentMethods: boolean;
+  canEditPaymentMethods: boolean;
   canTogglePaymentMethods: boolean;
 };
 
 export function StoreSettingsPanel({
   storeId,
   hasGlobalAccess,
+  canCreatePaymentMethods,
+  canEditPaymentMethods,
   canTogglePaymentMethods,
 }: StoreSettingsPanelProps) {
   return (
@@ -27,9 +31,10 @@ export function StoreSettingsPanel({
       <PaymentMethodsSettingsPanel
         storeId={storeId}
         hasGlobalAccess={hasGlobalAccess}
+        canCreate={canCreatePaymentMethods}
+        canEdit={canEditPaymentMethods}
         canToggle={canTogglePaymentMethods}
       />
     </section>
   );
 }
-

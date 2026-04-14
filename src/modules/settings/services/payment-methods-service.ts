@@ -8,6 +8,12 @@ export type PaymentMethod = {
   tiendaNombre?: string;
 };
 
+type SavePaymentMethodPayload = {
+  nombre: string;
+  storeId: number;
+  hasGlobalAccess: boolean;
+};
+
 type FetchPaymentMethodsParams = {
   storeId: number;
   hasGlobalAccess: boolean;
@@ -57,3 +63,26 @@ export async function togglePaymentMethodStatus(methodId: number, storeId: numbe
   });
 }
 
+export async function createPaymentMethod(payload: SavePaymentMethodPayload) {
+  return apiFetch<{ id: number }>("/metodospago", {
+    method: "POST",
+    storeId: payload.storeId,
+    body: {
+      nombre: payload.nombre,
+      ...(payload.hasGlobalAccess ? { tiendaId: payload.storeId } : {}),
+    },
+  });
+}
+
+export async function updatePaymentMethod(
+  methodId: number,
+  payload: SavePaymentMethodPayload,
+) {
+  return apiFetch<null>(`/metodospago/${methodId}`, {
+    method: "PUT",
+    storeId: payload.storeId,
+    body: {
+      nombre: payload.nombre,
+    },
+  });
+}

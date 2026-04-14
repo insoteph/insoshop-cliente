@@ -7,6 +7,7 @@ import { formatCurrency } from "@/modules/core/lib/formatters";
 import { StoreCatalogFooter } from "@/modules/store-catalog/components/StoreCatalogFooter";
 import { FloatingWhatsAppButton } from "@/modules/store-catalog/components/FloatingWhatsAppButton";
 import { storeCatalogThemeTokens } from "@/modules/store-catalog/lib/store-catalog-theme-tokens";
+import { usePublicStoreLightMode } from "@/modules/store-catalog/lib/use-public-store-light-mode";
 import {
   StoreCartProvider,
   useStoreCart,
@@ -54,6 +55,8 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [isSubmittingCheckout, setIsSubmittingCheckout] = useState(false);
 
+  usePublicStoreLightMode();
+
   useEffect(() => {
     let active = true;
 
@@ -86,7 +89,7 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
   }, [slug]);
 
   useEffect(() => {
-    if (!isCheckoutOpen || !store?.tiendaId) {
+    if (!isCheckoutOpen) {
       return;
     }
 
@@ -96,7 +99,7 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
 
     const timeoutId = window.setTimeout(async () => {
       try {
-        const result = await fetchPublicPaymentMethods(store.tiendaId);
+        const result = await fetchPublicPaymentMethods(slug);
         if (!active) {
           return;
         }
@@ -125,7 +128,7 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
       active = false;
       window.clearTimeout(timeoutId);
     };
-  }, [isCheckoutOpen, store?.tiendaId]);
+  }, [isCheckoutOpen, slug]);
 
   const total = useMemo(() => subtotal, [subtotal]);
 
@@ -295,10 +298,10 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
                     className="flex flex-col gap-3 rounded-[24px] border border-[var(--line)] bg-[var(--panel-strong)] p-4 shadow-[var(--shadow)] sm:flex-row sm:items-center"
                   >
                     <div className="h-20 w-20 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)]">
-                      {item.imagenUrl ? (
+                      {item.imagenUrl?.trim() ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
-                          src={item.imagenUrl}
+                          src={item.imagenUrl.trim()}
                           alt={item.nombre}
                           className="h-full w-full object-cover"
                         />
@@ -539,4 +542,3 @@ export function StoreCartView({ slug }: StoreCartViewProps) {
     </StoreCartProvider>
   );
 }
-

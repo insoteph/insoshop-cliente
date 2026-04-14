@@ -11,20 +11,34 @@ import { DataTableToolbar } from "@/modules/core/components/DataTableToolbar";
 import { SearchBar } from "@/modules/core/components/SearchBar";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
 import {
+  createPaymentMethod,
   fetchPaymentMethods,
   togglePaymentMethodStatus,
   type PaymentMethod,
+  updatePaymentMethod,
 } from "@/modules/settings/services/payment-methods-service";
 
 type PaymentMethodsSettingsPanelProps = {
   storeId: number;
   hasGlobalAccess: boolean;
+  canCreate: boolean;
+  canEdit: boolean;
   canToggle: boolean;
+};
+
+type PaymentMethodFormState = {
+  nombre: string;
+};
+
+const INITIAL_FORM_STATE: PaymentMethodFormState = {
+  nombre: "",
 };
 
 export function PaymentMethodsSettingsPanel({
   storeId,
   hasGlobalAccess,
+  canCreate,
+  canEdit,
   canToggle,
 }: PaymentMethodsSettingsPanelProps) {
   const { confirm } = useConfirmationDialog();
@@ -39,6 +53,12 @@ export function PaymentMethodsSettingsPanel({
   >("todos");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [editingMethod, setEditingMethod] = useState<PaymentMethod | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [form, setForm] = useState<PaymentMethodFormState>(INITIAL_FORM_STATE);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const loadMethods = useCallback(async () => {
     setIsLoading(true);
@@ -72,6 +92,44 @@ export function PaymentMethodsSettingsPanel({
     void loadMethods();
   }, [loadMethods]);
 
+  useEffect(() => {
+    if (!isFormOpen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isFormOpen]);
+
+  const closeForm = useCallback(() => {
+    setIsFormOpen(false);
+    setEditingMethod(null);
+    setForm(INITIAL_FORM_STATE);
+    setFormError(null);
+  }, []);
+
+  const openCreateForm = useCallback(() => {
+    setMessage(null);
+    setFormError(null);
+    setEditingMethod(null);
+    setForm(INITIAL_FORM_STATE);
+    setIsFormOpen(true);
+  }, []);
+
+  const openEditForm = useCallback((method: PaymentMethod) => {
+    setMessage(null);
+    setFormError(null);
+    setEditingMethod(method);
+    setForm({
+      nombre: method.nombre,
+    });
+    setIsFormOpen(true);
+  }, []);
+
   const handleToggleStatus = useCallback(
     async (method: PaymentMethod) => {
       const nextAction = method.estado ? "inactivar" : "activar";
@@ -86,8 +144,15 @@ export function PaymentMethodsSettingsPanel({
         return;
       }
 
+      setMessage(null);
+
       try {
         await togglePaymentMethodStatus(method.id, storeId);
+        setMessage(
+          method.estado
+            ? "Metodo de pago inactivado correctamente."
+            : "Metodo de pago activado correctamente.",
+        );
         await loadMethods();
       } catch (toggleError) {
         setError(
@@ -99,6 +164,50 @@ export function PaymentMethodsSettingsPanel({
     },
     [confirm, loadMethods, storeId],
   );
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setFormError(null);
+    setMessage(null);
+
+    if (!form.nombre.trim()) {
+      setFormError("El nombre del metodo de pago es obligatorio.");
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      if (editingMethod) {
+        await updatePaymentMethod(editingMethod.id, {
+          nombre: form.nombre.trim(),
+          storeId,
+          hasGlobalAccess,
+        });
+        setMessage("Metodo de pago actualizado correctamente.");
+      } else {
+        await createPaymentMethod({
+          nombre: form.nombre.trim(),
+          storeId,
+          hasGlobalAccess,
+        });
+        setMessage("Metodo de pago creado correctamente.");
+      }
+
+      closeForm();
+      await loadMethods();
+    } catch (saveError) {
+      setFormError(
+        saveError instanceof Error
+          ? saveError.message
+          : editingMethod
+            ? "No se pudo actualizar el metodo de pago."
+            : "No se pudo crear el metodo de pago.",
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  }
 
   const columns = useMemo<DataTableColumn<PaymentMethod>[]>(() => {
     const baseColumns: DataTableColumn<PaymentMethod>[] = [
@@ -148,16 +257,28 @@ export function PaymentMethodsSettingsPanel({
     [],
   );
 
-  const rowActions = canToggle
+  const rowActions = canEdit || canToggle
     ? {
-        primaryButtonLabel: "Cambiar estado",
-        onPrimaryAction: handleToggleStatus,
+        primaryButtonLabel: canEdit ? "Editar" : "Cambiar estado",
+        onPrimaryAction: canEdit ? openEditForm : handleToggleStatus,
         dropdownOptions: [
-          {
-            label: (method: PaymentMethod) =>
-              method.estado ? "Inactivar" : "Activar",
-            onClick: handleToggleStatus,
-          },
+          ...(canEdit
+            ? [
+                {
+                  label: "Editar",
+                  onClick: openEditForm,
+                },
+              ]
+            : []),
+          ...(canToggle
+            ? [
+                {
+                  label: (method: PaymentMethod) =>
+                    method.estado ? "Inactivar" : "Activar",
+                  onClick: handleToggleStatus,
+                },
+              ]
+            : []),
         ],
       }
     : undefined;
@@ -165,13 +286,25 @@ export function PaymentMethodsSettingsPanel({
   return (
     <section className="space-y-5">
       <div className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-md">
-        <div>
-          <h3 className="text-lg font-semibold text-[var(--foreground)]">
-            Metodos de pago
-          </h3>
-          <p className="text-sm text-[var(--muted)]">
-            Gestiona disponibilidad de metodos segun el alcance de tu usuario.
-          </p>
+        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-[var(--foreground)]">
+              Metodos de pago
+            </h3>
+            <p className="text-sm text-[var(--muted)]">
+              Gestiona disponibilidad y nombres de metodos segun el alcance de tu usuario.
+            </p>
+          </div>
+
+          {canCreate ? (
+            <button
+              type="button"
+              className="app-button-primary rounded-2xl px-4 py-3 text-sm font-semibold"
+              onClick={openCreateForm}
+            >
+              Crear metodo de pago
+            </button>
+          ) : null}
         </div>
 
         <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_240px]">
@@ -206,6 +339,12 @@ export function PaymentMethodsSettingsPanel({
             {error}
           </p>
         ) : null}
+
+        {message ? (
+          <p className="app-alert-success rounded-2xl px-4 py-3 text-sm">
+            {message}
+          </p>
+        ) : null}
       </div>
 
       <div className="app-card rounded-2xl py-2">
@@ -235,6 +374,101 @@ export function PaymentMethodsSettingsPanel({
           />
         </div>
       </div>
+
+      {isFormOpen ? (
+        <div
+          className="fixed inset-0 z-[130] flex items-center justify-center bg-black/45 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="payment-method-modal-title"
+          onClick={() => {
+            if (!isSaving) {
+              closeForm();
+            }
+          }}
+        >
+          <form
+            className="w-full max-w-xl space-y-5 rounded-[28px] border border-[var(--line)] bg-[var(--panel-strong)] p-6 shadow-[var(--shadow)]"
+            onSubmit={handleSubmit}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
+                  Configuración
+                </p>
+                <h4
+                  id="payment-method-modal-title"
+                  className="text-xl font-semibold text-[var(--foreground)]"
+                >
+                  {editingMethod ? "Editar metodo de pago" : "Crear metodo de pago"}
+                </h4>
+                <p className="text-sm text-[var(--muted)]">
+                  {editingMethod
+                    ? "Actualiza el nombre del metodo de pago seleccionado."
+                    : "Registra un nuevo metodo de pago para esta tienda."}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="app-button-secondary rounded-2xl px-3 py-2 text-sm font-semibold"
+                onClick={closeForm}
+                disabled={isSaving}
+              >
+                Cerrar
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="payment-method-name"
+                className="text-sm font-medium text-[var(--foreground)]"
+              >
+                Nombre
+              </label>
+              <input
+                id="payment-method-name"
+                required
+                autoFocus
+                value={form.nombre}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    nombre: event.target.value,
+                  }))
+                }
+                placeholder="Nombre del metodo de pago"
+                className="app-input w-full rounded-2xl px-4 py-3 text-sm"
+              />
+            </div>
+
+            {formError ? (
+              <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
+                {formError}
+              </p>
+            ) : null}
+
+            <div className="flex flex-wrap justify-end gap-2">
+              <button
+                type="button"
+                className="app-button-secondary rounded-2xl px-4 py-3 text-sm font-semibold"
+                onClick={closeForm}
+                disabled={isSaving}
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="app-button-primary rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
+                disabled={isSaving}
+              >
+                {isSaving ? "Guardando..." : editingMethod ? "Guardar cambios" : "Crear"}
+              </button>
+            </div>
+          </form>
+        </div>
+      ) : null}
     </section>
   );
 }

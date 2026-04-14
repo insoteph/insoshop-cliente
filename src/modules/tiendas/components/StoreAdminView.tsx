@@ -174,6 +174,12 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
             <StoreSettingsPanel
               storeId={storeId}
               hasGlobalAccess={Boolean(currentUser?.tieneAccesoGlobal)}
+              canCreatePaymentMethods={hasPermission(
+                permissions.metodosPago.crear,
+              )}
+              canEditPaymentMethods={hasPermission(
+                permissions.metodosPago.editar,
+              )}
               canTogglePaymentMethods={hasPermission(
                 permissions.metodosPago.cambiarEstado,
               )}

@@ -22,6 +22,8 @@ export const permissions = {
   },
   metodosPago: {
     ver: "MetodosPago.Ver",
+    crear: "MetodosPago.Crear",
+    editar: "MetodosPago.Editar",
     cambiarEstado: "MetodosPago.Eliminar",
   },
   usuarios: {

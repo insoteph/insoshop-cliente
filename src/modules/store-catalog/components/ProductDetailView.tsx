@@ -10,18 +10,13 @@ import { ProductImageGallery } from "@/modules/store-catalog/components/ProductI
 import { RelatedProductsSection } from "@/modules/store-catalog/components/RelatedProductsSection";
 import { StoreCartButton } from "@/modules/store-catalog/components/StoreCartButton";
 import { StoreCatalogFooter } from "@/modules/store-catalog/components/StoreCatalogFooter";
-import { StoreCatalogThemeToggle } from "@/modules/store-catalog/components/StoreCatalogThemeToggle";
-import {
-  readStoreCatalogTheme,
-  writeStoreCatalogTheme,
-  type StoreCatalogTheme,
-} from "@/modules/store-catalog/lib/store-catalog-theme-storage";
 import { storeCatalogThemeTokens } from "@/modules/store-catalog/lib/store-catalog-theme-tokens";
 import {
   readStoreFavorites,
   writeStoreFavorites,
   type StoreFavoriteProduct,
 } from "@/modules/store-catalog/lib/store-favorites-storage";
+import { usePublicStoreLightMode } from "@/modules/store-catalog/lib/use-public-store-light-mode";
 import {
   StoreCartProvider,
   useStoreCart,
@@ -54,7 +49,6 @@ function toFavoriteProduct(product: PublicStoreProduct): StoreFavoriteProduct {
 function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
   const router = useRouter();
   const { addItem, totalItems } = useStoreCart();
-  const [theme, setTheme] = useState<StoreCatalogTheme>("light");
   const [product, setProduct] = useState<PublicStoreProduct | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
@@ -66,13 +60,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
     null,
   );
 
-  useEffect(() => {
-    setTheme(readStoreCatalogTheme());
-  }, []);
-
-  useEffect(() => {
-    writeStoreCatalogTheme(theme);
-  }, [theme]);
+  usePublicStoreLightMode();
 
   useEffect(() => {
     setFavoriteItems(readStoreFavorites(slug));
@@ -140,7 +128,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
     return (
       <main
         className="min-h-screen bg-[var(--background)] px-4 py-8 md:px-8 lg:px-12"
-        style={storeCatalogThemeTokens[theme]}
+        style={storeCatalogThemeTokens.light}
       >
         <div className="mx-auto max-w-6xl">
           <div className="h-[560px] rounded-[32px] border border-[var(--line)] bg-[var(--panel-strong)]" />
@@ -153,7 +141,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
     return (
       <main
         className="min-h-screen bg-[var(--background)] px-4 py-8 md:px-8 lg:px-12"
-        style={storeCatalogThemeTokens[theme]}
+        style={storeCatalogThemeTokens.light}
       >
         <div className="mx-auto max-w-3xl space-y-4">
           <Link
@@ -171,7 +159,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
   }
 
   return (
-    <div className="bg-[var(--background)]" style={storeCatalogThemeTokens[theme]}>
+    <div className="bg-[var(--background)]" style={storeCatalogThemeTokens.light}>
       <main className="min-h-screen bg-[var(--background)] px-4 py-8 md:px-8 lg:px-12">
         <section className="mx-auto w-full max-w-7xl space-y-5">
           <header className="flex flex-wrap items-center justify-between gap-3 rounded-[28px] border border-[var(--line)] bg-[var(--panel-strong)] px-4 py-3 shadow-[var(--shadow)]">
@@ -183,12 +171,6 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
             </Link>
 
             <div className="flex flex-wrap items-center gap-2">
-              <StoreCatalogThemeToggle
-                theme={theme}
-                onToggle={() =>
-                  setTheme((current) => (current === "dark" ? "light" : "dark"))
-                }
-              />
               <StoreCartButton slug={slug} totalItems={totalItems} />
             </div>
           </header>

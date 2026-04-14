@@ -90,6 +90,7 @@ export function StoreCartProvider({
                 item.cantidad + Math.max(1, payload.cantidad),
                 item.cantidadDisponible,
               ),
+              imagenUrl: item.imagenUrl || payload.imagenUrl,
             }
           : item,
       );

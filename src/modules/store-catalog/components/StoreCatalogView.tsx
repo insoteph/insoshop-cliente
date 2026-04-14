@@ -7,20 +7,15 @@ import { FloatingWhatsAppButton } from "@/modules/store-catalog/components/Float
 import { StoreCartButton } from "@/modules/store-catalog/components/StoreCartButton";
 import { StoreCatalogFilters } from "@/modules/store-catalog/components/StoreCatalogFilters";
 import { StoreCatalogFooter } from "@/modules/store-catalog/components/StoreCatalogFooter";
-import { StoreCatalogThemeToggle } from "@/modules/store-catalog/components/StoreCatalogThemeToggle";
 import { StoreFavoritesPanel } from "@/modules/store-catalog/components/StoreFavoritesPanel";
 import { StoreProductCard } from "@/modules/store-catalog/components/StoreProductCard";
-import {
-  readStoreCatalogTheme,
-  writeStoreCatalogTheme,
-  type StoreCatalogTheme,
-} from "@/modules/store-catalog/lib/store-catalog-theme-storage";
 import { storeCatalogThemeTokens } from "@/modules/store-catalog/lib/store-catalog-theme-tokens";
 import {
   readStoreFavorites,
   writeStoreFavorites,
   type StoreFavoriteProduct,
 } from "@/modules/store-catalog/lib/store-favorites-storage";
+import { usePublicStoreLightMode } from "@/modules/store-catalog/lib/use-public-store-light-mode";
 import {
   StoreCartProvider,
   useStoreCart,
@@ -53,7 +48,6 @@ function toFavoriteProduct(product: PublicStoreProduct): StoreFavoriteProduct {
 function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
   const { totalItems } = useStoreCart();
 
-  const [theme, setTheme] = useState<StoreCatalogTheme>("light");
   const [store, setStore] = useState<PublicStoreSummary | null>(null);
   const [products, setProducts] = useState<PublicStoreProduct[]>([]);
   const [categories, setCategories] = useState<PublicStoreCategory[]>([]);
@@ -73,13 +67,7 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
   );
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
 
-  useEffect(() => {
-    setTheme(readStoreCatalogTheme());
-  }, []);
-
-  useEffect(() => {
-    writeStoreCatalogTheme(theme);
-  }, [theme]);
+  usePublicStoreLightMode();
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -169,7 +157,7 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
   }, []);
 
   return (
-    <div className="bg-[var(--background)]" style={storeCatalogThemeTokens[theme]}>
+    <div className="bg-[var(--background)]" style={storeCatalogThemeTokens.light}>
       <main className="min-h-screen bg-[var(--background)]">
         <section className="mx-auto w-full max-w-[1440px] px-4 py-4 md:px-6 lg:px-8 lg:py-6">
           <header className="sticky top-0 z-30 rounded-[24px] border border-[var(--line)] bg-[var(--panel-strong)] p-3 shadow-[var(--shadow)] backdrop-blur lg:static lg:rounded-[28px] lg:p-5">
@@ -200,12 +188,6 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
                 </div>
 
                 <div className="flex shrink-0 items-center gap-2">
-                  <StoreCatalogThemeToggle
-                    theme={theme}
-                    onToggle={() =>
-                      setTheme((current) => (current === "dark" ? "light" : "dark"))
-                    }
-                  />
                   <StoreFavoritesPanel
                     slug={slug}
                     currency={store?.moneda ?? "HNL"}

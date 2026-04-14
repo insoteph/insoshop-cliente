@@ -45,6 +45,24 @@ function buildPermissionGroups(items: string[]) {
     }));
 }
 
+function dedupePermissionValues(items: string[]) {
+  return Array.from(new Set(items));
+}
+
+function dedupeRolePermissions(items: RolePermission[]) {
+  const uniquePermissions = new Map<string, RolePermission>();
+
+  for (const item of items) {
+    const key = `${item.claimType}:${item.claimValue}`;
+
+    if (!uniquePermissions.has(key)) {
+      uniquePermissions.set(key, item);
+    }
+  }
+
+  return Array.from(uniquePermissions.values());
+}
+
 export function RolesManagementView() {
   const router = useRouter();
   const { confirm } = useConfirmationDialog();
@@ -138,7 +156,7 @@ export function RolesManagementView() {
 
       try {
         const result = await fetchPermissionsCatalog();
-        setPermissionsCatalog(result);
+        setPermissionsCatalog(dedupePermissionValues(result));
       } catch (loadError) {
         setCatalogError(
           loadError instanceof Error
@@ -158,13 +176,15 @@ export function RolesManagementView() {
       return;
     }
 
+    const roleId = selectedRoleId;
+
     async function loadDetailPermissions() {
       setIsLoadingRolePermissions(true);
       setRolePermissionsError(null);
 
       try {
-        const result = await fetchRolePermissions(selectedRoleId);
-        setSelectedRolePermissions(result);
+        const result = await fetchRolePermissions(roleId);
+        setSelectedRolePermissions(dedupeRolePermissions(result));
       } catch (loadError) {
         setRolePermissionsError(
           loadError instanceof Error
@@ -251,7 +271,9 @@ export function RolesManagementView() {
     try {
       const rolePermissions = await fetchRolePermissions(role.id);
       setEditingPermissions(
-        rolePermissions.map((permissionItem) => permissionItem.claimValue)
+        dedupePermissionValues(
+          rolePermissions.map((permissionItem) => permissionItem.claimValue)
+        )
       );
       openEditFormPanel();
     } catch (loadError) {
@@ -462,97 +484,101 @@ export function RolesManagementView() {
 
       {isEditFormMounted && editingRole ? (
         <div
-          className={`origin-top overflow-hidden transition-all duration-500 ease-in-out ${
+          className={`grid origin-top transition-all duration-500 ease-in-out ${
             isEditFormVisible
-              ? "max-h-[1800px] translate-y-0 opacity-100"
-              : "pointer-events-none max-h-0 -translate-y-2 opacity-0"
+              ? "grid-rows-[1fr] translate-y-0 opacity-100"
+              : "pointer-events-none grid-rows-[0fr] -translate-y-2 opacity-0"
           }`}
         >
-          <form className="panel-card space-y-4" onSubmit={handleSubmitEdit}>
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <h2 className="text-lg font-semibold text-[var(--foreground)]">
-                  Editar rol
-                </h2>
-                <p className="text-sm text-[var(--muted)]">
-                  Actualiza el nombre del rol y sus permisos.
-                </p>
+          <div className="min-h-0 overflow-hidden">
+            <form className="panel-card space-y-4" onSubmit={handleSubmitEdit}>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-lg font-semibold text-[var(--foreground)]">
+                    Editar rol
+                  </h2>
+                  <p className="text-sm text-[var(--muted)]">
+                    Actualiza el nombre del rol y sus permisos.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  className="app-button-secondary rounded-xl px-3 py-2 text-sm"
+                  onClick={() => closeEditFormPanel(true)}
+                >
+                  Cerrar
+                </button>
               </div>
 
-              <button
-                type="button"
-                className="app-button-secondary rounded-xl px-3 py-2 text-sm"
-                onClick={() => closeEditFormPanel(true)}
-              >
-                Cerrar
-              </button>
-            </div>
+              <input
+                required
+                value={editingName}
+                onChange={(event) => setEditingName(event.target.value)}
+                placeholder="Nombre del rol"
+                className="app-input rounded-2xl px-4 py-3 text-sm"
+              />
 
-            <input
-              required
-              value={editingName}
-              onChange={(event) => setEditingName(event.target.value)}
-              placeholder="Nombre del rol"
-              className="app-input rounded-2xl px-4 py-3 text-sm"
-            />
-
-            {canManagePermissions ? (
-              catalogError ? (
-                <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
-                  {catalogError}
-                </p>
-              ) : (
-                <div className="grid gap-4 xl:grid-cols-2">
-                  {buildPermissionGroups(permissionsCatalog).map((group) => (
-                    <div
-                      key={group.label}
-                      className="app-card-muted rounded-3xl p-4"
-                    >
-                      <p className="mb-3 text-sm font-semibold text-[var(--foreground)]">
-                        {group.label}
-                      </p>
-                      <div className="space-y-3">
-                        {group.items.map((permissionValue) => (
-                          <label
-                            key={permissionValue}
-                            className="flex items-start gap-3 text-sm text-[var(--foreground)]"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={editingPermissions.includes(permissionValue)}
-                              onChange={() => toggleEditingPermission(permissionValue)}
-                              className="mt-1"
-                            />
-                            <span>{permissionValue}</span>
-                          </label>
-                        ))}
+              {canManagePermissions ? (
+                catalogError ? (
+                  <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
+                    {catalogError}
+                  </p>
+                ) : (
+                  <div className="grid gap-4 xl:grid-cols-2">
+                    {buildPermissionGroups(permissionsCatalog).map((group) => (
+                      <div
+                        key={group.label}
+                        className="app-card-muted rounded-3xl p-4"
+                      >
+                        <p className="mb-3 text-sm font-semibold text-[var(--foreground)]">
+                          {group.label}
+                        </p>
+                        <div className="space-y-3">
+                          {group.items.map((permissionValue) => (
+                            <label
+                              key={permissionValue}
+                              className="flex items-start gap-3 text-sm text-[var(--foreground)]"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={editingPermissions.includes(permissionValue)}
+                                onChange={() =>
+                                  toggleEditingPermission(permissionValue)
+                                }
+                                className="mt-1"
+                              />
+                              <span>{permissionValue}</span>
+                            </label>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )
-            ) : (
-              <p className="app-card-muted rounded-2xl px-4 py-3 text-sm text-[var(--muted)]">
-                Tu usuario puede editar roles, pero no claims de permisos.
-              </p>
-            )}
+                    ))}
+                  </div>
+                )
+              ) : (
+                <p className="app-card-muted rounded-2xl px-4 py-3 text-sm text-[var(--muted)]">
+                  Tu usuario puede editar roles, pero no claims de permisos.
+                </p>
+              )}
 
-            {formError ? (
-              <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
-                {formError}
-              </p>
-            ) : null}
+              {formError ? (
+                <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
+                  {formError}
+                </p>
+              ) : null}
 
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                disabled={isSaving}
-                className="app-button-primary rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
-              >
-                {isSaving ? "Guardando..." : "Guardar cambios"}
-              </button>
-            </div>
-          </form>
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className="app-button-primary rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
+                >
+                  {isSaving ? "Guardando..." : "Guardar cambios"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       ) : null}
 
@@ -621,4 +647,3 @@ export function RolesManagementView() {
     </section>
   );
 }
-
