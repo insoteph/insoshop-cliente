@@ -200,40 +200,47 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
 
       if (digitsOnly) {
         const lines = [
-          `Hola ${store?.nombre ?? ""}👋`,
-          `Quisiera adquirir estos productos desde el catalogo digital.`,
+          `Hola ${store?.nombre ?? ""} 👋`,
+          `Quisiera realizar la siguiente compra desde el catálogo digital:`,
           ``,
-          `🧾Detalle de la orden`,
-          `Numero de orden: ${numeroOrden}`,
+          `━━━━━━━━━━━━━━━━━━`,
+          `🧾 *DETALLE DE LA ORDEN*`,
+          `━━━━━━━━━━━━━━━━━━`,
+          `Número de orden: ${numeroOrden}`,
           ``,
-          `👤Cliente:`,
+          `👤 *CLIENTE*`,
           `${checkoutForm.nombreCompleto.trim() || "Sin nombre"}`,
-          `Telefono: ${checkoutForm.telefono.trim() || "Sin telefono"}`,
+          `Teléfono: ${checkoutForm.telefono.trim() || "Sin telefono"}`,
           ``,
-          `🚚Tipo de Entrega:`,
+          `🚚 *TIPO DE ENTREGA*`,
           `${
             checkoutForm.tipoEntrega === "Domicilio"
               ? "A domicilio"
               : "Recoger en local"
           }`,
-          ``,
           checkoutForm.tipoEntrega === "Domicilio" &&
           checkoutForm.direccion.trim()
-            ? `📍Direccion de Entrega:\n${checkoutForm.direccion.trim()}\n`
+            ? `📍 Dirección:\n${checkoutForm.direccion.trim()}`
             : null,
-          `🛒Productos:`,
+          ``,
+          `🛒 *PRODUCTOS*`,
+          `━━━━━━━━━━━━━━━━━━`,
           ...items.map(
             (item) =>
-              `- ${item.nombre} x ${item.cantidad} = ${formatCurrency(
+              `• ${item.nombre}\n  Cantidad: ${item.cantidad} | Subtotal: ${formatCurrency(
                 item.precio * item.cantidad,
                 store?.moneda ?? "HNL",
               )}`,
           ),
+          `━━━━━━━━━━━━━━━━━━`,
           ``,
-          `💰Total a pagar:`,
+          `💰 *TOTAL A PAGAR*`,
           `${formatCurrency(total, store?.moneda ?? "HNL")}`,
           ``,
-          `Por favor espera mientras un encargado termina de procesar tu compra, agradecemos mucho tu preferencia al comprar en ${store?.nombre ?? ""}🤝`,
+          `━━━━━━━━━━━━━━━━━━`,
+          `Gracias por tu compra 🤝`,
+          `Un encargado estará confirmando y procesando tu pedido en breve.`,
+          `Agradecemos tu preferencia en ${store?.nombre ?? ""}.`,
         ].filter(Boolean);
 
         const message = lines.join("\n");
@@ -288,7 +295,9 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
                 <button
                   type="button"
                   className="inline-flex rounded-2xl bg-[var(--danger)] px-4 py-2.5 text-sm font-semibold text-white"
-                  onClick={() => clearCart({ notify: true, feedbackType: "cancel" })}
+                  onClick={() =>
+                    clearCart({ notify: true, feedbackType: "cancel" })
+                  }
                 >
                   Vaciar carrito
                 </button>

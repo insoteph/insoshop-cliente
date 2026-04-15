@@ -34,5 +34,5 @@ export type PublicStoreProductsQuery = {
   page?: number;
   pageSize?: number;
   search?: string;
-  categoriaId?: number | null;
+  categorias?: number | null;
 };

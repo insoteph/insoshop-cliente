@@ -103,7 +103,7 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
           page,
           pageSize,
           search: debouncedSearch,
-          categoriaId: selectedCategoryId,
+          categorias: selectedCategoryId,
         }),
         fetchPublicStoreCategories(slug),
       ]);

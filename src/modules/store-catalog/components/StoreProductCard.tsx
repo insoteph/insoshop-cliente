@@ -70,7 +70,7 @@ export function StoreProductCard({
             <span
               className={`rounded-full px-2 py-1 text-[9px] font-bold uppercase tracking-[0.16em] sm:px-2.5 sm:text-[10px] sm:tracking-[0.18em] ${
                 isAvailable
-                  ? "bg-[var(--accent-soft)] text-[var(--accent)]"
+                  ? "bg-blue-600 text-white"
                   : "bg-[#fff1f0] text-[#c8493d]"
               }`}
             >

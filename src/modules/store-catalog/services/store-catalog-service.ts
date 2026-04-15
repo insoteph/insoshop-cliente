@@ -16,14 +16,16 @@ function buildProductsQuery(params: PublicStoreProductsQuery) {
     query.set("search", params.search.trim());
   }
 
-  if (params.categoriaId && params.categoriaId > 0) {
-    query.set("categoriaId", String(params.categoriaId));
+  if (params.categorias && params.categorias > 0) {
+    query.set("categorias", String(params.categorias));
   }
 
   return query.toString();
 }
 
-export async function fetchPublicStoreProducts(params: PublicStoreProductsQuery) {
+export async function fetchPublicStoreProducts(
+  params: PublicStoreProductsQuery,
+) {
   const query = buildProductsQuery(params);
   const response = await apiFetch<PublicStoreProductsData>(
     `/store/${params.slug}/productos?${query}`,
@@ -36,14 +38,20 @@ export async function fetchPublicStoreProducts(params: PublicStoreProductsQuery)
 }
 
 export async function fetchPublicStoreCategories(slug: string) {
-  const response = await apiFetch<PublicStoreCategory[]>(`/store/${slug}/categorias`, {
-    auth: false,
-  });
+  const response = await apiFetch<PublicStoreCategory[]>(
+    `/store/${slug}/categorias`,
+    {
+      auth: false,
+    },
+  );
 
   return response.data;
 }
 
-export async function fetchPublicStoreProductById(slug: string, productId: number) {
+export async function fetchPublicStoreProductById(
+  slug: string,
+  productId: number,
+) {
   const response = await apiFetch<PublicStoreProduct>(
     `/store/${slug}/productos/${productId}`,
     {
