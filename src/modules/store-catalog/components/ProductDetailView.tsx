@@ -171,8 +171,8 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
       className="bg-[var(--background)]"
       style={storeCatalogThemeTokens.light}
     >
-      <main className="min-h-screen bg-[var(--background)] px-4 py-8 md:px-8 lg:px-12">
-        <section className="mx-auto w-full max-w-7xl space-y-5">
+      <main className="min-h-screen bg-[var(--background)] px-3 py-5 sm:px-4 sm:py-8 md:px-8 lg:px-12">
+        <section className="mx-auto w-full max-w-7xl space-y-4 sm:space-y-5">
           <header className="flex flex-wrap items-center justify-between gap-3 rounded-[28px] border border-[var(--line)] bg-[var(--panel-strong)] px-4 py-3 shadow-[var(--shadow)]">
             <Link
               href={`/${encodeURIComponent(slug)}`}
@@ -186,14 +186,14 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
             </div>
           </header>
 
-          <div className="grid gap-6 rounded-[34px] border border-[var(--line)] bg-[var(--panel)] p-5 shadow-[var(--shadow)] lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+          <div className="grid gap-4 rounded-[28px] border border-[var(--line)] bg-[var(--panel)] p-3 shadow-[var(--shadow)] sm:gap-5 sm:p-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-6 lg:rounded-[34px] lg:p-5">
             <ProductImageGallery
               productName={product.nombre}
               imageUrls={product.imagenes}
             />
 
-            <div className="space-y-5 rounded-[28px] border border-[var(--line)] bg-[var(--panel-strong)] p-5">
-              <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="space-y-4 rounded-[24px] border border-[var(--line)] bg-[var(--panel-strong)] p-4 sm:space-y-5 sm:rounded-[28px] sm:p-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <span className="inline-flex w-fit rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold text-[var(--accent)]">
                   {product.categoria}
                 </span>
@@ -227,15 +227,15 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                   />
                 </button>
               </div>
-              <h1 className="text-3xl font-semibold text-[var(--foreground-strong)]">
+              <h1 className="text-[2.1rem] font-semibold leading-[1.08] tracking-[-0.03em] text-[var(--foreground-strong)] sm:text-3xl sm:leading-tight">
                 {product.nombre}
               </h1>
-              <p className="text-sm leading-7 text-[var(--muted)]">
+              <p className="text-sm leading-6 text-[var(--muted)] sm:leading-7">
                 {product.descripcion}
               </p>
 
-              <div className="flex flex-wrap items-center gap-3">
-                <p className="text-3xl font-bold text-[var(--foreground-strong)]">
+              <div className="flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
+                <p className="text-[2.05rem] font-bold leading-none text-[var(--foreground-strong)] sm:text-3xl">
                   {formatCurrency(product.precio, currency)}
                 </p>
 
@@ -250,40 +250,42 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                 )}
               </div>
 
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-[var(--foreground)]">
-                  Cantidad
-                </p>
-                <div className="inline-flex items-center gap-2 rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] p-2">
-                  <button
-                    type="button"
-                    className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] text-lg font-semibold text-[var(--foreground)] disabled:opacity-50"
-                    onClick={() =>
-                      setQuantity((current) => Math.max(current - 1, 1))
-                    }
-                    disabled={isOutOfStock || quantity <= 1}
-                  >
-                    -
-                  </button>
-                  <span className="w-12 text-center text-sm font-semibold text-[var(--foreground)]">
-                    {quantity}
-                  </span>
-                  <button
-                    type="button"
-                    className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] text-lg font-semibold text-[var(--foreground)] disabled:opacity-50"
-                    onClick={() =>
-                      setQuantity((current) =>
-                        Math.min(current + 1, Math.max(maxQuantity, 1)),
-                      )
-                    }
-                    disabled={isOutOfStock || quantity >= maxQuantity}
-                  >
-                    +
-                  </button>
+              <div className="rounded-[22px] border border-[var(--line)] bg-[var(--panel-muted)] p-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-sm font-medium text-[var(--foreground)]">
+                    Cantidad
+                  </p>
+                  <div className="inline-flex w-full items-center justify-between gap-2 rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-2 sm:w-auto sm:justify-start">
+                    <button
+                      type="button"
+                      className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] text-lg font-semibold text-[var(--foreground)] disabled:opacity-50"
+                      onClick={() =>
+                        setQuantity((current) => Math.max(current - 1, 1))
+                      }
+                      disabled={isOutOfStock || quantity <= 1}
+                    >
+                      -
+                    </button>
+                    <span className="min-w-0 flex-1 text-center text-sm font-semibold text-[var(--foreground)] sm:w-12 sm:flex-none">
+                      {quantity}
+                    </span>
+                    <button
+                      type="button"
+                      className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] text-lg font-semibold text-[var(--foreground)] disabled:opacity-50"
+                      onClick={() =>
+                        setQuantity((current) =>
+                          Math.min(current + 1, Math.max(maxQuantity, 1)),
+                        )
+                      }
+                      disabled={isOutOfStock || quantity >= maxQuantity}
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-3">
                 <button
                   type="button"
                   disabled={isOutOfStock}
