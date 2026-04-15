@@ -53,7 +53,19 @@ export function StoreFavoritesPanel({
       </button>
 
       {isOpen ? (
-        <div className="absolute right-0 top-[calc(100%+10px)] z-30 w-[min(92vw,360px)] overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel-strong)] shadow-[0_26px_60px_rgba(20,26,48,0.25)]">
+        <div
+          className="
+      /* 1. Posicionamiento en MÓVIL */
+      fixed inset-x-4 top-16 z-50 mx-auto w-[calc(100%-32px)] 
+      
+      /* 2. Posicionamiento en DESKTOP (sm: 640px en adelante) */
+      sm:absolute sm:inset-x-auto sm:right-0 sm:top-[calc(100%+10px)] sm:w-[360px]
+      
+      /* Estilos visuales comunes */
+      overflow-hidden rounded-2xl border border-[var(--line)] 
+      bg-[var(--panel-strong)] shadow-[0_26px_60px_rgba(20,26,48,0.25)]
+    "
+        >
           <div className="border-b border-[var(--line)] px-4 py-3">
             <p className="text-sm font-semibold text-[var(--foreground-strong)]">
               Mis favoritos
@@ -79,7 +91,9 @@ export function StoreFavoritesPanel({
                     <p className="truncate text-sm font-semibold text-[var(--foreground)]">
                       {item.nombre}
                     </p>
-                    <p className="text-xs text-[var(--muted)]">{item.categoria}</p>
+                    <p className="text-xs text-[var(--muted)]">
+                      {item.categoria}
+                    </p>
                     <p className="text-xs font-semibold text-[var(--accent)]">
                       {formatCurrency(item.precio, currency)}
                     </p>
