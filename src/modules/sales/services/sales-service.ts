@@ -15,6 +15,33 @@ export type Sale = {
   createdAt: string;
 };
 
+export type SaleDetailItem = {
+  productoId: number;
+  nombreProducto: string;
+  cantidad: number;
+  precioUnitario: number;
+  subTotal: number;
+};
+
+export type SaleDetail = {
+  id: number;
+  numeroOrden: string;
+  tiendaId: number;
+  tiendaNombre: string;
+  clienteId: number | null;
+  clienteNombreCompleto: string;
+  clienteTelefono: string;
+  metodoPagoNombre: string;
+  estadoVentaNombre: string;
+  tipoEntrega: string;
+  direccion: string | null;
+  observacion: string | null;
+  subTotal: number;
+  total: number;
+  createdAt: string;
+  detalles: SaleDetailItem[];
+};
+
 type SalesQuery = {
   storeId: number;
   page?: number;
@@ -55,4 +82,28 @@ export async function fetchSales(params: SalesQuery) {
   );
 
   return response.data;
+}
+
+export async function fetchSaleDetail(saleId: number, storeId: number) {
+  const response = await apiFetch<SaleDetail>(`/ventas/${saleId}`, {
+    storeId,
+  });
+
+  return response.data;
+}
+
+export async function updateSaleStatus(
+  saleId: number,
+  storeId: number,
+  estado: "Completado" | "Cancelado",
+) {
+  const response = await apiFetch<null>(`/ventas/${saleId}/estado`, {
+    method: "PATCH",
+    storeId,
+    body: {
+      estado,
+    },
+  });
+
+  return response;
 }

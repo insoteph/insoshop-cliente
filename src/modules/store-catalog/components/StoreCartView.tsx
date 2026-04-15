@@ -179,7 +179,6 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
       const saleResponse = await createPublicSale({
         tiendaId: store.tiendaId,
         metodoPagoId: checkoutForm.metodoPagoId,
-        estadoVentaId: 1,
         clienteId: createdClient.id,
         tipoEntrega: checkoutForm.tipoEntrega,
         direccion:
@@ -289,7 +288,7 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
                 <button
                   type="button"
                   className="inline-flex rounded-2xl bg-[var(--danger)] px-4 py-2.5 text-sm font-semibold text-white"
-                  onClick={clearCart}
+                  onClick={() => clearCart({ notify: true, feedbackType: "cancel" })}
                 >
                   Vaciar carrito
                 </button>

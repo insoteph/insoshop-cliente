@@ -1,6 +1,13 @@
 "use client";
 
-import { useMemo, useState, type ChangeEvent, type ReactNode } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type ReactNode,
+} from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { useAdminSession } from "@/modules/auth/providers/AdminSessionProvider";
@@ -19,8 +26,18 @@ export function DashboardShell({ children, pageTitle }: DashboardShellProps) {
   const { theme, toggleTheme } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const { currentUser, isLoading, stores, activeStoreId, setActiveStoreId } =
-    useAdminSession();
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
+  const userMenuRef = useRef<HTMLDivElement | null>(null);
+  const {
+    currentUser,
+    isLoading,
+    stores,
+    activeStoreId,
+    setActiveStoreId,
+    logout,
+  } = useAdminSession();
 
   const initials = useMemo(() => {
     if (!currentUser?.nombre) {
@@ -34,10 +51,6 @@ export function DashboardShell({ children, pageTitle }: DashboardShellProps) {
       .map((chunk) => chunk[0]?.toUpperCase() ?? "")
       .join("");
   }, [currentUser]);
-
-  if (isLoading && !currentUser) {
-    return <ProcessingModal isOpen label="Cargando panel..." />;
-  }
 
   function handleSidebarToggle() {
     if (typeof window !== "undefined" && window.innerWidth < 1024) {
@@ -60,6 +73,50 @@ export function DashboardShell({ children, pageTitle }: DashboardShellProps) {
 
   const canReturnToDirectory =
     currentUser?.tieneAccesoGlobal && pathname !== "/tiendas";
+
+  useEffect(() => {
+    if (!isUserMenuOpen) {
+      return;
+    }
+
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsUserMenuOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isUserMenuOpen]);
+
+  if (isLoading && !currentUser) {
+    return <ProcessingModal isOpen label="Cargando panel..." />;
+  }
+
+  async function handleLogout() {
+    setIsLoggingOut(true);
+    setLogoutError(null);
+
+    try {
+      await logout();
+      setIsUserMenuOpen(false);
+      router.replace("/auth/login");
+      router.refresh();
+    } catch (error) {
+      setLogoutError(
+        error instanceof Error
+          ? error.message
+          : "No se pudo cerrar la sesión."
+      );
+    } finally {
+      setIsLoggingOut(false);
+    }
+  }
 
   return (
     <div className="dashboard-root">
@@ -86,26 +143,20 @@ export function DashboardShell({ children, pageTitle }: DashboardShellProps) {
               <h1 className="dashboard-heading-title">{pageTitle}</h1>
             </div>
           </div>
-
           <div className="dashboard-topbar-actions">
             {!currentUser?.tieneAccesoGlobal && stores.length > 1 ? (
-              <div className="topbar-store-switcher">
-                <label htmlFor="active-store" className="topbar-store-label">
-                  Tienda activa
-                </label>
-                <select
-                  id="active-store"
-                  className="topbar-store-select"
-                  value={activeStoreId ?? ""}
-                  onChange={handleStoreChange}
-                >
-                  {stores.map((store) => (
-                    <option key={store.id} value={store.id}>
-                      {store.nombre}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <select
+                id="active-store"
+                className="topbar-store-select"
+                value={activeStoreId ?? ""}
+                onChange={handleStoreChange}
+              >
+                {stores.map((store) => (
+                  <option key={store.id} value={store.id}>
+                    {store.nombre}
+                  </option>
+                ))}
+              </select>
             ) : null}
 
             {canReturnToDirectory ? (
@@ -138,16 +189,47 @@ export function DashboardShell({ children, pageTitle }: DashboardShellProps) {
               </span>
             </button>
 
-            <div className="dashboard-user-card">
-              <div className="dashboard-user-avatar">{initials}</div>
-              <div className="dashboard-user-copy">
-                <p className="dashboard-user-name">
-                  {currentUser?.nombre || "Usuario"}
-                </p>
-                <p className="dashboard-user-role">
-                  {currentUser?.rolName || "Autenticacion pendiente"}
-                </p>
-              </div>
+            <div className="dashboard-user-menu" ref={userMenuRef}>
+              <button
+                type="button"
+                className="dashboard-user-card dashboard-user-trigger"
+                onClick={() => {
+                  setLogoutError(null);
+                  setIsUserMenuOpen((currentValue) => !currentValue);
+                }}
+                title="Opciones de usuario"
+                aria-label="Opciones de usuario"
+                aria-haspopup="menu"
+                aria-expanded={isUserMenuOpen}
+              >
+                <div className="dashboard-user-avatar">{initials}</div>
+                <div className="dashboard-user-copy">
+                  <p className="dashboard-user-name">
+                    {currentUser?.nombre || "Usuario"}
+                  </p>
+                  <p className="dashboard-user-role">
+                    {currentUser?.rolName || "Autenticacion pendiente"}
+                  </p>
+                </div>
+              </button>
+
+              {isUserMenuOpen ? (
+                <div className="dashboard-user-dropdown" role="menu">
+                  <button
+                    type="button"
+                    className="dashboard-user-dropdown-item"
+                    onClick={handleLogout}
+                    disabled={isLoggingOut}
+                    role="menuitem"
+                  >
+                    {isLoggingOut ? "Cerrando sesión..." : "Cerrar sesión"}
+                  </button>
+
+                  {logoutError ? (
+                    <p className="dashboard-user-dropdown-error">{logoutError}</p>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
           </div>
         </header>

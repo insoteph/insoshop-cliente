@@ -29,7 +29,6 @@ import type {
   PublicStoreProduct,
   PublicStoreSummary,
 } from "@/modules/store-catalog/types/store-catalog-types";
-import CartFeedbackModal from "./CartFeedbackModal";
 
 type ProductDetailViewProps = {
   slug: string;
@@ -49,13 +48,6 @@ function toFavoriteProduct(product: PublicStoreProduct): StoreFavoriteProduct {
 
 function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
   const router = useRouter();
-  const [modal, setModal] = useState<{
-    show: boolean;
-    type: "success" | "cancel";
-  }>({
-    show: false,
-    type: "success",
-  });
   const { addItem, totalItems } = useStoreCart();
   const [product, setProduct] = useState<PublicStoreProduct | null>(null);
   const [quantity, setQuantity] = useState(1);
@@ -297,30 +289,19 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                   disabled={isOutOfStock}
                   className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm font-semibold text-[var(--foreground)] disabled:opacity-50"
                   onClick={() => {
-                    try {
-                      addItem({
-                        productId: product.id,
-                        nombre: product.nombre,
-                        precio: product.precio,
-                        cantidad: quantity,
-                        cantidadDisponible: product.cantidadDisponible,
-                        categoria: product.categoria,
-                        imagenUrl: product.imagenes[0]?.trim() || null,
-                      });
-
-                      setModal({ show: true, type: "success" });
-                    } catch (error) {
-                      setModal({ show: true, type: "cancel" });
-                    }
+                    addItem({
+                      productId: product.id,
+                      nombre: product.nombre,
+                      precio: product.precio,
+                      cantidad: quantity,
+                      cantidadDisponible: product.cantidadDisponible,
+                      categoria: product.categoria,
+                      imagenUrl: product.imagenes[0]?.trim() || null,
+                    });
                   }}
                 >
                   Agregar al carrito
                 </button>
-                <CartFeedbackModal
-                  show={modal.show}
-                  type={modal.type}
-                  onClose={() => setModal({ ...modal, show: false })}
-                />
                 <button
                   type="button"
                   disabled={isOutOfStock}
@@ -334,7 +315,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                       cantidadDisponible: product.cantidadDisponible,
                       categoria: product.categoria,
                       imagenUrl: product.imagenes[0]?.trim() || null,
-                    });
+                    }, { notify: false });
                     router.push(`/${encodeURIComponent(slug)}/carrito`);
                   }}
                 >

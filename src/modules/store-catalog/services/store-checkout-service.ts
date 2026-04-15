@@ -22,7 +22,6 @@ export type CreatedClient = {
 export type CreateSalePayload = {
   tiendaId: number;
   metodoPagoId: number;
-  estadoVentaId: number;
   clienteId: number;
   tipoEntrega: "RecogerEnLocal" | "Domicilio";
   direccion: string;

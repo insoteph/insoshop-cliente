@@ -4,6 +4,7 @@ import {
   getAccessToken,
   getSessionCacheStatus,
   setAccessToken,
+  setSessionCacheStatus,
 } from "@/modules/auth/lib/session";
 
 const SESSION_TIMEOUT_MS = 7000;
@@ -55,4 +56,11 @@ export async function ensureSession() {
 
   clearAccessToken();
   return false;
+}
+
+export async function refreshSession() {
+  const response = await sessionApi();
+  setAccessToken(response.data.token);
+  setSessionCacheStatus("authenticated");
+  return response.data;
 }

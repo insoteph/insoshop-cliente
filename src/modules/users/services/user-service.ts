@@ -109,3 +109,13 @@ export async function toggleUserStatus(
     storeId: storeId ?? null,
   });
 }
+
+export async function updateUserPassword(userId: string, newPassword: string) {
+  return apiFetch<null>("/usuarios/update-credentials", {
+    method: "POST",
+    body: {
+      userId,
+      newPassword,
+    },
+  });
+}

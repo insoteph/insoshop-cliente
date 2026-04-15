@@ -20,8 +20,11 @@ import {
 import {
   getAccessToken,
   getSessionCacheStatus,
+  clearAccessToken,
+  setSessionCacheStatus,
 } from "@/modules/auth/lib/session";
 import { ensureSession } from "@/modules/auth/services/session-service";
+import { logoutService } from "@/modules/auth/services/logout-service";
 import type { TiendaDisponible } from "@/modules/tiendas/types/tiendas-types";
 
 type AdminSessionContextValue = {
@@ -34,6 +37,7 @@ type AdminSessionContextValue = {
   setActiveStoreId: (storeId: number | null) => void;
   hasPermission: (permission: string) => boolean;
   refreshCurrentUser: () => Promise<void>;
+  logout: () => Promise<void>;
 };
 
 const ACTIVE_STORE_STORAGE_KEY = "insoshop.active-store-id";
@@ -116,6 +120,8 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
           : await ensureSession();
 
       if (!hasAuthenticatedSession) {
+        clearAccessToken();
+        setSessionCacheStatus("unauthenticated");
         setCurrentUser(null);
         setActiveStoreIdState(null);
         return;
@@ -127,6 +133,8 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
         resolveActiveStoreId(user, currentStoreId)
       );
     } catch (loadError) {
+      clearAccessToken();
+      setSessionCacheStatus("unauthenticated");
       setCurrentUser(null);
       setActiveStoreIdState(null);
       setError(
@@ -137,6 +145,14 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
+  }, []);
+
+  const logout = useCallback(async () => {
+    await logoutService();
+    clearAccessToken();
+    setCurrentUser(null);
+    setActiveStoreIdState(null);
+    setError(null);
   }, []);
 
   useEffect(() => {
@@ -206,6 +222,7 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
       },
       hasPermission: (permission) => hasPermission(currentUser, permission),
       refreshCurrentUser,
+      logout,
     }),
     [
       activeStore,
@@ -213,6 +230,7 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
       currentUser,
       error,
       isLoading,
+      logout,
       refreshCurrentUser,
       stores,
     ]

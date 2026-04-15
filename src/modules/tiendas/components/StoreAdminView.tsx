@@ -133,9 +133,32 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
     hasPermission(permissions.categorias.editar) ||
     hasPermission(permissions.categorias.eliminar);
 
+  function handleOpenPublicStore() {
+    if (!store.slug) {
+      return;
+    }
+
+    window.open(`/${store.slug}`, "_blank", "noopener,noreferrer");
+  }
+
   return (
     <section className="space-y-5">
-      <TitleBar title={store.nombre} status={store.estado} />
+      <TitleBar
+        title={store.nombre}
+        status={store.estado}
+        actions={
+          store.slug ? (
+            <button
+              type="button"
+              className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
+              onClick={handleOpenPublicStore}
+              title={`Ir a la tienda publica ${store.nombre}`}
+            >
+              Ver tienda
+            </button>
+          ) : null
+        }
+      />
 
       <div className="mb-3 flex min-h-[calc(100dvh-14rem)] flex-col space-y-0 md:min-h-[calc(100dvh-15rem)]">
         <StoreModuleTabs

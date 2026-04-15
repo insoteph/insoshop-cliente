@@ -7,12 +7,14 @@ import {
   getAccessToken,
   getSessionCacheStatus,
 } from "@/modules/auth/lib/session";
+import { useAdminSession } from "@/modules/auth/providers/AdminSessionProvider";
 import { ensureSession } from "@/modules/auth/services/session-service";
 import { ProcessingModal } from "@/modules/core/components/ProcessingModal";
 
 export function AuthGuard({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { currentUser, isLoading } = useAdminSession();
   const shouldValidateSession =
     getSessionCacheStatus() !== "authenticated" || !getAccessToken();
   const [isChecking, setIsChecking] = useState(shouldValidateSession);
@@ -68,7 +70,31 @@ export function AuthGuard({ children }: { children: ReactNode }) {
     };
   }, [pathname, router, shouldValidateSession]);
 
-  if (isChecking) {
+  useEffect(() => {
+    if (pathname.startsWith("/auth")) {
+      return;
+    }
+
+    if (isLoading) {
+      return;
+    }
+
+    if (currentUser) {
+      return;
+    }
+
+    const nextParam = pathname ? `?next=${encodeURIComponent(pathname)}` : "";
+    const loginPath = `/auth/login${nextParam}`;
+    router.replace(loginPath);
+
+    if (typeof window !== "undefined") {
+      window.setTimeout(() => {
+        window.location.replace(loginPath);
+      }, 100);
+    }
+  }, [currentUser, isLoading, pathname, router]);
+
+  if (isChecking || (isLoading && !currentUser)) {
     return <ProcessingModal isOpen label="Procesando..." />;
   }
 

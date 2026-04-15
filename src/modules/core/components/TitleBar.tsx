@@ -1,9 +1,12 @@
+import type { ReactNode } from "react";
+
 type TitleBarProps = {
   title: string;
   status?: boolean;
+  actions?: ReactNode;
 };
 
-export function TitleBar({ title, status }: TitleBarProps) {
+export function TitleBar({ title, status, actions }: TitleBarProps) {
   const showStatus = typeof status === "boolean";
   const statusLabel = status ? "Activo" : "Inactivo";
   const statusIconPath = status ? "/icons/check.svg" : "/icons/cross.svg";
@@ -13,31 +16,35 @@ export function TitleBar({ title, status }: TitleBarProps) {
 
   return (
     <div className="app-card rounded-2xl px-4 py-3">
-      <div className="flex items-center gap-2">
-        <h2 className="text-xl font-semibold text-[var(--foreground-strong)]">
-          {title}
-        </h2>
-        {showStatus ? (
-          <span
-            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${statusClasses}`}
-          >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="text-xl font-semibold text-[var(--foreground-strong)]">
+            {title}
+          </h2>
+          {showStatus ? (
             <span
-              aria-hidden="true"
-              className="h-3.5 w-3.5 bg-current"
-              style={{
-                WebkitMaskImage: `url(${statusIconPath})`,
-                maskImage: `url(${statusIconPath})`,
-                WebkitMaskRepeat: "no-repeat",
-                maskRepeat: "no-repeat",
-                WebkitMaskPosition: "center",
-                maskPosition: "center",
-                WebkitMaskSize: "contain",
-                maskSize: "contain",
-              }}
-            />
-            <span>{statusLabel}</span>
-          </span>
-        ) : null}
+              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${statusClasses}`}
+            >
+              <span
+                aria-hidden="true"
+                className="h-3.5 w-3.5 bg-current"
+                style={{
+                  WebkitMaskImage: `url(${statusIconPath})`,
+                  maskImage: `url(${statusIconPath})`,
+                  WebkitMaskRepeat: "no-repeat",
+                  maskRepeat: "no-repeat",
+                  WebkitMaskPosition: "center",
+                  maskPosition: "center",
+                  WebkitMaskSize: "contain",
+                  maskSize: "contain",
+                }}
+              />
+              <span>{statusLabel}</span>
+            </span>
+          ) : null}
+        </div>
+
+        {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
       </div>
     </div>
   );

@@ -25,6 +25,7 @@ import {
   fetchUsers,
   syncUserRoles,
   toggleUserStatus,
+  updateUserPassword,
 } from "@/modules/users/services/user-service";
 import type {
   UserRecord,
@@ -40,6 +41,7 @@ export function UsersManagementView() {
   const { currentUser, stores, activeStoreId, hasPermission } = useAdminSession();
   const canSeeUsers = hasPermission(permissions.usuarios.ver);
   const canCreateUser = hasPermission(permissions.usuarios.crear);
+  const canEditUsers = hasPermission(permissions.usuarios.editar);
   const canToggleUsers = hasPermission(permissions.usuarios.cambiarEstado);
   const canSeeRoles = hasPermission(permissions.roles.ver);
   const canManageUserRoles =
@@ -70,6 +72,12 @@ export function UsersManagementView() {
   const [isRolesFormMounted, setIsRolesFormMounted] = useState(false);
   const [isRolesFormVisible, setIsRolesFormVisible] = useState(false);
   const closeRolesFormTimeoutRef = useRef<number | null>(null);
+  const [passwordUser, setPasswordUser] = useState<UserRecord | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordFormError, setPasswordFormError] = useState<string | null>(null);
+  const [passwordFormMessage, setPasswordFormMessage] = useState<string | null>(null);
+  const [isSavingPassword, setIsSavingPassword] = useState(false);
 
   useEffect(() => {
     if (!currentUser) {
@@ -77,7 +85,7 @@ export function UsersManagementView() {
     }
 
     if (currentUser.tieneAccesoGlobal) {
-      setSelectedStoreId(activeStoreId ?? null);
+      setSelectedStoreId(null);
       return;
     }
 
@@ -266,6 +274,26 @@ export function UsersManagementView() {
     [confirm, loadUsers, selectedStoreId],
   );
 
+  const handleOpenPasswordModal = useCallback((user: UserRecord) => {
+    setPasswordUser(user);
+    setNewPassword("");
+    setConfirmPassword("");
+    setPasswordFormError(null);
+    setPasswordFormMessage(null);
+  }, []);
+
+  const handleClosePasswordModal = useCallback(() => {
+    if (isSavingPassword) {
+      return;
+    }
+
+    setPasswordUser(null);
+    setNewPassword("");
+    setConfirmPassword("");
+    setPasswordFormError(null);
+    setPasswordFormMessage(null);
+  }, [isSavingPassword]);
+
   async function handleSaveRoles(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -302,6 +330,44 @@ export function UsersManagementView() {
       );
     } finally {
       setIsSavingRoles(false);
+    }
+  }
+
+  async function handleSavePassword(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!passwordUser) {
+      return;
+    }
+
+    setPasswordFormError(null);
+    setPasswordFormMessage(null);
+
+    if (!newPassword.trim() || !confirmPassword.trim()) {
+      setPasswordFormError("Debes completar y confirmar la nueva contraseña.");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordFormError("La confirmación no coincide con la nueva contraseña.");
+      return;
+    }
+
+    setIsSavingPassword(true);
+
+    try {
+      await updateUserPassword(passwordUser.id, newPassword);
+      setPasswordFormMessage("Contraseña actualizada correctamente.");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (saveError) {
+      setPasswordFormError(
+        saveError instanceof Error
+          ? saveError.message
+          : "No se pudo actualizar la contraseña del usuario.",
+      );
+    } finally {
+      setIsSavingPassword(false);
     }
   }
 
@@ -396,21 +462,39 @@ export function UsersManagementView() {
   );
 
   const rowActions =
-    canManageUserRoles || canToggleUsers
+    canManageUserRoles || canToggleUsers || canEditUsers
       ? {
-          primaryButtonLabel: canManageUserRoles ? "Editar roles" : "Cambiar estado",
+          primaryButtonLabel: canManageUserRoles
+            ? "Editar roles"
+            : canEditUsers
+              ? "Contraseña"
+              : "Cambiar estado",
           onPrimaryAction: canManageUserRoles
             ? handleEditRolesClick
-            : handleToggleStatus,
-          dropdownOptions: canToggleUsers
-            ? [
-                {
-                  label: (user: UserRecord) =>
-                    user.status ? "Inactivar" : "Activar",
-                  onClick: handleToggleStatus,
-                },
-              ]
-            : undefined,
+            : canEditUsers
+              ? handleOpenPasswordModal
+              : handleToggleStatus,
+          dropdownOptions: [
+            ...(canEditUsers && !canManageUserRoles
+              ? []
+              : canEditUsers
+                ? [
+                    {
+                      label: "Cambiar contraseña",
+                      onClick: handleOpenPasswordModal,
+                    },
+                  ]
+                : []),
+            ...(canToggleUsers
+              ? [
+                  {
+                    label: (user: UserRecord) =>
+                      user.status ? "Inactivar" : "Activar",
+                    onClick: handleToggleStatus,
+                  },
+                ]
+              : []),
+          ],
         }
       : undefined;
 
@@ -589,6 +673,116 @@ export function UsersManagementView() {
               </button>
             </div>
           </form>
+        </div>
+      ) : null}
+
+      {passwordUser ? (
+        <div
+          className="fixed inset-0 z-[150] flex items-center justify-center bg-black/55 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="password-modal-title"
+          onClick={handleClosePasswordModal}
+        >
+          <div
+            className="app-card w-[min(92vw,32rem)] rounded-2xl p-5 shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2
+                  id="password-modal-title"
+                  className="text-lg font-semibold text-[var(--foreground)]"
+                >
+                  Cambiar contraseña
+                </h2>
+                <p className="mt-1 text-sm text-[var(--muted)]">
+                  Define una nueva contraseña para {passwordUser.username}.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="app-button-secondary rounded-xl px-3 py-2 text-sm"
+                onClick={handleClosePasswordModal}
+                disabled={isSavingPassword}
+              >
+                Cerrar
+              </button>
+            </div>
+
+            <form className="mt-5 space-y-4" onSubmit={handleSavePassword}>
+              <div className="space-y-2">
+                <label
+                  htmlFor="new-password"
+                  className="text-sm font-medium text-[var(--foreground)]"
+                >
+                  Nueva contraseña
+                </label>
+                <input
+                  id="new-password"
+                  type="password"
+                  value={newPassword}
+                  onChange={(event) => setNewPassword(event.target.value)}
+                  className="app-input w-full rounded-2xl px-4 py-3 text-sm"
+                  placeholder="Minimo 8 caracteres con mayuscula, minuscula, numero y simbolo"
+                  autoComplete="new-password"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label
+                  htmlFor="confirm-password"
+                  className="text-sm font-medium text-[var(--foreground)]"
+                >
+                  Confirmar contraseña
+                </label>
+                <input
+                  id="confirm-password"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  className="app-input w-full rounded-2xl px-4 py-3 text-sm"
+                  placeholder="Repite la nueva contraseña"
+                  autoComplete="new-password"
+                />
+              </div>
+
+              <p className="text-xs text-[var(--muted)]">
+                La contraseña debe tener al menos 8 caracteres e incluir mayúscula, minúscula, número y símbolo.
+              </p>
+
+              {passwordFormError ? (
+                <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
+                  {passwordFormError}
+                </p>
+              ) : null}
+
+              {passwordFormMessage ? (
+                <p className="app-alert-success rounded-2xl px-4 py-3 text-sm">
+                  {passwordFormMessage}
+                </p>
+              ) : null}
+
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  className="app-button-secondary rounded-2xl px-4 py-3 text-sm font-medium"
+                  onClick={handleClosePasswordModal}
+                  disabled={isSavingPassword}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingPassword}
+                  className="app-button-primary rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
+                >
+                  {isSavingPassword ? "Guardando..." : "Guardar contraseña"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       ) : null}
 

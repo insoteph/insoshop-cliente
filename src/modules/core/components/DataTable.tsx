@@ -1,4 +1,4 @@
-import type { Key, ReactNode } from "react";
+import { Fragment, type Key, type ReactNode } from "react";
 
 import {
   DataTableBadge,
@@ -37,12 +37,19 @@ export type DataTableBadgeConfig<TData extends Record<string, unknown>> = {
 
 export type DataTableRowActionsConfig<TData extends Record<string, unknown>> = {
   headerLabel?: string;
-  primaryButtonLabel: string;
+  primaryButtonLabel: string | ((row: TData) => string);
   onPrimaryAction: (row: TData) => void;
   dropdownOptions?: Array<{
     label: string | ((row: TData) => string);
     onClick: (row: TData) => void;
+    hidden?: boolean | ((row: TData) => boolean);
   }>;
+};
+
+export type DataTableExpandedRowConfig<TData extends Record<string, unknown>> = {
+  isExpanded: (row: TData) => boolean;
+  render: (row: TData) => ReactNode;
+  className?: string;
 };
 
 export type DataTablePaginationConfig = {
@@ -62,6 +69,7 @@ type DataTableProps<TData extends Record<string, unknown>> = {
   emptyMessage?: string;
   badges?: Array<DataTableBadgeConfig<TData>>;
   rowActions?: DataTableRowActionsConfig<TData>;
+  expandedRow?: DataTableExpandedRowConfig<TData>;
   pagination: DataTablePaginationConfig;
 };
 
@@ -168,6 +176,7 @@ export function DataTable<TData extends Record<string, unknown>>({
   emptyMessage = "No hay datos para mostrar.",
   badges = [],
   rowActions,
+  expandedRow,
   pagination,
 }: DataTableProps<TData>) {
   const resolvedRows = rows ?? data ?? [];
@@ -230,82 +239,117 @@ export function DataTable<TData extends Record<string, unknown>>({
                 </tr>
               ))
             ) : resolvedRows.length > 0 ? (
-              resolvedRows.map((row, rowIndex) => (
-                <tr
-                  key={getRowKey(row, rowIndex, rowKey)}
-                  className="odd:bg-[var(--panel)] even:bg-[var(--panel-muted)]/70 hover:bg-[var(--panel-muted)]/85"
-                >
-                  {headers.map((column) => {
-                    const rawValue = resolveColumnValue(row, column.key);
-                    const badgeConfig = badges.find(
-                      (badge) => String(badge.columnKey) === String(column.key),
-                    );
-                    const badgeRule = badgeConfig
-                      ? resolveBadgeRule(rawValue, badgeConfig.rules)
-                      : undefined;
+              resolvedRows.map((row, rowIndex) => {
+                const computedRowKey = getRowKey(row, rowIndex, rowKey);
+                const visibleDropdownOptions = rowActions?.dropdownOptions
+                  ?.filter((option) => {
+                    if (typeof option.hidden === "function") {
+                      return !option.hidden(row);
+                    }
 
-                    const cellContent = (() => {
-                      if (column.render) {
-                        return column.render(row);
-                      }
+                    return !option.hidden;
+                  })
+                  .map(
+                    (option): DataTableRowActionOption => ({
+                      label:
+                        typeof option.label === "function"
+                          ? option.label(row)
+                          : option.label,
+                      onClick: () => option.onClick(row),
+                    }),
+                  );
 
-                      if (badgeRule) {
+                return (
+                  <Fragment key={computedRowKey}>
+                    <tr className="odd:bg-[var(--panel)] even:bg-[var(--panel-muted)]/70 hover:bg-[var(--panel-muted)]/85">
+                      {headers.map((column) => {
+                        const rawValue = resolveColumnValue(row, column.key);
+                        const badgeConfig = badges.find(
+                          (badge) =>
+                            String(badge.columnKey) === String(column.key),
+                        );
+                        const badgeRule = badgeConfig
+                          ? resolveBadgeRule(rawValue, badgeConfig.rules)
+                          : undefined;
+
+                        const cellContent = (() => {
+                          if (column.render) {
+                            return column.render(row);
+                          }
+
+                          if (badgeRule) {
+                            return (
+                              <DataTableBadge
+                                label={badgeRule.label}
+                                iconPath={badgeRule.iconPath}
+                                textClassName={badgeRule.textClassName}
+                                backgroundClassName={
+                                  badgeRule.backgroundClassName
+                                }
+                              />
+                            );
+                          }
+
+                          if (column.dataType === "image") {
+                            return renderImageCell(
+                              row,
+                              rawValue,
+                              column.imageConfig,
+                            );
+                          }
+
+                          if (column.textFormatter) {
+                            return column.textFormatter(rawValue, row);
+                          }
+
+                          return formatCellValue(rawValue);
+                        })();
+
                         return (
-                          <DataTableBadge
-                            label={badgeRule.label}
-                            iconPath={badgeRule.iconPath}
-                            textClassName={badgeRule.textClassName}
-                            backgroundClassName={badgeRule.backgroundClassName}
+                          <td
+                            key={`${rowIndex}-${String(column.key)}`}
+                            className={`px-4 py-3 text-sm text-[var(--foreground)] ${
+                              column.className ?? ""
+                            }`}
+                          >
+                            {cellContent}
+                          </td>
+                        );
+                      })}
+
+                      {rowActions ? (
+                        <td className="px-4 py-3 text-sm text-[var(--foreground)]">
+                          <TableRowActions
+                            primaryButtonLabel={
+                              typeof rowActions.primaryButtonLabel ===
+                              "function"
+                                ? rowActions.primaryButtonLabel(row)
+                                : rowActions.primaryButtonLabel
+                            }
+                            onPrimaryAction={() =>
+                              rowActions.onPrimaryAction(row)
+                            }
+                            dropdownOptions={visibleDropdownOptions}
                           />
-                        );
-                      }
+                        </td>
+                      ) : null}
+                    </tr>
 
-                      if (column.dataType === "image") {
-                        return renderImageCell(
-                          row,
-                          rawValue,
-                          column.imageConfig,
-                        );
-                      }
-
-                      if (column.textFormatter) {
-                        return column.textFormatter(rawValue, row);
-                      }
-
-                      return formatCellValue(rawValue);
-                    })();
-
-                    return (
-                      <td
-                        key={`${rowIndex}-${String(column.key)}`}
-                        className={`px-4 py-3 text-sm text-[var(--foreground)] ${
-                          column.className ?? ""
-                        }`}
-                      >
-                        {cellContent}
-                      </td>
-                    );
-                  })}
-
-                  {rowActions ? (
-                    <td className="px-4 py-3 text-sm text-[var(--foreground)]">
-                      <TableRowActions
-                        primaryButtonLabel={rowActions.primaryButtonLabel}
-                        onPrimaryAction={() => rowActions.onPrimaryAction(row)}
-                        dropdownOptions={rowActions.dropdownOptions?.map(
-                          (option): DataTableRowActionOption => ({
-                            label:
-                              typeof option.label === "function"
-                                ? option.label(row)
-                                : option.label,
-                            onClick: () => option.onClick(row),
-                          }),
-                        )}
-                      />
-                    </td>
-                  ) : null}
-                </tr>
-              ))
+                    {expandedRow?.isExpanded(row) ? (
+                      <tr className="bg-[var(--panel)]">
+                        <td
+                          colSpan={totalColumns}
+                          className={`px-4 py-4 text-sm text-[var(--foreground)] ${
+                            expandedRow.className ?? ""
+                          }`}
+                        >
+                          {expandedRow.render(row)}
+                        </td>
+                      </tr>
+                    ) : null}
+                  </Fragment>
+                );
+              })
             ) : (
               <tr>
                 <td

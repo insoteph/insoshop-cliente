@@ -3,6 +3,11 @@ export type LoginRequest = {
   password: string;
 };
 
+export type ChangePasswordRequest = {
+  currentPassword: string;
+  newPassword: string;
+};
+
 export type LoginResponse = {
   token: string;
   refreshToken: string | null;
