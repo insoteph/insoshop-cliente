@@ -86,7 +86,9 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
         visible:
           hasPermission(permissions.tiendas.verUsuarios) &&
           (currentUser?.tieneAccesoGlobal ||
-            Boolean(currentUser?.tiendas.some((tienda) => tienda.id === storeId))),
+            Boolean(
+              currentUser?.tiendas.some((tienda) => tienda.id === storeId),
+            )),
       },
       {
         id: "configuraciones",
@@ -95,7 +97,12 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
     ];
 
     return availableTabs.filter((tab) => tab.visible).map((tab) => tab.id);
-  }, [currentUser?.tiendas, currentUser?.tieneAccesoGlobal, hasPermission, storeId]);
+  }, [
+    currentUser?.tiendas,
+    currentUser?.tieneAccesoGlobal,
+    hasPermission,
+    storeId,
+  ]);
 
   useEffect(() => {
     if (!visibleTabs.includes(activeTab)) {
@@ -134,7 +141,7 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
     hasPermission(permissions.categorias.eliminar);
 
   function handleOpenPublicStore() {
-    if (!store.slug) {
+    if (!store?.slug) {
       return;
     }
 
@@ -182,7 +189,10 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
           ) : null}
 
           {activeTab === "categorias" ? (
-            <CategoriesPanel storeId={storeId} canManage={canManageCategories} />
+            <CategoriesPanel
+              storeId={storeId}
+              canManage={canManageCategories}
+            />
           ) : null}
 
           {activeTab === "ventas" ? (
