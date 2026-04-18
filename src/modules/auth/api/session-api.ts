@@ -6,5 +6,6 @@ export async function sessionApi(signal?: AbortSignal) {
     method: "POST",
     auth: false,
     signal,
+    credentials: "include",
   });
 }

@@ -9,5 +9,6 @@ export async function loginApi(payload: LoginRequest) {
     method: "POST",
     body: payload,
     auth: false,
+    credentials: "include",
   });
 }
