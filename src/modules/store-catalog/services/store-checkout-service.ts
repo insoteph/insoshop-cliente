@@ -27,7 +27,7 @@ export type CreateSalePayload = {
   direccion: string;
   observacion: string;
   detalles: Array<{
-    productoId: number;
+    productoVarianteId: number;
     cantidad: number;
   }>;
 };

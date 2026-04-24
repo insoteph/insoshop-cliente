@@ -21,7 +21,7 @@ export type PagedResult<T> = {
 };
 
 type ApiFetchOptions = Omit<RequestInit, "body"> & {
-  body?: BodyInit | Record<string, unknown> | null;
+  body?: BodyInit | Record<string, unknown> | string | number | boolean | null;
   auth?: boolean;
   storeId?: number | null;
 };

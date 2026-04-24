@@ -27,6 +27,8 @@ import {
 } from "@/modules/store-catalog/services/store-catalog-service";
 import type {
   PublicStoreProduct,
+  PublicStoreProductDetail,
+  PublicStoreProductVariant,
   PublicStoreSummary,
 } from "@/modules/store-catalog/types/store-catalog-types";
 
@@ -46,10 +48,50 @@ function toFavoriteProduct(product: PublicStoreProduct): StoreFavoriteProduct {
   };
 }
 
+function buildVariantSummary(variant: PublicStoreProductVariant) {
+  return variant.valores.map((value) => value.valor).join(" / ");
+}
+
+function ColorSwatch({ colorHexadecimal }: { colorHexadecimal: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="inline-flex h-4 w-4 rounded-full border border-black/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.35)]"
+      style={{ backgroundColor: colorHexadecimal }}
+    />
+  );
+}
+
+function buildImageSet(
+  selectedVariant: PublicStoreProductVariant | null,
+  allVariants: PublicStoreProductVariant[],
+) {
+  const preferred = (selectedVariant?.imagenes.length
+    ? selectedVariant.imagenes
+    : selectedVariant?.urlImagenPrincipal
+      ? [selectedVariant.urlImagenPrincipal]
+      : []
+  ).map((image) => image.trim());
+
+  const fallback = allVariants
+    .flatMap((variant) =>
+      variant.imagenes.length > 0
+        ? variant.imagenes
+        : variant.urlImagenPrincipal
+          ? [variant.urlImagenPrincipal]
+          : [],
+    )
+    .map((image) => image.trim());
+
+  return [...preferred, ...fallback].filter((image, index, values) => {
+    return image.length > 0 && values.indexOf(image) === index;
+  });
+}
+
 function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
   const router = useRouter();
   const { addItem, totalItems } = useStoreCart();
-  const [product, setProduct] = useState<PublicStoreProduct | null>(null);
+  const [product, setProduct] = useState<PublicStoreProductDetail | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -60,6 +102,9 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
   );
   const [favoritesLoadedSlug, setFavoritesLoadedSlug] = useState<string | null>(
     null,
+  );
+  const [selectedValues, setSelectedValues] = useState<Record<number, number>>(
+    {},
   );
 
   usePublicStoreLightMode();
@@ -86,10 +131,28 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
         fetchPublicStoreProductById(slug, productId),
         fetchPublicStoreProducts({ slug, page: 1, pageSize: 1 }),
       ]);
+
+      const firstVariant =
+        productResult.variantes.find(
+          (variant) => variant.estado && variant.cantidad > 0,
+        ) ?? productResult.variantes[0];
+
       setProduct(productResult);
       setStore(catalogResult.tienda);
       setCurrency(catalogResult.tienda.moneda || "HNL");
-      setQuantity(productResult.cantidadDisponible > 0 ? 1 : 0);
+      setSelectedValues(
+        firstVariant
+          ? firstVariant.valores.reduce<Record<number, number>>(
+              (accumulator, value) => {
+                accumulator[value.atributoCatalogoId] =
+                  value.atributoCatalogoValorId;
+                return accumulator;
+              },
+              {},
+            )
+          : {},
+      );
+      setQuantity(firstVariant?.cantidad && firstVariant.cantidad > 0 ? 1 : 0);
     } catch (loadError) {
       setError(
         loadError instanceof Error
@@ -109,12 +172,52 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
     () => new Set(favoriteItems.map((item) => item.id)),
     [favoriteItems],
   );
-  const maxQuantity = useMemo(
-    () => product?.cantidadDisponible ?? 0,
+  const isFavorite = product ? favoriteIds.has(product.id) : false;
+
+  const variants = useMemo(
+    () => product?.variantes.filter((variant) => variant.estado) ?? [],
     [product],
   );
-  const isOutOfStock = maxQuantity <= 0;
-  const isFavorite = product ? favoriteIds.has(product.id) : false;
+
+  const selectedVariant = useMemo(() => {
+    if (!product) {
+      return null;
+    }
+
+    return (
+      variants.find((variant) =>
+        variant.valores.every(
+          (value) =>
+            selectedValues[value.atributoCatalogoId] ===
+            value.atributoCatalogoValorId,
+        ),
+      ) ?? null
+    );
+  }, [product, selectedValues, variants]);
+
+  useEffect(() => {
+    if (!selectedVariant) {
+      setQuantity(0);
+      return;
+    }
+
+    setQuantity((current) => {
+      if (selectedVariant.cantidad <= 0) {
+        return 0;
+      }
+
+      if (current <= 0) {
+        return 1;
+      }
+
+      return Math.min(current, selectedVariant.cantidad);
+    });
+  }, [selectedVariant]);
+
+  const imageUrls = useMemo(
+    () => buildImageSet(selectedVariant, variants),
+    [selectedVariant, variants],
+  );
 
   const handleToggleFavorite = useCallback(
     (targetProduct: PublicStoreProduct) => {
@@ -130,6 +233,47 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
       });
     },
     [],
+  );
+
+  const handleAttributeSelect = useCallback(
+    (attributeId: number, valueId: number) => {
+      const compatibleVariants = variants.filter((variant) =>
+        variant.valores.some(
+          (value) =>
+            value.atributoCatalogoId === attributeId &&
+            value.atributoCatalogoValorId === valueId,
+        ),
+      );
+
+      const prioritizedVariant =
+        compatibleVariants.find((variant) =>
+          variant.valores.every((value) => {
+            if (value.atributoCatalogoId === attributeId) {
+              return value.atributoCatalogoValorId === valueId;
+            }
+
+            const selected = selectedValues[value.atributoCatalogoId];
+            return !selected || selected === value.atributoCatalogoValorId;
+          }),
+        ) ??
+        compatibleVariants.find((variant) => variant.cantidad > 0) ??
+        compatibleVariants[0];
+
+      if (!prioritizedVariant) {
+        return;
+      }
+
+      setSelectedValues(
+        prioritizedVariant.valores.reduce<Record<number, number>>(
+          (accumulator, value) => {
+            accumulator[value.atributoCatalogoId] = value.atributoCatalogoValorId;
+            return accumulator;
+          },
+          {},
+        ),
+      );
+    },
+    [selectedValues, variants],
   );
 
   if (isLoading) {
@@ -166,6 +310,19 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
     );
   }
 
+  const summaryProduct: PublicStoreProduct = {
+    id: product.id,
+    nombre: product.nombre,
+    descripcion: product.descripcion,
+    precio: selectedVariant?.precio ?? 0,
+    cantidadDisponible: selectedVariant?.cantidad ?? 0,
+    categoria: product.categoria,
+    imagenes: imageUrls,
+  };
+
+  const maxQuantity = selectedVariant?.cantidad ?? 0;
+  const isOutOfStock = !selectedVariant || maxQuantity <= 0;
+
   return (
     <div
       className="bg-[var(--background)]"
@@ -188,8 +345,9 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
 
           <div className="grid gap-4 rounded-[28px] border border-[var(--line)] bg-[var(--panel)] p-3 shadow-[var(--shadow)] sm:gap-5 sm:p-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-6 lg:rounded-[34px] lg:p-5">
             <ProductImageGallery
+              key={selectedVariant?.id ?? product.id}
               productName={product.nombre}
-              imageUrls={product.imagenes}
+              imageUrls={imageUrls}
             />
 
             <div className="space-y-4 rounded-[24px] border border-[var(--line)] bg-[var(--panel-strong)] p-4 sm:space-y-5 sm:rounded-[28px] sm:p-5">
@@ -202,7 +360,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                   aria-label={
                     isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"
                   }
-                  onClick={() => handleToggleFavorite(product)}
+                  onClick={() => handleToggleFavorite(summaryProduct)}
                   className={`inline-flex h-10 w-10 items-center justify-center rounded-full border bg-[var(--panel-strong)] transition-all ${
                     isFavorite
                       ? "border-[#ffd2d0] text-[#e53935] shadow-[0_10px_20px_rgba(229,57,53,0.24)]"
@@ -236,12 +394,16 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
 
               <div className="flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
                 <p className="text-[2.05rem] font-bold leading-none text-[var(--foreground-strong)] sm:text-3xl">
-                  {formatCurrency(product.precio, currency)}
+                  {formatCurrency(selectedVariant?.precio ?? 0, currency)}
                 </p>
 
-                {product.cantidadDisponible > 0 ? (
+                {!selectedVariant ? (
+                  <span className="rounded-full bg-[var(--danger-soft)] px-3 py-1 text-xs font-semibold text-[var(--danger)]">
+                    Selecciona una variante
+                  </span>
+                ) : selectedVariant.cantidad > 0 ? (
                   <span className="rounded-full bg-[var(--success-soft)] px-3 py-1 text-xs font-semibold text-[var(--success)]">
-                    Disponible ({product.cantidadDisponible})
+                    Disponible ({selectedVariant.cantidad})
                   </span>
                 ) : (
                   <span className="rounded-full bg-[var(--danger-soft)] px-3 py-1 text-xs font-semibold text-[var(--danger)]">
@@ -249,6 +411,92 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                   </span>
                 )}
               </div>
+
+              {product.atributos.length > 0 ? (
+                <div className="space-y-3 rounded-[22px] border border-[var(--line)] bg-[var(--panel-muted)] p-3">
+                  {product.atributos.map((attribute) => (
+                    <div key={attribute.atributoCatalogoId} className="space-y-2">
+                      <p className="text-sm font-semibold text-[var(--foreground)]">
+                        {attribute.nombre}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {attribute.valores.map((value) => {
+                          const isSelected =
+                            selectedValues[attribute.atributoCatalogoId] ===
+                            value.atributoCatalogoValorId;
+                          const isAvailable = variants.some((variant) =>
+                            variant.valores.every((variantValue) => {
+                              if (
+                                variantValue.atributoCatalogoId ===
+                                attribute.atributoCatalogoId
+                              ) {
+                                return (
+                                  variantValue.atributoCatalogoValorId ===
+                                  value.atributoCatalogoValorId
+                                );
+                              }
+
+                              const selected =
+                                selectedValues[variantValue.atributoCatalogoId];
+                              return (
+                                !selected ||
+                                selected === variantValue.atributoCatalogoValorId
+                              );
+                            }),
+                          );
+
+                          return (
+                            <button
+                              key={value.atributoCatalogoValorId}
+                              type="button"
+                              disabled={!isAvailable}
+                              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                                isSelected
+                                  ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]"
+                                  : "border-[var(--line)] bg-[var(--panel)] text-[var(--foreground)]"
+                              } disabled:cursor-not-allowed disabled:opacity-45`}
+                              onClick={() =>
+                                handleAttributeSelect(
+                                  attribute.atributoCatalogoId,
+                                  value.atributoCatalogoValorId,
+                                )
+                              }
+                            >
+                              {value.colorHexadecimal ? (
+                                <ColorSwatch
+                                  colorHexadecimal={value.colorHexadecimal}
+                                />
+                              ) : null}
+                              {value.valor}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+
+              {selectedVariant ? (
+                <div className="rounded-[22px] border border-[var(--line)] bg-[var(--panel-muted)] p-3 text-sm text-[var(--foreground)]">
+                  <p className="font-semibold">Variante seleccionada</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {selectedVariant.valores.map((value) => (
+                      <span
+                        key={`${selectedVariant.id}-${value.atributoCatalogoId}-${value.atributoCatalogoValorId}`}
+                        className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--panel)] px-3 py-1 text-xs font-semibold text-[var(--foreground)]"
+                      >
+                        {value.colorHexadecimal ? (
+                          <ColorSwatch
+                            colorHexadecimal={value.colorHexadecimal}
+                          />
+                        ) : null}
+                        {value.atributoCatalogoNombre}: {value.valor}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
 
               <div className="rounded-[22px] border border-[var(--line)] bg-[var(--panel-muted)] p-3">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -288,17 +536,23 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
               <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-3">
                 <button
                   type="button"
-                  disabled={isOutOfStock}
+                  disabled={isOutOfStock || !selectedVariant}
                   className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm font-semibold text-[var(--foreground)] disabled:opacity-50"
                   onClick={() => {
+                    if (!selectedVariant) {
+                      return;
+                    }
+
                     addItem({
                       productId: product.id,
+                      productoVarianteId: selectedVariant.id,
                       nombre: product.nombre,
-                      precio: product.precio,
+                      precio: selectedVariant.precio,
                       cantidad: quantity,
-                      cantidadDisponible: product.cantidadDisponible,
+                      cantidadDisponible: selectedVariant.cantidad,
                       categoria: product.categoria,
-                      imagenUrl: product.imagenes[0]?.trim() || null,
+                      imagenUrl: imageUrls[0]?.trim() || null,
+                      varianteResumen: buildVariantSummary(selectedVariant),
                     });
                   }}
                 >
@@ -306,18 +560,27 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                 </button>
                 <button
                   type="button"
-                  disabled={isOutOfStock}
+                  disabled={isOutOfStock || !selectedVariant}
                   className="rounded-2xl bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white shadow-[var(--shadow)] disabled:opacity-50"
                   onClick={() => {
-                    addItem({
-                      productId: product.id,
-                      nombre: product.nombre,
-                      precio: product.precio,
-                      cantidad: quantity,
-                      cantidadDisponible: product.cantidadDisponible,
-                      categoria: product.categoria,
-                      imagenUrl: product.imagenes[0]?.trim() || null,
-                    }, { notify: false });
+                    if (!selectedVariant) {
+                      return;
+                    }
+
+                    addItem(
+                      {
+                        productId: product.id,
+                        productoVarianteId: selectedVariant.id,
+                        nombre: product.nombre,
+                        precio: selectedVariant.precio,
+                        cantidad: quantity,
+                        cantidadDisponible: selectedVariant.cantidad,
+                        categoria: product.categoria,
+                        imagenUrl: imageUrls[0]?.trim() || null,
+                        varianteResumen: buildVariantSummary(selectedVariant),
+                      },
+                      { notify: false },
+                    );
                     router.push(`/${encodeURIComponent(slug)}/carrito`);
                   }}
                 >

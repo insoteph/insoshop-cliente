@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useState } from "react";
 
 import { formatCurrency } from "@/modules/core/lib/formatters";
-import { useStoreCart } from "@/modules/store-catalog/providers/StoreCartProvider";
 import type { PublicStoreProduct } from "@/modules/store-catalog/types/store-catalog-types";
 
 type StoreProductCardProps = {
@@ -22,24 +21,11 @@ export function StoreProductCard({
   isFavorite = false,
   onToggleFavorite,
 }: StoreProductCardProps) {
-  const { addItem } = useStoreCart();
   const primaryImage = product.imagenes[0]?.trim();
   const isAvailable = product.cantidadDisponible > 0;
   const detailHref = `/${encodeURIComponent(slug)}/productos/${product.id}`;
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
   const canToggleFavorite = typeof onToggleFavorite === "function";
-
-  const handleAddToCart = () => {
-    addItem({
-      productId: product.id,
-      nombre: product.nombre,
-      precio: product.precio,
-      cantidad: 1,
-      cantidadDisponible: product.cantidadDisponible,
-      categoria: product.categoria,
-      imagenUrl: primaryImage || null,
-    });
-  };
 
   const handleFavoriteClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -141,35 +127,13 @@ export function StoreProductCard({
         </div>
       </Link>
 
-      <div className="mt-2 grid grid-cols-[minmax(0,1fr)_38px] gap-2 sm:grid-cols-[minmax(0,1fr)_44px]">
+      <div className="mt-2">
         <Link
           href={detailHref}
-          className="inline-flex items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--panel-muted)] px-2 py-2 text-xs font-semibold text-[var(--foreground)] hover:border-[var(--line-strong)] sm:rounded-2xl sm:px-3 sm:py-3 sm:text-sm"
+          className="inline-flex w-full items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--panel-muted)] px-3 py-2.5 text-xs font-semibold text-[var(--foreground)] hover:border-[var(--line-strong)] sm:rounded-2xl sm:px-3 sm:py-3 sm:text-sm"
         >
-          Ver detalles
+          {isAvailable ? "Ver opciones" : "Ver detalles"}
         </Link>
-        <button
-          type="button"
-          disabled={!isAvailable}
-          className="inline-flex items-center justify-center rounded-xl bg-[var(--accent)] text-sm font-semibold text-white shadow-[var(--shadow)] disabled:pointer-events-none disabled:opacity-50 sm:rounded-2xl"
-          onClick={handleAddToCart}
-        >
-          <span
-            aria-hidden="true"
-            className="h-4 w-4 text-white"
-            style={{
-              WebkitMaskImage: "url(/icons/Cart.svg)",
-              maskImage: "url(/icons/Cart.svg)",
-              WebkitMaskRepeat: "no-repeat",
-              maskRepeat: "no-repeat",
-              WebkitMaskPosition: "center",
-              maskPosition: "center",
-              WebkitMaskSize: "contain",
-              maskSize: "contain",
-              backgroundColor: "currentColor",
-            }}
-          />
-        </button>
       </div>
     </article>
   );

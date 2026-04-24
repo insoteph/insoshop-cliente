@@ -7,17 +7,18 @@ import {
   type DataTableBadgeConfig,
   type DataTableColumn,
 } from "@/modules/core/components/DataTable";
+import { SearchBar } from "@/modules/core/components/SearchBar";
 import {
-  DataTableToolbar,
   ToolbarActions,
   type DataTableToolbarAction,
 } from "@/modules/core/components/DataTableToolbar";
+import { formatCurrency } from "@/modules/core/lib/formatters";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
-import { SearchBar } from "@/modules/core/components/SearchBar";
 import {
   ProductFormPanel,
   type ProductFormState,
 } from "@/modules/products/components/ProductFormPanel";
+import { ProductManagementPanel } from "@/modules/products/components/ProductManagementPanel";
 import {
   createProduct,
   fetchProducts,
@@ -29,7 +30,6 @@ import {
   fetchCategories,
   type Category,
 } from "@/modules/categories/services/category-service";
-import { formatCurrency } from "@/modules/core/lib/formatters";
 
 type ProductsPanelProps = {
   storeId: number;
@@ -41,10 +41,7 @@ const INITIAL_FORM: ProductFormState = {
   nombre: "",
   descripcion: "",
   categoriaId: 0,
-  precio: "",
-  cantidad: "",
   estado: true,
-  imagenes: [],
 };
 
 const FORM_ANIMATION_MS = 500;
@@ -58,10 +55,13 @@ export function ProductsPanel({
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(8);
+  const [pageSize] = useState(8);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<
+    "activos" | "inactivos" | "todos"
+  >("todos");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -82,6 +82,7 @@ export function ProductsPanel({
         page,
         pageSize,
         search,
+        estadoFiltro: statusFilter,
       });
 
       setProducts(result.items);
@@ -96,7 +97,7 @@ export function ProductsPanel({
     } finally {
       setIsLoading(false);
     }
-  }, [page, pageSize, search, storeId]);
+  }, [page, pageSize, search, statusFilter, storeId]);
 
   const loadCategories = useCallback(async () => {
     try {
@@ -174,10 +175,7 @@ export function ProductsPanel({
         nombre: product.nombre,
         descripcion: product.descripcion,
         categoriaId: product.categoriaId,
-        precio: String(product.precio),
-        cantidad: String(product.cantidad),
         estado: product.estado,
-        imagenes: product.imagenes,
       });
       setFormError(null);
       openFormPanel();
@@ -195,11 +193,6 @@ export function ProductsPanel({
         return;
       }
 
-      if (form.imagenes.length < 3) {
-        setFormError("Cada producto necesita al menos 3 imagenes.");
-        return;
-      }
-
       setIsSaving(true);
 
       try {
@@ -207,19 +200,18 @@ export function ProductsPanel({
           nombre: form.nombre.trim(),
           descripcion: form.descripcion.trim(),
           categoriaId: form.categoriaId,
-          precio: Number(form.precio),
-          cantidad: Number(form.cantidad),
           estado: form.estado,
-          imagenes: form.imagenes,
         };
 
         if (editingProductId) {
           await updateProduct(editingProductId, storeId, payload);
+          setForm(payload);
         } else {
-          await createProduct(storeId, payload);
+          const created = await createProduct(storeId, payload);
+          setEditingProductId(created.id);
+          setForm(payload);
         }
 
-        closeFormPanel(true);
         await loadProducts();
       } catch (saveError) {
         setFormError(
@@ -231,7 +223,7 @@ export function ProductsPanel({
         setIsSaving(false);
       }
     },
-    [closeFormPanel, editingProductId, form, loadProducts, storeId],
+    [editingProductId, form, loadProducts, storeId],
   );
 
   const handleToggleStatus = useCallback(
@@ -243,6 +235,7 @@ export function ProductsPanel({
         confirmLabel: product.estado ? "Inactivar" : "Activar",
         variant: product.estado ? "danger" : "primary",
       });
+
       if (!shouldContinue) {
         return;
       }
@@ -264,6 +257,32 @@ export function ProductsPanel({
   const columns = useMemo<DataTableColumn<Product>[]>(
     () => [
       {
+        key: "imagenes",
+        header: "Imagen",
+        render: (product) => {
+          const imageUrl = product.imagenes[0]?.url?.trim();
+
+          if (!imageUrl) {
+            return (
+              <span className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
+                Sin imagen
+              </span>
+            );
+          }
+
+          return (
+            <div className="h-14 w-14 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imageUrl}
+                alt={product.nombre}
+                className="h-full w-full object-cover"
+              />
+            </div>
+          );
+        },
+      },
+      {
         key: "nombre",
         header: "Producto",
         className: "font-semibold",
@@ -274,13 +293,13 @@ export function ProductsPanel({
       },
       {
         key: "precio",
-        header: "Precio",
+        header: "Precio desde",
         textFormatter: (value: unknown) =>
           formatCurrency(Number(value ?? 0), currency),
       },
       {
         key: "cantidad",
-        header: "Stock",
+        header: "Stock total",
       },
       {
         key: "estado",
@@ -317,7 +336,7 @@ export function ProductsPanel({
 
   const rowActions = canManage
     ? {
-        primaryButtonLabel: "Editar",
+        primaryButtonLabel: () => "Editar",
         onPrimaryAction: handleEditClick,
         dropdownOptions: [
           {
@@ -334,7 +353,7 @@ export function ProductsPanel({
       canManage
         ? [
             {
-              label: "Nuevo Producto",
+              label: "Nuevo producto",
               iconPath: "/icons/plus.svg",
               onClick: handleCreateClick,
             },
@@ -346,7 +365,7 @@ export function ProductsPanel({
   return (
     <section className="space-y-5">
       <div className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-md">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
           <div className="w-full">
             <SearchBar
               value={search}
@@ -354,11 +373,28 @@ export function ProductsPanel({
                 setPage(1);
                 setSearch(value);
               }}
-              placeholder="Buscar por nombre o descripcion"
+              placeholder="Buscar por nombre o descripción del producto"
               ariaLabel="Buscar productos"
             />
           </div>
-          <ToolbarActions actions={toolbarActions} className="md:shrink-0" />
+          <ToolbarActions actions={toolbarActions} className="xl:shrink-0" />
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-[220px] md:justify-end">
+          <select
+            value={statusFilter}
+            onChange={(event) => {
+              setPage(1);
+              setStatusFilter(
+                event.target.value as "activos" | "inactivos" | "todos",
+              );
+            }}
+            className="app-input rounded-2xl px-4 py-3 text-sm"
+          >
+            <option value="todos">Todos los estados</option>
+            <option value="activos">Solo activos</option>
+            <option value="inactivos">Solo inactivos</option>
+          </select>
         </div>
 
         {error ? (
@@ -372,10 +408,22 @@ export function ProductsPanel({
         <ProductFormPanel
           isVisible={isFormVisible}
           editingProductId={editingProductId}
+          configuredProductId={editingProductId}
           isSaving={isSaving}
           formError={formError}
           form={form}
           categories={categories}
+          configurationContent={
+            editingProductId ? (
+              <ProductManagementPanel
+                productId={editingProductId}
+                storeId={storeId}
+                currency={currency}
+                canManage={canManage}
+                onProductMutated={loadProducts}
+              />
+            ) : undefined
+          }
           onClose={() => closeFormPanel(true)}
           onSubmit={handleSubmit}
           onNombreChange={(value) =>
@@ -384,51 +432,32 @@ export function ProductsPanel({
           onCategoriaChange={(value) =>
             setForm((current) => ({ ...current, categoriaId: value }))
           }
-          onPrecioChange={(value) =>
-            setForm((current) => ({ ...current, precio: value }))
-          }
-          onCantidadChange={(value) =>
-            setForm((current) => ({ ...current, cantidad: value }))
-          }
           onDescripcionChange={(value) =>
             setForm((current) => ({ ...current, descripcion: value }))
           }
           onEstadoChange={(value) =>
             setForm((current) => ({ ...current, estado: value }))
           }
-          onImagenesChange={(imagenes) =>
-            setForm((current) => ({ ...current, imagenes }))
-          }
         />
       ) : null}
 
-      <div className="app-card rounded-2xl py-2">
-        <DataTableToolbar
-          pageSize={pageSize}
-          onPageSizeChange={(value) => {
-            setPage(1);
-            setPageSize(value);
-          }}
-        />
-        <div className="app-divider mb-2 mt-1 border-b" />
-        <div className="px-3">
-          <DataTable
-            headers={columns}
-            data={products}
-            isLoading={isLoading}
-            rowKey="id"
-            emptyMessage="No hay productos registrados para esta tienda."
-            badges={stateBadges}
-            rowActions={rowActions}
-            pagination={{
-              page,
-              totalPages,
-              totalRecords,
-              onPageChange: setPage,
-            }}
-          />
-        </div>
-      </div>
+      <DataTable
+        headers={columns}
+        rows={products}
+        rowKey="id"
+        isLoading={isLoading}
+        emptyMessage="Todavía no hay productos registrados para esta tienda."
+        badges={stateBadges}
+        rowActions={rowActions}
+        pagination={{
+          page,
+          totalPages,
+          totalRecords,
+          onPageChange: (nextPage) => {
+            setPage(nextPage);
+          },
+        }}
+      />
     </section>
   );
 }

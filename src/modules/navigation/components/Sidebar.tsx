@@ -25,6 +25,9 @@ export function Sidebar({ isOpen, isCollapsed, onClose }: SidebarProps) {
     hasPermission(permissions.usuarios.ver);
   const canSeeUsers = hasPermission(permissions.usuarios.ver);
   const canSeeRoles = hasPermission(permissions.roles.ver);
+  const canSeeCatalogAttributes =
+    Boolean(currentUser?.tieneAccesoGlobal) &&
+    hasPermission(permissions.atributosCatalogo.ver);
 
   const dashboardHref = currentUser?.tieneAccesoGlobal
     ? "/tiendas"
@@ -117,6 +120,17 @@ export function Sidebar({ isOpen, isCollapsed, onClose }: SidebarProps) {
                 label="Roles"
                 icon="/icons/shield.svg"
                 active={pathname === "/roles"}
+                collapsed={isCollapsed}
+                onClick={onClose}
+              />
+            ) : null}
+
+            {canSeeCatalogAttributes ? (
+              <SidebarItem
+                href="/atributos-catalogo"
+                label="Atributos"
+                icon="/icons/shield.svg"
+                active={pathname === "/atributos-catalogo"}
                 collapsed={isCollapsed}
                 onClick={onClose}
               />

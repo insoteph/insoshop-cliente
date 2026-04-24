@@ -24,6 +24,47 @@ export type PublicStoreProduct = {
   imagenes: string[];
 };
 
+export type PublicStoreProductAttributeValue = {
+  atributoCatalogoValorId: number;
+  valor: string;
+  colorHexadecimal: string | null;
+  orden: number;
+};
+
+export type PublicStoreProductAttribute = {
+  atributoCatalogoId: number;
+  nombre: string;
+  valores: PublicStoreProductAttributeValue[];
+};
+
+export type PublicStoreProductVariantValue = {
+  atributoCatalogoId: number;
+  atributoCatalogoNombre: string;
+  atributoCatalogoValorId: number;
+  valor: string;
+  colorHexadecimal: string | null;
+};
+
+export type PublicStoreProductVariant = {
+  id: number;
+  precio: number;
+  cantidad: number;
+  estado: boolean;
+  urlImagenPrincipal: string | null;
+  imagenes: string[];
+  valores: PublicStoreProductVariantValue[];
+};
+
+export type PublicStoreProductDetail = {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  categoriaId: number;
+  categoria: string;
+  atributos: PublicStoreProductAttribute[];
+  variantes: PublicStoreProductVariant[];
+};
+
 export type PublicStoreProductsData = {
   tienda: PublicStoreSummary;
   productos: PagedResult<PublicStoreProduct>;

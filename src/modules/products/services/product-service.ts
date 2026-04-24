@@ -6,6 +6,40 @@ export type ProductImagePayload = {
   esPrincipal: boolean;
 };
 
+export type ProductAttributeValue = {
+  id: number;
+  atributoCatalogoValorId: number;
+  valor: string;
+  colorHexadecimal: string | null;
+  orden: number;
+};
+
+export type ProductAttribute = {
+  id: number;
+  productoId: number;
+  atributoCatalogoId: number;
+  atributoCatalogoNombre: string;
+  valores: ProductAttributeValue[];
+};
+
+export type ProductVariantValue = {
+  productoAtributoId: number;
+  atributoCatalogoNombre: string;
+  atributoCatalogoValorId: number;
+  valor: string;
+  colorHexadecimal: string | null;
+};
+
+export type ProductVariant = {
+  id: number;
+  precio: number;
+  cantidad: number;
+  estado: boolean;
+  urlImagenPrincipal: string | null;
+  imagenes: string[];
+  valores: ProductVariantValue[];
+};
+
 export type Product = {
   id: number;
   nombre: string;
@@ -20,6 +54,15 @@ export type Product = {
   imagenes: ProductImagePayload[];
 };
 
+export type ProductDetail = Product & {
+  atributos: ProductAttribute[];
+  variantes: ProductVariant[];
+  createdAt: string;
+  createdBy: string | null;
+  updatedAt: string;
+  updatedBy: string | null;
+};
+
 type ProductsQuery = {
   storeId: number;
   page?: number;
@@ -27,6 +70,26 @@ type ProductsQuery = {
   search?: string;
   categoriaId?: number | null;
   estadoFiltro?: "activos" | "inactivos" | "todos";
+};
+
+export type ProductBasePayload = {
+  nombre: string;
+  descripcion: string;
+  categoriaId: number;
+  estado: boolean;
+};
+
+export type SaveProductAttributePayload = {
+  atributoCatalogoId: number;
+  atributoCatalogoValorIds: number[];
+};
+
+export type SaveProductVariantPayload = {
+  precio: number;
+  cantidad: number;
+  estado: boolean;
+  urlImagen?: string | null;
+  productoAtributoValorIds: number[];
 };
 
 function buildProductsQuery(params: ProductsQuery) {
@@ -56,8 +119,16 @@ export async function fetchProducts(params: ProductsQuery) {
     `/productos?${buildProductsQuery(params)}`,
     {
       storeId: params.storeId,
-    }
+    },
   );
+
+  return response.data;
+}
+
+export async function fetchProductById(productId: number, storeId: number) {
+  const response = await apiFetch<ProductDetail>(`/productos/${productId}`, {
+    storeId,
+  });
 
   return response.data;
 }
@@ -71,36 +142,28 @@ export async function uploadProductImage(file: File) {
     {
       method: "POST",
       body: formData,
-    }
+    },
   );
 
   return response.data;
 }
 
-type ProductPayload = {
-  nombre: string;
-  descripcion: string;
-  categoriaId: number;
-  precio: number;
-  cantidad: number;
-  estado: boolean;
-  imagenes: ProductImagePayload[];
-};
-
-export async function createProduct(storeId: number, payload: ProductPayload) {
-  return apiFetch("/productos", {
+export async function createProduct(storeId: number, payload: ProductBasePayload) {
+  const response = await apiFetch<{ id: number }>("/productos", {
     method: "POST",
     storeId,
     body: payload,
   });
+
+  return response.data;
 }
 
 export async function updateProduct(
   productId: number,
   storeId: number,
-  payload: ProductPayload
+  payload: ProductBasePayload,
 ) {
-  return apiFetch(`/productos/${productId}`, {
+  return apiFetch("/productos/" + productId, {
     method: "PUT",
     storeId,
     body: payload,
@@ -109,6 +172,112 @@ export async function updateProduct(
 
 export async function toggleProductStatus(productId: number, storeId: number) {
   return apiFetch(`/productos/${productId}`, {
+    method: "DELETE",
+    storeId,
+  });
+}
+
+export async function fetchProductAttributes(productId: number, storeId: number) {
+  const response = await apiFetch<ProductAttribute[]>(
+    `/productos/${productId}/atributos`,
+    {
+      storeId,
+    },
+  );
+
+  return response.data;
+}
+
+export async function createProductAttribute(
+  productId: number,
+  storeId: number,
+  payload: SaveProductAttributePayload,
+) {
+  return apiFetch(`/productos/${productId}/atributos`, {
+    method: "POST",
+    storeId,
+    body: payload,
+  });
+}
+
+export async function updateProductAttribute(
+  productId: number,
+  productAttributeId: number,
+  storeId: number,
+  payload: SaveProductAttributePayload,
+) {
+  return apiFetch(`/productos/${productId}/atributos/${productAttributeId}`, {
+    method: "PUT",
+    storeId,
+    body: payload,
+  });
+}
+
+export async function deleteProductAttribute(
+  productId: number,
+  productAttributeId: number,
+  storeId: number,
+) {
+  return apiFetch(`/productos/${productId}/atributos/${productAttributeId}`, {
+    method: "DELETE",
+    storeId,
+  });
+}
+
+export async function createProductVariants(
+  productId: number,
+  storeId: number,
+  payload: { variantes: SaveProductVariantPayload[] },
+) {
+  const response = await apiFetch<ProductVariant[]>(
+    `/productos/${productId}/variantes`,
+    {
+      method: "POST",
+      storeId,
+      body: payload,
+    },
+  );
+
+  return response.data;
+}
+
+export async function updateProductVariant(
+  productId: number,
+  productVariantId: number,
+  storeId: number,
+  payload: SaveProductVariantPayload,
+) {
+  const response = await apiFetch<ProductVariant>(
+    `/productos/${productId}/variantes/${productVariantId}`,
+    {
+      method: "PUT",
+      storeId,
+      body: payload,
+    },
+  );
+
+  return response.data;
+}
+
+export async function toggleProductVariantStatus(
+  productId: number,
+  productVariantId: number,
+  storeId: number,
+  estado: boolean,
+) {
+  return apiFetch(`/productos/${productId}/variantes/${productVariantId}/estado`, {
+    method: "PATCH",
+    storeId,
+    body: estado,
+  });
+}
+
+export async function deleteProductVariant(
+  productId: number,
+  productVariantId: number,
+  storeId: number,
+) {
+  return apiFetch(`/productos/${productId}/variantes/${productVariantId}`, {
     method: "DELETE",
     storeId,
   });

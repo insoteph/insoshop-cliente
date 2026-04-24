@@ -187,7 +187,7 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
             : "",
         observacion: checkoutForm.observacion.trim(),
         detalles: items.map((item) => ({
-          productoId: item.productId,
+          productoVarianteId: item.productoVarianteId,
           cantidad: item.cantidad,
         })),
       });
@@ -227,7 +227,9 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
           `━━━━━━━━━━━━━━━━━━`,
           ...items.map(
             (item) =>
-              `• ${item.nombre}\n  Cantidad: ${item.cantidad} | Subtotal: ${formatCurrency(
+              `• ${item.nombre}${
+                item.varianteResumen ? ` (${item.varianteResumen})` : ""
+              }\n  Cantidad: ${item.cantidad} | Subtotal: ${formatCurrency(
                 item.precio * item.cantidad,
                 store?.moneda ?? "HNL",
               )}`,
@@ -322,7 +324,7 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
               <div className="space-y-3">
                 {items.map((item) => (
                   <article
-                    key={item.productId}
+                    key={item.productoVarianteId}
                     className="flex flex-col gap-3 rounded-[24px] border border-[var(--line)] bg-[var(--panel-strong)] p-4 shadow-[var(--shadow)] sm:flex-row sm:items-center"
                   >
                     <div className="h-20 w-20 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)]">
@@ -347,6 +349,11 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
                       <p className="text-sm text-[var(--muted)]">
                         {item.categoria}
                       </p>
+                      {item.varianteResumen ? (
+                        <p className="text-xs font-medium text-[var(--muted)]">
+                          {item.varianteResumen}
+                        </p>
+                      ) : null}
                       <p className="text-sm font-medium text-[var(--accent)]">
                         {formatCurrency(item.precio, store?.moneda ?? "HNL")}
                       </p>
@@ -357,7 +364,10 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
                         type="button"
                         className="flex h-8 w-8 items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] text-[var(--foreground)] disabled:opacity-50"
                         onClick={() =>
-                          setItemQuantity(item.productId, item.cantidad - 1)
+                          setItemQuantity(
+                            item.productoVarianteId,
+                            item.cantidad - 1,
+                          )
                         }
                         disabled={item.cantidad <= 1}
                       >
@@ -370,7 +380,10 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
                         type="button"
                         className="flex h-8 w-8 items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] text-[var(--foreground)] disabled:opacity-50"
                         onClick={() =>
-                          setItemQuantity(item.productId, item.cantidad + 1)
+                          setItemQuantity(
+                            item.productoVarianteId,
+                            item.cantidad + 1,
+                          )
                         }
                         disabled={item.cantidad >= item.cantidadDisponible}
                       >
@@ -388,7 +401,7 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
                       <button
                         type="button"
                         className="text-xs font-semibold text-[var(--danger)]"
-                        onClick={() => removeItem(item.productId)}
+                        onClick={() => removeItem(item.productoVarianteId)}
                       >
                         Quitar
                       </button>

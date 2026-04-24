@@ -26,6 +26,12 @@ export const permissions = {
     editar: "MetodosPago.Editar",
     cambiarEstado: "MetodosPago.Eliminar",
   },
+  atributosCatalogo: {
+    ver: "AtributosCatalogo.Ver",
+    crear: "AtributosCatalogo.Crear",
+    editar: "AtributosCatalogo.Editar",
+    cambiarEstado: "AtributosCatalogo.CambiarEstado",
+  },
   usuarios: {
     ver: "Usuarios.Ver",
     crear: "Usuarios.Crear",

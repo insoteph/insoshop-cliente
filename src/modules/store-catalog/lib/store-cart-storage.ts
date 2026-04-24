@@ -49,6 +49,7 @@ function normalizeCartItem(rawItem: unknown): StoreCartItem[] {
 
   const item = rawItem as Record<string, unknown>;
   const productId = Number(item.productId);
+  const productoVarianteId = Number(item.productoVarianteId);
   const precio = Number(item.precio);
   const cantidad = Number(item.cantidad);
   const cantidadDisponible = Number(item.cantidadDisponible);
@@ -56,6 +57,8 @@ function normalizeCartItem(rawItem: unknown): StoreCartItem[] {
   if (
     !Number.isInteger(productId) ||
     productId <= 0 ||
+    !Number.isInteger(productoVarianteId) ||
+    productoVarianteId <= 0 ||
     !Number.isFinite(precio) ||
     !Number.isFinite(cantidad) ||
     !Number.isFinite(cantidadDisponible)
@@ -66,12 +69,15 @@ function normalizeCartItem(rawItem: unknown): StoreCartItem[] {
   return [
     {
       productId,
+      productoVarianteId,
       nombre: typeof item.nombre === "string" ? item.nombre : "",
       precio,
       cantidad: Math.max(1, Math.trunc(cantidad)),
       cantidadDisponible: Math.max(0, Math.trunc(cantidadDisponible)),
       categoria: typeof item.categoria === "string" ? item.categoria : "",
       imagenUrl: normalizeImageUrl(item),
+      varianteResumen:
+        typeof item.varianteResumen === "string" ? item.varianteResumen : "",
     },
   ];
 }

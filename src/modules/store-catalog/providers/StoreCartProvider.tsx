@@ -19,12 +19,14 @@ import type { StoreCartItem } from "@/modules/store-catalog/types/store-cart-typ
 
 type AddCartItemPayload = {
   productId: number;
+  productoVarianteId: number;
   nombre: string;
   precio: number;
   cantidad: number;
   cantidadDisponible: number;
   categoria: string;
   imagenUrl: string | null;
+  varianteResumen: string;
 };
 
 type CartFeedbackType = "success" | "cancel";
@@ -39,8 +41,8 @@ type StoreCartContextValue = {
   totalItems: number;
   subtotal: number;
   addItem: (payload: AddCartItemPayload, options?: CartActionOptions) => void;
-  removeItem: (productId: number) => void;
-  setItemQuantity: (productId: number, quantity: number) => void;
+  removeItem: (productoVarianteId: number) => void;
+  setItemQuantity: (productoVarianteId: number, quantity: number) => void;
   clearCart: (options?: CartActionOptions) => void;
 };
 
@@ -82,7 +84,7 @@ export function StoreCartProvider({
     (payload: AddCartItemPayload, options?: CartActionOptions) => {
       setItems((currentItems) => {
         const existing = currentItems.find(
-          (item) => item.productId === payload.productId,
+          (item) => item.productoVarianteId === payload.productoVarianteId,
         );
 
         if (!existing) {
@@ -90,6 +92,7 @@ export function StoreCartProvider({
             ...currentItems,
             {
               productId: payload.productId,
+              productoVarianteId: payload.productoVarianteId,
               nombre: payload.nombre,
               precio: payload.precio,
               cantidad: Math.max(
@@ -99,12 +102,13 @@ export function StoreCartProvider({
               cantidadDisponible: payload.cantidadDisponible,
               categoria: payload.categoria,
               imagenUrl: payload.imagenUrl,
+              varianteResumen: payload.varianteResumen,
             },
           ];
         }
 
         return currentItems.map((item) =>
-          item.productId === payload.productId
+          item.productoVarianteId === payload.productoVarianteId
             ? {
                 ...item,
                 cantidad: Math.min(
@@ -112,6 +116,7 @@ export function StoreCartProvider({
                   item.cantidadDisponible,
                 ),
                 imagenUrl: item.imagenUrl || payload.imagenUrl,
+                varianteResumen: item.varianteResumen || payload.varianteResumen,
               }
             : item,
         );
@@ -130,11 +135,12 @@ export function StoreCartProvider({
     [],
   );
 
-  const setItemQuantity = useCallback((productId: number, quantity: number) => {
+  const setItemQuantity = useCallback(
+    (productoVarianteId: number, quantity: number) => {
     setItems((currentItems) =>
       currentItems
         .map((item) =>
-          item.productId === productId
+          item.productoVarianteId === productoVarianteId
             ? {
                 ...item,
                 cantidad: Math.max(
@@ -146,11 +152,15 @@ export function StoreCartProvider({
         )
         .filter((item) => item.cantidad > 0),
     );
-  }, []);
+    },
+    [],
+  );
 
-  const removeItem = useCallback((productId: number) => {
+  const removeItem = useCallback((productoVarianteId: number) => {
     setItems((currentItems) =>
-      currentItems.filter((item) => item.productId !== productId),
+      currentItems.filter(
+        (item) => item.productoVarianteId !== productoVarianteId,
+      ),
     );
   }, []);
 

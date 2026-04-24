@@ -1,7 +1,7 @@
 import { apiFetch } from "@/modules/core/lib/api-client";
 import type {
   PublicStoreCategory,
-  PublicStoreProduct,
+  PublicStoreProductDetail,
   PublicStoreProductsData,
   PublicStoreProductsQuery,
 } from "@/modules/store-catalog/types/store-catalog-types";
@@ -52,7 +52,7 @@ export async function fetchPublicStoreProductById(
   slug: string,
   productId: number,
 ) {
-  const response = await apiFetch<PublicStoreProduct>(
+  const response = await apiFetch<PublicStoreProductDetail>(
     `/store/${slug}/productos/${productId}`,
     {
       auth: false,
