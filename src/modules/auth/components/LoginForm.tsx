@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { useAdminSession } from "@/modules/auth/providers/AdminSessionProvider";
 import { MaterialInput } from "@/modules/core/components/MaterialInput";
 import { changePasswordService } from "@/modules/auth/services/change-password-service";
 import { loginService } from "@/modules/auth/services/login-service";
@@ -22,7 +21,6 @@ const PASSWORD_HELPER_TEXT =
 export function LoginForm({ onStepChange }: LoginFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { refreshCurrentUser } = useAdminSession();
   const newPasswordInputRef = useRef<HTMLInputElement | null>(null);
   const [step, setStep] = useState<AuthStep>("credentials");
   const [username, setUsername] = useState("");
@@ -65,8 +63,7 @@ export function LoginForm({ onStepChange }: LoginFormProps) {
         return;
       }
 
-      await refreshCurrentUser();
-      router.push(resolveNextPath());
+      router.replace(resolveNextPath());
     } catch (error) {
       setLoginFeedback(
         error instanceof Error
@@ -107,9 +104,7 @@ export function LoginForm({ onStepChange }: LoginFormProps) {
         newPassword,
       });
       await refreshSession();
-      await refreshCurrentUser();
       router.replace(resolveNextPath());
-      router.refresh();
     } catch (error) {
       setPasswordFeedback(
         error instanceof Error
