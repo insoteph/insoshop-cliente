@@ -1,54 +1,69 @@
 "use client";
 
 import { MaterialInput } from "@/modules/core/components/MaterialInput";
-import { ProductImageUploader } from "@/modules/products/components/ProductImageUploader";
 import type { Category } from "@/modules/categories/services/category-service";
-import type { ProductImagePayload } from "@/modules/products/services/product-service";
+import {
+  ProductAttributesPanel,
+  type ProductAttributeDraft,
+} from "@/modules/products/components/ProductAttributesPanel";
+import {
+  ProductVariantsPanel,
+} from "@/modules/products/components/ProductVariantsPanel";
+import { type ProductVariantDraft } from "@/modules/products/services/product-service";
 
 export type ProductFormState = {
   nombre: string;
   descripcion: string;
   categoriaId: number;
-  precio: string;
-  cantidad: string;
   estado: boolean;
-  imagenes: ProductImagePayload[];
+  atributos: ProductAttributeDraft[];
+  variantes: ProductVariantDraft[];
 };
 
 type ProductFormPanelProps = {
+  storeId: number;
   isVisible: boolean;
   editingProductId: number | null;
   isSaving: boolean;
   formError: string | null;
   form: ProductFormState;
   categories: Category[];
+  canCreateProducts: boolean;
+  canEditProducts: boolean;
+  canDeleteProducts: boolean;
+  canEditAttributes: boolean;
+  canDeleteAttributes: boolean;
   onClose: () => void;
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   onNombreChange: (value: string) => void;
   onCategoriaChange: (value: number) => void;
-  onPrecioChange: (value: string) => void;
-  onCantidadChange: (value: string) => void;
   onDescripcionChange: (value: string) => void;
   onEstadoChange: (value: boolean) => void;
-  onImagenesChange: (imagenes: ProductImagePayload[]) => void;
+  onAtributosChange: (value: ProductAttributeDraft[]) => void;
+  onVariantesChange: (value: ProductVariantDraft[]) => void;
 };
 
 export function ProductFormPanel({
+  storeId,
   isVisible,
   editingProductId,
   isSaving,
   formError,
   form,
   categories,
+  canCreateProducts,
+  canEditProducts,
+  canDeleteProducts,
+  canEditAttributes,
+  canDeleteAttributes,
   onClose,
   onSubmit,
   onNombreChange,
   onCategoriaChange,
-  onPrecioChange,
-  onCantidadChange,
   onDescripcionChange,
   onEstadoChange,
-  onImagenesChange,
+  onAtributosChange,
+  onVariantesChange,
 }: ProductFormPanelProps) {
   return (
     <div
@@ -59,7 +74,7 @@ export function ProductFormPanel({
       }`}
     >
       <form
-        className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-lg"
+        className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-sm"
         onSubmit={onSubmit}
       >
         <div className="flex items-center justify-between gap-3">
@@ -68,8 +83,7 @@ export function ProductFormPanel({
               {editingProductId ? "Editar producto" : "Crear producto"}
             </h4>
             <p className="text-sm text-[var(--muted)]">
-              Ingresa los datos de tu producto, selecciona la categoría y sube
-              imágenes para promocionarlo
+              Ingresa los datos basicos del producto y selecciona la categoria.
             </p>
           </div>
           <button
@@ -114,28 +128,6 @@ export function ProductFormPanel({
                 </option>
               ))}
             </select>
-
-            <div className="grid gap-4 lg:grid-cols-2">
-              <MaterialInput
-                id="producto-precio"
-                label="Precio"
-                type="number"
-                min="0.01"
-                step="0.01"
-                value={form.precio}
-                onChange={(event) => onPrecioChange(event.target.value)}
-                required
-              />
-              <MaterialInput
-                id="producto-cantidad"
-                label="Cantidad disponible"
-                type="number"
-                min="0"
-                value={form.cantidad}
-                onChange={(event) => onCantidadChange(event.target.value)}
-                required
-              />
-            </div>
           </div>
         </div>
 
@@ -148,9 +140,21 @@ export function ProductFormPanel({
           Producto activo
         </label>
 
-        <ProductImageUploader
-          value={form.imagenes}
-          onChange={onImagenesChange}
+        <ProductAttributesPanel
+          storeId={storeId}
+          value={form.atributos}
+          onChange={onAtributosChange}
+          canEdit={canEditAttributes}
+          canDelete={canDeleteAttributes}
+        />
+
+        <ProductVariantsPanel
+          storeId={storeId}
+          attributes={form.atributos}
+          value={form.variantes}
+          onChange={onVariantesChange}
+          canEdit={canEditProducts}
+          canDelete={canDeleteProducts}
         />
 
         {formError ? (
@@ -162,7 +166,9 @@ export function ProductFormPanel({
         <div className="flex justify-end">
           <button
             type="submit"
-            disabled={isSaving}
+            disabled={
+              isSaving || (editingProductId ? !canEditProducts : !canCreateProducts)
+            }
             className="app-button-primary inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
           >
             <span>{isSaving ? "Guardando..." : "Guardar"}</span>

@@ -131,10 +131,9 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
   }
 
   const canEditStore = hasPermission(permissions.tiendas.editar);
-  const canManageProducts =
-    hasPermission(permissions.productos.crear) ||
-    hasPermission(permissions.productos.editar) ||
-    hasPermission(permissions.productos.eliminar);
+  const canCreateProducts = hasPermission(permissions.productos.crear);
+  const canEditProducts = hasPermission(permissions.productos.editar);
+  const canDeleteProducts = hasPermission(permissions.productos.eliminar);
   const canManageCategories =
     hasPermission(permissions.categorias.crear) ||
     hasPermission(permissions.categorias.editar) ||
@@ -183,7 +182,11 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
           {activeTab === "productos" ? (
             <ProductsPanel
               storeId={storeId}
-              canManage={canManageProducts}
+              canCreateProducts={canCreateProducts}
+              canEditProducts={canEditProducts}
+              canDeleteProducts={canDeleteProducts}
+              canEditAttributes={canEditProducts}
+              canDeleteAttributes={canDeleteProducts}
               currency={store.moneda}
             />
           ) : null}
