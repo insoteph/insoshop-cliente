@@ -1,5 +1,21 @@
 import { apiFetch, type PagedResult } from "@/modules/core/lib/api-client";
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function normalizeArrayResponse<T>(data: unknown): T[] {
+  if (Array.isArray(data)) {
+    return data as T[];
+  }
+
+  if (isRecord(data) && Array.isArray(data.items)) {
+    return data.items as T[];
+  }
+
+  return [];
+}
+
 export type ProductImagePayload = {
   url: string;
   orden: number;
@@ -148,7 +164,10 @@ export async function uploadProductImage(file: File) {
   return response.data;
 }
 
-export async function createProduct(storeId: number, payload: ProductBasePayload) {
+export async function createProduct(
+  storeId: number,
+  payload: ProductBasePayload,
+) {
   const response = await apiFetch<{ id: number }>("/productos", {
     method: "POST",
     storeId,
@@ -177,7 +196,10 @@ export async function toggleProductStatus(productId: number, storeId: number) {
   });
 }
 
-export async function fetchProductAttributes(productId: number, storeId: number) {
+export async function fetchProductAttributes(
+  productId: number,
+  storeId: number,
+) {
   const response = await apiFetch<ProductAttribute[]>(
     `/productos/${productId}/atributos`,
     {
@@ -265,11 +287,14 @@ export async function toggleProductVariantStatus(
   storeId: number,
   estado: boolean,
 ) {
-  return apiFetch(`/productos/${productId}/variantes/${productVariantId}/estado`, {
-    method: "PATCH",
-    storeId,
-    body: estado,
-  });
+  return apiFetch(
+    `/productos/${productId}/variantes/${productVariantId}/estado`,
+    {
+      method: "PATCH",
+      storeId,
+      body: estado,
+    },
+  );
 }
 
 export async function deleteProductVariant(

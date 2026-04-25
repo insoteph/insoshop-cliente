@@ -13,6 +13,7 @@ export type ProductFormState = {
 };
 
 type ProductFormPanelProps = {
+  storeId: number;
   isVisible: boolean;
   editingProductId: number | null;
   configuredProductId: number | null;
@@ -30,6 +31,7 @@ type ProductFormPanelProps = {
 };
 
 export function ProductFormPanel({
+  storeId,
   isVisible,
   editingProductId,
   configuredProductId,
@@ -61,8 +63,8 @@ export function ProductFormPanel({
                 {editingProductId ? "Editar producto" : "Crear producto"}
               </h4>
               <p className="text-sm text-[var(--muted)]">
-                Completa los datos principales del producto. Luego, en esta misma
-                pantalla, podrás configurar sus opciones de compra y las
+                Completa los datos principales del producto. Luego, en esta
+                misma pantalla, podrás configurar sus opciones de compra y las
                 combinaciones que vas a vender.
               </p>
             </div>
@@ -98,7 +100,9 @@ export function ProductFormPanel({
               <select
                 required
                 value={form.categoriaId || ""}
-                onChange={(event) => onCategoriaChange(Number(event.target.value))}
+                onChange={(event) =>
+                  onCategoriaChange(Number(event.target.value))
+                }
                 className="app-input w-full rounded-2xl px-4 py-3 text-sm"
               >
                 <option value="">Selecciona una categoria</option>

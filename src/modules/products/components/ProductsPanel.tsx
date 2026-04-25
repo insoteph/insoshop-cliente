@@ -19,12 +19,27 @@ import {
   type ProductFormState,
 } from "@/modules/products/components/ProductFormPanel";
 import { ProductManagementPanel } from "@/modules/products/components/ProductManagementPanel";
+import { type ProductAttributeDraft } from "@/modules/products/components/ProductAttributesPanel";
 import {
   createProduct,
+  createProductAttribute,
+  createProductVariants,
+  deleteProductAttribute,
+  deleteProductVariant,
+  fetchProductById,
+  fetchProductAttributes,
   fetchProducts,
   toggleProductStatus,
   updateProduct,
+  updateProductAttribute,
+  updateProductVariant,
   type Product,
+  type ProductAttribute,
+  type ProductAttributeDraftPayload,
+  type ProductPayload,
+  type ProductVariant,
+  type ProductVariantDraft,
+  type ProductVariantPayload,
 } from "@/modules/products/services/product-service";
 import {
   fetchCategories,
@@ -33,7 +48,11 @@ import {
 
 type ProductsPanelProps = {
   storeId: number;
-  canManage: boolean;
+  canCreateProducts: boolean;
+  canEditProducts: boolean;
+  canDeleteProducts: boolean;
+  canEditAttributes: boolean;
+  canDeleteAttributes: boolean;
   currency: string;
 };
 
@@ -46,9 +65,212 @@ const INITIAL_FORM: ProductFormState = {
 
 const FORM_ANIMATION_MS = 500;
 
+function extractCreatedProductId(data: unknown): number | null {
+  if (typeof data === "number" && Number.isFinite(data)) {
+    return data;
+  }
+
+  if (typeof data === "object" && data !== null) {
+    const candidate = data as Record<string, unknown>;
+    const keys = ["id", "productoId", "productId"];
+
+    for (const key of keys) {
+      const value = candidate[key];
+      if (typeof value === "number" && Number.isFinite(value)) {
+        return value;
+      }
+    }
+
+    if ("data" in candidate) {
+      return extractCreatedProductId(candidate.data);
+    }
+  }
+
+  return null;
+}
+
+function buildAttributePayloads(
+  attributeDrafts: ProductAttributeDraft[],
+): ProductAttributeDraftPayload[] {
+  return attributeDrafts
+    .filter(
+      (draft) =>
+        draft.atributoCatalogoId > 0 &&
+        draft.atributoCatalogoValorIds.length > 0,
+    )
+    .map((draft) => ({
+      atributoCatalogoId: draft.atributoCatalogoId,
+      atributoCatalogoValorIds: draft.atributoCatalogoValorIds,
+    }));
+}
+
+function mapProductAttributesToDrafts(
+  attributes: ProductAttribute[],
+): ProductAttributeDraft[] {
+  return attributes.map((attribute) => ({
+    key:
+      globalThis.crypto?.randomUUID?.() ??
+      `id-${attribute.id}-${attribute.atributoCatalogoId}-${Date.now()}`,
+    id: attribute.id,
+    atributoCatalogoId: attribute.atributoCatalogoId,
+    atributoCatalogoValorIds: attribute.valores
+      .map((value) => value.atributoCatalogoValorId)
+      .filter((valueId) => valueId > 0),
+  }));
+}
+
+function createVariantDraftKey() {
+  return (
+    globalThis.crypto?.randomUUID?.() ?? `id-${Date.now()}-${Math.random()}`
+  );
+}
+
+function mapProductVariantsToDrafts(
+  variants: ProductVariant[],
+  attributes: ProductAttribute[],
+): ProductVariantDraft[] {
+  const productAttributeById = new Map(
+    attributes.map((attribute) => [attribute.id, attribute.atributoCatalogoId]),
+  );
+
+  return variants.map((variant) => ({
+    key: createVariantDraftKey(),
+    id: variant.id,
+    precio: String(variant.precio ?? ""),
+    cantidad: String(variant.cantidad ?? ""),
+    estado: variant.estado,
+    urlImagen: variant.urlImagenPrincipal?.trim() || null,
+    valoresPorAtributo: variant.valores.reduce<Record<number, string>>(
+      (result, value) => {
+        const attributeId = productAttributeById.get(value.productoAtributoId);
+        if (attributeId && attributeId > 0) {
+          result[attributeId] = String(value.atributoCatalogoValorId);
+        }
+
+        return result;
+      },
+      {},
+    ),
+  }));
+}
+
+function alignVariantDraftsWithAttributes(
+  variants: ProductVariantDraft[],
+  attributes: ProductAttributeDraft[],
+) {
+  const activeAttributeIds = attributes
+    .map((attribute) => attribute.atributoCatalogoId)
+    .filter((attributeId) => attributeId > 0);
+
+  return variants.map((variant) => {
+    const nextValues: Record<number, string> = {};
+
+    activeAttributeIds.forEach((attributeId) => {
+      nextValues[attributeId] = variant.valoresPorAtributo[attributeId] ?? "";
+    });
+
+    return {
+      ...variant,
+      valoresPorAtributo: nextValues,
+    };
+  });
+}
+
+function buildVariantPayload(
+  variant: ProductVariantDraft,
+  attributes: ProductAttributeDraft[],
+) {
+  const attributeIds = attributes
+    .map((attribute) => attribute.atributoCatalogoId)
+    .filter((attributeId) => attributeId > 0);
+
+  const selectedValues: number[] = [];
+  const valuesByAttribute = new Map(
+    Object.entries(variant.valoresPorAtributo).map(([key, value]) => [
+      Number(key),
+      value,
+    ]),
+  );
+
+  attributeIds.forEach((attributeId) => {
+    const valueId = Number(valuesByAttribute.get(attributeId) || 0);
+    if (valueId > 0) {
+      selectedValues.push(valueId);
+    }
+  });
+
+  return {
+    precio: Number(variant.precio),
+    cantidad: Number(variant.cantidad),
+    estado: variant.estado,
+    urlImagen: variant.urlImagen?.trim() || null,
+    productoAtributoValorIds: selectedValues,
+  };
+}
+
+function validateVariantDrafts(
+  variants: ProductVariantDraft[],
+  attributes: ProductAttributeDraft[],
+) {
+  const activeAttributes = attributes.filter(
+    (attribute) => attribute.atributoCatalogoId > 0,
+  );
+
+  if (activeAttributes.length === 0) {
+    return variants.length > 0
+      ? "Debes agregar atributos antes de definir variantes."
+      : null;
+  }
+
+  if (variants.length === 0) {
+    return "Debes agregar al menos una variante.";
+  }
+
+  const duplicateChecker = new Set<string>();
+
+  for (const variant of variants) {
+    const precio = Number(variant.precio);
+    const cantidad = Number(variant.cantidad);
+
+    if (!Number.isFinite(precio) || precio <= 0) {
+      return "Cada variante debe tener un precio mayor que cero.";
+    }
+
+    if (!Number.isInteger(cantidad) || cantidad < 0) {
+      return "Cada variante debe tener una cantidad valida.";
+    }
+
+    const values: number[] = [];
+
+    for (const attribute of activeAttributes) {
+      const valueId = Number(
+        variant.valoresPorAtributo[attribute.atributoCatalogoId] || 0,
+      );
+      if (!valueId) {
+        return "Cada variante debe contener un valor para cada atributo.";
+      }
+
+      values.push(valueId);
+    }
+
+    const signature = values.join("|");
+    if (duplicateChecker.has(signature)) {
+      return "No puedes repetir la misma combinacion de atributos.";
+    }
+
+    duplicateChecker.add(signature);
+  }
+
+  return null;
+}
+
 export function ProductsPanel({
   storeId,
-  canManage,
+  canCreateProducts,
+  canEditProducts,
+  canDeleteProducts,
+  canEditAttributes,
+  canDeleteAttributes,
   currency,
 }: ProductsPanelProps) {
   const { confirm } = useConfirmationDialog();
@@ -71,6 +293,8 @@ export function ProductsPanel({
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
   const [form, setForm] = useState<ProductFormState>(INITIAL_FORM);
   const closeFormTimeoutRef = useRef<number | null>(null);
+  const originalAttributeIdsRef = useRef<number[]>([]);
+  const originalVariantIdsRef = useRef<number[]>([]);
 
   const loadProducts = useCallback(async () => {
     setIsLoading(true);
@@ -126,6 +350,8 @@ export function ProductsPanel({
     setForm(INITIAL_FORM);
     setEditingProductId(null);
     setFormError(null);
+    originalAttributeIdsRef.current = [];
+    originalVariantIdsRef.current = [];
   }, []);
 
   const clearCloseFormTimeout = useCallback(() => {
@@ -162,7 +388,7 @@ export function ProductsPanel({
       clearCloseFormTimeout();
     };
   }, [clearCloseFormTimeout]);
-
+  async async 
   const handleCreateClick = useCallback(() => {
     resetForm();
     openFormPanel();
@@ -178,9 +404,238 @@ export function ProductsPanel({
         estado: product.estado,
       });
       setFormError(null);
-      openFormPanel();
+      originalAttributeIdsRef.current = [];
+      originalVariantIdsRef.current = [];
+
+      try {
+        const productDetail = await fetchProductById(storeId, product.id);
+        const productAttributes = await fetchProductAttributes(
+          storeId,
+          product.id,
+        );
+        const resolvedAttributes =
+          productAttributes.length > 0
+            ? productAttributes
+            : (productDetail.atributos ?? []);
+
+        setEditingProductId(product.id);
+        setForm({
+          nombre: productDetail.nombre,
+          descripcion: productDetail.descripcion,
+          categoriaId: productDetail.categoriaId,
+          estado: productDetail.estado,
+          atributos: mapProductAttributesToDrafts(resolvedAttributes),
+          variantes: mapProductVariantsToDrafts(
+            productDetail.variantes ?? [],
+            resolvedAttributes,
+          ),
+        });
+        originalAttributeIdsRef.current = resolvedAttributes
+          .map((attribute) => attribute.id)
+          .filter((attributeId) => attributeId > 0);
+        originalVariantIdsRef.current = (productDetail.variantes ?? [])
+          .map((variant) => variant.id)
+          .filter((variantId) => variantId > 0);
+        openFormPanel();
+      } catch (loadError) {
+        setError(
+          loadError instanceof Error
+            ? loadError.message
+            : "No se pudo cargar el detalle del producto.",
+        );
+      }
     },
-    [openFormPanel],
+    [openFormPanel, storeId],
+  );
+
+  useEffect(() => {
+    setForm((current) => {
+      const alignedVariants = alignVariantDraftsWithAttributes(
+        current.variantes,
+        current.atributos,
+      );
+
+      const isSame =
+        current.variantes.length === alignedVariants.length &&
+        current.variantes.every((variant, index) => {
+          const nextVariant = alignedVariants[index];
+
+          return (
+            variant.key === nextVariant.key &&
+            variant.id === nextVariant.id &&
+            variant.precio === nextVariant.precio &&
+            variant.cantidad === nextVariant.cantidad &&
+            variant.estado === nextVariant.estado &&
+            variant.urlImagen === nextVariant.urlImagen &&
+            JSON.stringify(variant.valoresPorAtributo) ===
+              JSON.stringify(nextVariant.valoresPorAtributo)
+          );
+        });
+
+      if (isSame) {
+        return current;
+      }
+
+      return {
+        ...current,
+        variantes: alignedVariants,
+      };
+    });
+  }, [form.atributos]);
+
+  const syncProductAttributes = useCallback(
+    async (productId: number, attributeDrafts: ProductAttributeDraft[]) => {
+      const normalizedDrafts = attributeDrafts.filter(
+        (draft) => draft.atributoCatalogoId > 0,
+      );
+      const activeAttributeIds = new Set(
+        normalizedDrafts
+          .map((draft) => draft.id)
+          .filter(
+            (attributeId): attributeId is number =>
+              typeof attributeId === "number" && attributeId > 0,
+          ),
+      );
+
+      const operations: Promise<unknown>[] = [];
+
+      for (const draft of normalizedDrafts) {
+        const payload: ProductAttributeDraftPayload = {
+          atributoCatalogoId: draft.atributoCatalogoId,
+          atributoCatalogoValorIds: draft.atributoCatalogoValorIds,
+        };
+
+        if (draft.atributoCatalogoValorIds.length === 0) {
+          if (draft.id) {
+            operations.push(
+              deleteProductAttribute(storeId, productId, draft.id),
+            );
+          }
+
+          continue;
+        }
+
+        if (draft.id) {
+          operations.push(
+            updateProductAttribute(storeId, productId, draft.id, payload),
+          );
+        } else {
+          operations.push(createProductAttribute(storeId, productId, payload));
+        }
+      }
+
+      for (const originalAttributeId of originalAttributeIdsRef.current) {
+        if (!activeAttributeIds.has(originalAttributeId)) {
+          operations.push(
+            deleteProductAttribute(storeId, productId, originalAttributeId),
+          );
+        }
+      }
+
+      if (operations.length > 0) {
+        await Promise.all(operations);
+      }
+    },
+    [storeId],
+  );
+
+  const syncProductVariants = useCallback(
+    async (
+      productId: number,
+      attributeDrafts: ProductAttributeDraft[],
+      variantDrafts: ProductVariantDraft[],
+    ) => {
+      const normalizedAttributes = attributeDrafts.filter(
+        (draft) => draft.atributoCatalogoId > 0,
+      );
+      const normalizedVariants = variantDrafts.filter(
+        (draft) => draft.key.length > 0,
+      );
+
+      if (normalizedAttributes.length === 0) {
+        if (normalizedVariants.length > 0) {
+          throw new Error(
+            "Debes agregar atributos antes de definir variantes.",
+          );
+        }
+
+        return;
+      }
+
+      if (normalizedVariants.length === 0) {
+        throw new Error("Debes agregar al menos una variante.");
+      }
+
+      const originalVariantIds = new Set(originalVariantIdsRef.current);
+      const activeVariantIds = new Set<number>();
+      const createPayload: ProductVariantPayload[] = [];
+      const updatePayloads: Array<{
+        id: number;
+        payload: ProductVariantPayload;
+      }> = [];
+      const signatures = new Set<string>();
+
+      for (const variantDraft of normalizedVariants) {
+        const payload = buildVariantPayload(variantDraft, normalizedAttributes);
+
+        if (
+          payload.productoAtributoValorIds.length !==
+          normalizedAttributes.length
+        ) {
+          throw new Error(
+            "Cada variante debe contener un valor para cada atributo.",
+          );
+        }
+
+        const signature = payload.productoAtributoValorIds
+          .slice()
+          .sort((a, b) => a - b)
+          .join("|");
+
+        if (signatures.has(signature)) {
+          throw new Error(
+            "No puedes repetir la misma combinacion de atributos.",
+          );
+        }
+
+        signatures.add(signature);
+
+        if (variantDraft.id && variantDraft.id > 0) {
+          activeVariantIds.add(variantDraft.id);
+          updatePayloads.push({ id: variantDraft.id, payload });
+          continue;
+        }
+
+        createPayload.push(payload);
+      }
+
+      const deleteIds = Array.from(originalVariantIds).filter(
+        (variantId) => !activeVariantIds.has(variantId),
+      );
+
+      const operations: Promise<unknown>[] = [];
+
+      if (createPayload.length > 0) {
+        operations.push(
+          createProductVariants(storeId, productId, {
+            variantes: createPayload,
+          }),
+        );
+      }
+
+      updatePayloads.forEach(({ id, payload }) => {
+        operations.push(updateProductVariant(storeId, productId, id, payload));
+      });
+
+      deleteIds.forEach((variantId) => {
+        operations.push(deleteProductVariant(storeId, productId, variantId));
+      });
+
+      if (operations.length > 0) {
+        await Promise.all(operations);
+      }cons
+    },
+    [storeId],
   );
 
   const handleSubmit = useCallback(
@@ -196,12 +651,13 @@ export function ProductsPanel({
       setIsSaving(true);
 
       try {
-        const payload = {
+        const payload: ProductPayload = {
           nombre: form.nombre.trim(),
           descripcion: form.descripcion.trim(),
           categoriaId: form.categoriaId,
           estado: form.estado,
         };
+        let productId = editingProductId;
 
         if (editingProductId) {
           await updateProduct(editingProductId, storeId, payload);
@@ -350,7 +806,7 @@ export function ProductsPanel({
 
   const toolbarActions = useMemo<DataTableToolbarAction[]>(
     () =>
-      canManage
+      canCreateProducts
         ? [
             {
               label: "Nuevo producto",
@@ -359,7 +815,7 @@ export function ProductsPanel({
             },
           ]
         : [],
-    [canManage, handleCreateClick],
+    [canCreateProducts, handleCreateClick],
   );
 
   return (
@@ -406,6 +862,7 @@ export function ProductsPanel({
 
       {isFormMounted ? (
         <ProductFormPanel
+          storeId={storeId}
           isVisible={isFormVisible}
           editingProductId={editingProductId}
           configuredProductId={editingProductId}
