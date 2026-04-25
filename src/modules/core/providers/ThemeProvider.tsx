@@ -19,6 +19,7 @@ type ThemeContextValue = {
 
 const STORAGE_KEY = "insoshop.theme";
 const ADMIN_ROUTE_ROOTS = new Set([
+  "atributos-catalogo",
   "auth",
   "dashboard",
   "roles",
