@@ -86,6 +86,11 @@ export type ProductVariant = {
   valores: ProductVariantValue[];
 };
 
+export type ProductDetail = Product & {
+  atributos: ProductAttribute[];
+  variantes: ProductVariant[];
+};
+
 export type ProductVariantDraft = {
   key: string;
   id?: number;
@@ -175,14 +180,6 @@ export async function fetchProducts(params: ProductsQuery) {
   return response.data;
 }
 
-export async function fetchProductById(productId: number, storeId: number) {
-  const response = await apiFetch<ProductDetail>(`/productos/${productId}`, {
-    storeId,
-  });
-
-  return response.data;
-}
-
 export async function uploadProductImage(file: File) {
   const formData = new FormData();
   formData.append("file", file);
@@ -236,9 +233,7 @@ export async function fetchProductAttributes(
 }
 
 export async function fetchProductById(storeId: number, productId: number) {
-  const response = await apiFetch<
-    Product & { atributos: ProductAttribute[]; variantes: ProductVariant[] }
-  >(`/productos/${productId}`, {
+  const response = await apiFetch<ProductDetail>(`/productos/${productId}`, {
     storeId,
   });
 
@@ -335,12 +330,11 @@ export async function createProduct(storeId: number, payload: ProductPayload) {
     storeId,
     body: payload,
   });
-
-  return response.data;
 }
 
 export async function updateProduct(
   productId: number,
+  storeId: number,
   payload: ProductBasePayload,
 ) {
   return apiFetch("/productos/" + productId, {
@@ -357,91 +351,6 @@ export async function toggleProductStatus(productId: number, storeId: number) {
   });
 }
 
-export async function fetchProductAttributes(
-  productId: number,
-  storeId: number,
-) {
-  const response = await apiFetch<ProductAttribute[]>(
-    `/productos/${productId}/atributos`,
-    {
-      storeId,
-    },
-  );
-
-  return response.data;
-}
-
-export async function createProductAttribute(
-  productId: number,
-  storeId: number,
-  payload: SaveProductAttributePayload,
-) {
-  return apiFetch(`/productos/${productId}/atributos`, {
-    method: "POST",
-    storeId,
-    body: payload,
-  });
-}
-
-export async function updateProductAttribute(
-  productId: number,
-  productAttributeId: number,
-  storeId: number,
-  payload: SaveProductAttributePayload,
-) {
-  return apiFetch(`/productos/${productId}/atributos/${productAttributeId}`, {
-    method: "PUT",
-    storeId,
-    body: payload,
-  });
-}
-
-export async function deleteProductAttribute(
-  productId: number,
-  productAttributeId: number,
-  storeId: number,
-) {
-  return apiFetch(`/productos/${productId}/atributos/${productAttributeId}`, {
-    method: "DELETE",
-    storeId,
-  });
-}
-
-export async function createProductVariants(
-  productId: number,
-  storeId: number,
-  payload: { variantes: SaveProductVariantPayload[] },
-) {
-  const response = await apiFetch<ProductVariant[]>(
-    `/productos/${productId}/variantes`,
-    {
-      method: "POST",
-      storeId,
-      body: payload,
-    },
-  );
-
-  return response.data;
-}
-
-export async function updateProductVariant(
-  productId: number,
-  productVariantId: number,
-  storeId: number,
-  payload: SaveProductVariantPayload,
-) {
-  const response = await apiFetch<ProductVariant>(
-    `/productos/${productId}/variantes/${productVariantId}`,
-    {
-      method: "PUT",
-      storeId,
-      body: payload,
-    },
-  );
-
-  return response.data;
-}
-
 export async function toggleProductVariantStatus(
   productId: number,
   productVariantId: number,
@@ -456,15 +365,4 @@ export async function toggleProductVariantStatus(
       body: estado,
     },
   );
-}
-
-export async function deleteProductVariant(
-  productId: number,
-  productVariantId: number,
-  storeId: number,
-) {
-  return apiFetch(`/productos/${productId}/variantes/${productVariantId}`, {
-    method: "DELETE",
-    storeId,
-  });
 }

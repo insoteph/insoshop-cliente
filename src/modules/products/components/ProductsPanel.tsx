@@ -18,7 +18,6 @@ import {
   ProductFormPanel,
   type ProductFormState,
 } from "@/modules/products/components/ProductFormPanel";
-import { ProductManagementPanel } from "@/modules/products/components/ProductManagementPanel";
 import { type ProductAttributeDraft } from "@/modules/products/components/ProductAttributesPanel";
 import {
   createProduct,
@@ -666,7 +665,7 @@ export function ProductsPanel({
 
         if (editingProductId) {
           await updateProduct(editingProductId, storeId, payload);
-          setForm(payload);
+          setForm((current) => ({ ...current, ...payload }));
         } else {
           const createdResponse = await createProduct(storeId, payload);
           productId = extractCreatedProductId(createdResponse.data);
@@ -708,7 +707,6 @@ export function ProductsPanel({
       }
     },
     [
-      closeFormPanel,
       editingProductId,
       form,
       loadProducts,
@@ -909,7 +907,6 @@ export function ProductsPanel({
           storeId={storeId}
           isVisible={isFormVisible}
           editingProductId={editingProductId}
-          configuredProductId={editingProductId}
           isSaving={isSaving}
           formError={formError}
           form={form}
@@ -929,9 +926,6 @@ export function ProductsPanel({
           }
           onDescripcionChange={(value) =>
             setForm((current) => ({ ...current, descripcion: value }))
-          }
-          onEstadoChange={(value) =>
-            setForm((current) => ({ ...current, estado: value }))
           }
           onAtributosChange={(atributos) =>
             setForm((current) => ({ ...current, atributos }))

@@ -1,7 +1,5 @@
 "use client";
 
-import type { ReactNode } from "react";
-
 import { MaterialInput } from "@/modules/core/components/MaterialInput";
 import type { Category } from "@/modules/categories/services/category-service";
 import {
@@ -26,7 +24,6 @@ type ProductFormPanelProps = {
   storeId: number;
   isVisible: boolean;
   editingProductId: number | null;
-  configuredProductId: number | null;
   isSaving: boolean;
   formError: string | null;
   form: ProductFormState;
@@ -41,7 +38,6 @@ type ProductFormPanelProps = {
   onNombreChange: (value: string) => void;
   onCategoriaChange: (value: number) => void;
   onDescripcionChange: (value: string) => void;
-  onEstadoChange: (value: boolean) => void;
   onAtributosChange: (value: ProductAttributeDraft[]) => void;
   onVariantesChange: (value: ProductVariantDraft[]) => void;
 };
@@ -50,7 +46,6 @@ export function ProductFormPanel({
   storeId,
   isVisible,
   editingProductId,
-  configuredProductId,
   isSaving,
   formError,
   form,
@@ -65,7 +60,6 @@ export function ProductFormPanel({
   onNombreChange,
   onCategoriaChange,
   onDescripcionChange,
-  onEstadoChange,
   onAtributosChange,
   onVariantesChange,
 }: ProductFormPanelProps) {
@@ -133,12 +127,7 @@ export function ProductFormPanel({
               ))}
             </select>
           </div>
-
-          {formError ? (
-            <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
-              {formError}
-            </p>
-          ) : null}
+        </div>
 
         <ProductAttributesPanel
           storeId={storeId}

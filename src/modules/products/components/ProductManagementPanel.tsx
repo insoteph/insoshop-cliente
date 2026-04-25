@@ -137,7 +137,7 @@ export function ProductManagementPanel({
     setError(null);
 
     try {
-      const result = await fetchProductById(productId, storeId);
+      const result = await fetchProductById(storeId, productId);
       setProduct(result);
     } catch (loadError) {
       setError(
@@ -324,7 +324,7 @@ export function ProductManagementPanel({
       }
 
       try {
-        await deleteProductAttribute(productId, attribute.id, storeId);
+        await deleteProductAttribute(storeId, productId, attribute.id);
         closeAttributeEditor();
         closeVariantEditor();
         await refreshAfterMutation();
@@ -371,13 +371,13 @@ export function ProductManagementPanel({
 
         if (editingAttributeId) {
           await updateProductAttribute(
+            storeId,
             productId,
             editingAttributeId,
-            storeId,
             payload,
           );
         } else {
-          await createProductAttribute(productId, storeId, payload);
+          await createProductAttribute(storeId, productId, payload);
         }
 
         closeAttributeEditor();
@@ -506,13 +506,13 @@ export function ProductManagementPanel({
 
         if (editingVariantId) {
           await updateProductVariant(
+            storeId,
             productId,
             editingVariantId,
-            storeId,
             payload,
           );
         } else {
-          await createProductVariants(productId, storeId, {
+          await createProductVariants(storeId, productId, {
             variantes: [payload],
           });
         }
