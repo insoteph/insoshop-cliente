@@ -95,10 +95,14 @@ export type ProductBasePayload = {
   estado: boolean;
 };
 
+export type ProductPayload = ProductBasePayload;
+
 export type SaveProductAttributePayload = {
   atributoCatalogoId: number;
   atributoCatalogoValorIds: number[];
 };
+
+export type ProductAttributeDraftPayload = SaveProductAttributePayload;
 
 export type SaveProductVariantPayload = {
   precio: number;
@@ -106,6 +110,34 @@ export type SaveProductVariantPayload = {
   estado: boolean;
   urlImagen?: string | null;
   productoAtributoValorIds: number[];
+};
+
+export type ProductVariantPayload = SaveProductVariantPayload;
+
+export type ProductVariantDraft = {
+  key: string;
+  id?: number;
+  precio: string;
+  cantidad: string;
+  estado: boolean;
+  urlImagen: string | null;
+  valoresPorAtributo: Record<number, string>;
+};
+
+export type AttributeCatalog = {
+  id: number;
+  nombre: string;
+  estado: boolean;
+  cantidadValores: number;
+};
+
+export type AttributeCatalogValue = {
+  id: number;
+  atributoCatalogoId: number;
+  nombre?: string;
+  valor: string;
+  colorHexadecimal: string | null;
+  orden: number;
 };
 
 function buildProductsQuery(params: ProductsQuery) {
@@ -128,6 +160,29 @@ function buildProductsQuery(params: ProductsQuery) {
   }
 
   return query.toString();
+}
+
+export async function fetchAttributeCatalogs(storeId?: number) {
+  void storeId;
+
+  const response = await apiFetch<PagedResult<AttributeCatalog>>(
+    "/AtributosCatalogo?page=1&pageSize=200&estadoFiltro=todos",
+  );
+
+  return normalizeArrayResponse<AttributeCatalog>(response.data);
+}
+
+export async function fetchAttributeCatalogValues(
+  storeId: number | undefined,
+  attributeId: number,
+) {
+  void storeId;
+
+  const response = await apiFetch<AttributeCatalogValue[]>(
+    `/AtributosCatalogo/${attributeId}/valores`,
+  );
+
+  return response.data;
 }
 
 export async function fetchProducts(params: ProductsQuery) {

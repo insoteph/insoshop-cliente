@@ -231,93 +231,97 @@ textarea {
   color: var(--danger);
 }
 
-@keyframes login-ball-move {
-  100% {
-    transform: translate3d(0, 0, 1px) rotate(360deg);
-  }
-}
-
 .login-background {
   position: absolute;
   inset: 0;
   overflow: hidden;
   background:
-    radial-gradient(
-      circle at top left,
-      color-mix(in srgb, var(--accent) 16%, transparent),
-      transparent 42%
-    ),
-    linear-gradient(180deg, var(--background-soft), var(--background));
+    linear-gradient(
+      120deg,
+      color-mix(in srgb, var(--accent) 14%, var(--background-soft)) 0%,
+      var(--background-soft) 42%,
+      color-mix(in srgb, var(--success) 10%, var(--background)) 100%
+    );
   pointer-events: none;
   z-index: 0;
 }
 
-.login-ball {
+.login-background::before {
+  content: "";
   position: absolute;
-  width: 20vmin;
-  height: 20vmin;
-  border-radius: 50%;
-  backface-visibility: hidden;
-  animation: login-ball-move linear infinite;
-  color: color-mix(in srgb, var(--accent) 55%, white 45%);
+  inset: 0;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--accent) 10%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--accent) 10%, transparent) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(120deg, transparent 0%, black 24%, transparent 72%);
+  opacity: 0.42;
 }
 
-.dark .login-ball {
-  color: color-mix(in srgb, var(--accent) 62%, white 38%);
+.login-ring {
+  position: absolute;
+  border: 28px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  border-radius: 999px;
+  opacity: 0.9;
 }
 
-.login-ball:nth-child(1) {
-  top: 77%;
-  left: 88%;
-  animation-duration: 40s;
-  animation-delay: -3s;
-  transform-origin: 16vw -2vh;
-  box-shadow: 40vmin 0 5.7030763685vmin currentColor;
+.login-ring-primary {
+  right: -12rem;
+  top: -10rem;
+  width: 30rem;
+  height: 30rem;
 }
 
-.login-ball:nth-child(2) {
-  top: 42%;
-  left: 2%;
-  animation-duration: 53s;
-  animation-delay: -29s;
-  transform-origin: -19vw 21vh;
-  box-shadow: -40vmin 0 5.1759462152vmin currentColor;
+.login-ring-secondary {
+  bottom: -16rem;
+  left: -12rem;
+  width: 38rem;
+  height: 38rem;
+  border-color: color-mix(in srgb, var(--success) 18%, transparent);
 }
 
-.login-ball:nth-child(3) {
-  top: 28%;
-  left: 18%;
-  animation-duration: 49s;
-  animation-delay: -8s;
-  transform-origin: -22vw 3vh;
-  box-shadow: 40vmin 0 5.2481790473vmin currentColor;
+.login-dots {
+  position: absolute;
+  width: 7rem;
+  height: 7rem;
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--accent) 42%, transparent) 2px,
+    transparent 2px
+  );
+  background-size: 18px 18px;
+  opacity: 0.58;
 }
 
-.login-ball:nth-child(4) {
-  top: 50%;
-  left: 79%;
-  animation-duration: 26s;
-  animation-delay: -21s;
-  transform-origin: -17vw -6vh;
-  box-shadow: 40vmin 0 5.2797496322vmin currentColor;
+.login-dots-left {
+  bottom: 10%;
+  left: 5%;
 }
 
-.login-ball:nth-child(5) {
-  top: 46%;
-  left: 15%;
-  animation-duration: 36s;
-  animation-delay: -40s;
-  transform-origin: 4vw 0vh;
-  box-shadow: -40vmin 0 5.9643094661vmin currentColor;
+.login-dots-right {
+  right: 7%;
+  top: 14%;
 }
 
-.login-ball:nth-child(6) {
-  top: 77%;
-  left: 16%;
-  animation-duration: 31s;
-  animation-delay: -10s;
-  transform-origin: 18vw 4vh;
-  box-shadow: 40vmin 0 5.1784836534vmin currentColor;
+.login-panel-ring {
+  position: absolute;
+  border-radius: 999px;
+  border: 14px solid rgba(255, 255, 255, 0.82);
+}
+
+.login-panel-ring-lg {
+  bottom: -8rem;
+  right: -5rem;
+  width: 17rem;
+  height: 17rem;
+}
+
+.login-panel-ring-sm {
+  bottom: 5.5rem;
+  right: 6.5rem;
+  width: 5rem;
+  height: 5rem;
+  border-width: 10px;
+  border-color: rgba(125, 211, 252, 0.84);
 }
 
 .dashboard-root {

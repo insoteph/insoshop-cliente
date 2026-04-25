@@ -295,6 +295,11 @@ export function ProductsPanel({
   const closeFormTimeoutRef = useRef<number | null>(null);
   const originalAttributeIdsRef = useRef<number[]>([]);
   const originalVariantIdsRef = useRef<number[]>([]);
+  const canManage =
+    canEditProducts ||
+    canDeleteProducts ||
+    canEditAttributes ||
+    canDeleteAttributes;
 
   const loadProducts = useCallback(async () => {
     setIsLoading(true);
@@ -388,14 +393,13 @@ export function ProductsPanel({
       clearCloseFormTimeout();
     };
   }, [clearCloseFormTimeout]);
-  async async 
   const handleCreateClick = useCallback(() => {
     resetForm();
     openFormPanel();
   }, [openFormPanel, resetForm]);
 
   const handleEditClick = useCallback(
-    (product: Product) => {
+    async (product: Product) => {
       setEditingProductId(product.id);
       setForm({
         nombre: product.nombre,
@@ -424,11 +428,6 @@ export function ProductsPanel({
           descripcion: productDetail.descripcion,
           categoriaId: productDetail.categoriaId,
           estado: productDetail.estado,
-          atributos: mapProductAttributesToDrafts(resolvedAttributes),
-          variantes: mapProductVariantsToDrafts(
-            productDetail.variantes ?? [],
-            resolvedAttributes,
-          ),
         });
         originalAttributeIdsRef.current = resolvedAttributes
           .map((attribute) => attribute.id)
@@ -447,41 +446,6 @@ export function ProductsPanel({
     },
     [openFormPanel, storeId],
   );
-
-  useEffect(() => {
-    setForm((current) => {
-      const alignedVariants = alignVariantDraftsWithAttributes(
-        current.variantes,
-        current.atributos,
-      );
-
-      const isSame =
-        current.variantes.length === alignedVariants.length &&
-        current.variantes.every((variant, index) => {
-          const nextVariant = alignedVariants[index];
-
-          return (
-            variant.key === nextVariant.key &&
-            variant.id === nextVariant.id &&
-            variant.precio === nextVariant.precio &&
-            variant.cantidad === nextVariant.cantidad &&
-            variant.estado === nextVariant.estado &&
-            variant.urlImagen === nextVariant.urlImagen &&
-            JSON.stringify(variant.valoresPorAtributo) ===
-              JSON.stringify(nextVariant.valoresPorAtributo)
-          );
-        });
-
-      if (isSame) {
-        return current;
-      }
-
-      return {
-        ...current,
-        variantes: alignedVariants,
-      };
-    });
-  }, [form.atributos]);
 
   const syncProductAttributes = useCallback(
     async (productId: number, attributeDrafts: ProductAttributeDraft[]) => {
@@ -633,7 +597,7 @@ export function ProductsPanel({
 
       if (operations.length > 0) {
         await Promise.all(operations);
-      }cons
+      }
     },
     [storeId],
   );
@@ -657,8 +621,6 @@ export function ProductsPanel({
           categoriaId: form.categoriaId,
           estado: form.estado,
         };
-        let productId = editingProductId;
-
         if (editingProductId) {
           await updateProduct(editingProductId, storeId, payload);
           setForm(payload);

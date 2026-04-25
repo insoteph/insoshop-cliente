@@ -2,6 +2,7 @@ import {
   forwardRef,
   useState,
   type InputHTMLAttributes,
+  type ReactNode,
 } from "react";
 
 type MaterialInputType = "text" | "email" | "password" | "tel" | "number";
@@ -14,6 +15,7 @@ type MaterialInputProps = Omit<
   label: string;
   type?: MaterialInputType;
   containerClassName?: string;
+  icon?: ReactNode;
 };
 
 export const MaterialInput = forwardRef<HTMLInputElement, MaterialInputProps>(
@@ -25,6 +27,7 @@ export const MaterialInput = forwardRef<HTMLInputElement, MaterialInputProps>(
       type = "text",
       className = "",
       containerClassName = "",
+      icon,
       ...rest
     },
     ref
@@ -36,6 +39,14 @@ export const MaterialInput = forwardRef<HTMLInputElement, MaterialInputProps>(
 
     return (
       <div className={`relative ${containerClassName}`}>
+        {icon ? (
+          <span
+            className="pointer-events-none absolute left-3 top-1/2 z-10 -translate-y-1/2 text-[var(--muted)]"
+            aria-hidden="true"
+          >
+            {icon}
+          </span>
+        ) : null}
         <input
           ref={ref}
           id={id}
@@ -43,8 +54,9 @@ export const MaterialInput = forwardRef<HTMLInputElement, MaterialInputProps>(
           type={resolvedType}
           placeholder=" "
           className={`
-            app-input peer h-11 w-full rounded-xl px-3
+            app-input peer h-12 w-full rounded-xl px-3
             text-sm outline-none transition-all duration-200
+            ${icon ? "pl-10" : ""}
             ${isPasswordType ? "pr-10" : ""}
             ${className}
           `}
@@ -95,14 +107,15 @@ export const MaterialInput = forwardRef<HTMLInputElement, MaterialInputProps>(
         ) : null}
         <label
           htmlFor={id}
-          className="
-            pointer-events-none absolute left-2 z-10 rounded px-1 transition-all duration-200
+          className={`
+            pointer-events-none absolute z-10 rounded px-1 transition-all duration-200
             bg-[color:var(--panel)]
             top-0 -translate-y-1/2 text-[11px] font-medium text-[var(--accent)]
+            ${icon ? "left-9" : "left-2"}
             peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 
             peer-placeholder-shown:text-sm peer-placeholder-shown:text-[var(--muted)]
             peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-[11px] peer-focus:text-[var(--accent)]
-          "
+          `}
         >
           {label}
         </label>
