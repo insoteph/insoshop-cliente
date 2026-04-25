@@ -22,43 +22,8 @@ export type ProductImagePayload = {
   esPrincipal: boolean;
 };
 
-<<<<<<< HEAD
-export type ProductAttributeValue = {
-  id: number;
-  atributoCatalogoValorId: number;
-  valor: string;
-  colorHexadecimal: string | null;
-  orden: number;
-};
-
-export type ProductAttribute = {
-  id: number;
-  productoId: number;
-  atributoCatalogoId: number;
-  atributoCatalogoNombre: string;
-  valores: ProductAttributeValue[];
-};
-
-export type ProductVariantValue = {
-  productoAtributoId: number;
-  atributoCatalogoNombre: string;
-  atributoCatalogoValorId: number;
-  valor: string;
-  colorHexadecimal: string | null;
-};
-
-export type ProductVariant = {
-  id: number;
-  precio: number;
-  cantidad: number;
-  estado: boolean;
-  urlImagenPrincipal: string | null;
-  imagenes: string[];
-  valores: ProductVariantValue[];
-=======
 export type ProductVariantImagePayload = {
   url: string;
->>>>>>> origin/develop-edgardo
 };
 
 export type Product = {
@@ -75,15 +40,6 @@ export type Product = {
   imagenes: ProductImagePayload[];
 };
 
-<<<<<<< HEAD
-export type ProductDetail = Product & {
-  atributos: ProductAttribute[];
-  variantes: ProductVariant[];
-  createdAt: string;
-  createdBy: string | null;
-  updatedAt: string;
-  updatedBy: string | null;
-=======
 export type ProductPayload = {
   nombre: string;
   descripcion: string;
@@ -155,7 +111,6 @@ export type AttributeCatalogValue = {
   estado?: boolean;
   colorHexadecimal?: string | null;
   orden?: number;
->>>>>>> origin/develop-edgardo
 };
 
 type ProductsQuery = {
@@ -243,17 +198,12 @@ export async function uploadProductImage(file: File) {
   return response.data;
 }
 
-<<<<<<< HEAD
-export async function createProduct(storeId: number, payload: ProductBasePayload) {
-  const response = await apiFetch<{ id: number }>("/productos", {
-=======
 export async function fetchAttributeCatalogs(storeId: number) {
-  const response = await apiFetch<PagedResult<AttributeCatalog> | AttributeCatalog[]>(
-    "/AtributosCatalogo?page=1&pageSize=1000",
-    {
-      storeId,
-    },
-  );
+  const response = await apiFetch<
+    PagedResult<AttributeCatalog> | AttributeCatalog[]
+  >("/AtributosCatalogo?page=1&pageSize=1000", {
+    storeId,
+  });
 
   return normalizeArrayResponse<AttributeCatalog>(response.data);
 }
@@ -276,12 +226,11 @@ export async function fetchProductAttributes(
   storeId: number,
   productId: number,
 ) {
-  const response = await apiFetch<PagedResult<ProductAttribute> | ProductAttribute[]>(
-    `/productos/${productId}/atributos`,
-    {
-      storeId,
-    },
-  );
+  const response = await apiFetch<
+    PagedResult<ProductAttribute> | ProductAttribute[]
+  >(`/productos/${productId}/atributos`, {
+    storeId,
+  });
 
   return normalizeArrayResponse<ProductAttribute>(response.data);
 }
@@ -289,12 +238,9 @@ export async function fetchProductAttributes(
 export async function fetchProductById(storeId: number, productId: number) {
   const response = await apiFetch<
     Product & { atributos: ProductAttribute[]; variantes: ProductVariant[] }
-  >(
-    `/productos/${productId}`,
-    {
-      storeId,
-    },
-  );
+  >(`/productos/${productId}`, {
+    storeId,
+  });
 
   return response.data;
 }
@@ -385,7 +331,6 @@ export async function deleteProductVariant(
 
 export async function createProduct(storeId: number, payload: ProductPayload) {
   return apiFetch("/productos", {
->>>>>>> origin/develop-edgardo
     method: "POST",
     storeId,
     body: payload,
@@ -396,7 +341,6 @@ export async function createProduct(storeId: number, payload: ProductPayload) {
 
 export async function updateProduct(
   productId: number,
-  storeId: number,
   payload: ProductBasePayload,
 ) {
   return apiFetch("/productos/" + productId, {
@@ -413,7 +357,10 @@ export async function toggleProductStatus(productId: number, storeId: number) {
   });
 }
 
-export async function fetchProductAttributes(productId: number, storeId: number) {
+export async function fetchProductAttributes(
+  productId: number,
+  storeId: number,
+) {
   const response = await apiFetch<ProductAttribute[]>(
     `/productos/${productId}/atributos`,
     {
@@ -501,11 +448,14 @@ export async function toggleProductVariantStatus(
   storeId: number,
   estado: boolean,
 ) {
-  return apiFetch(`/productos/${productId}/variantes/${productVariantId}/estado`, {
-    method: "PATCH",
-    storeId,
-    body: estado,
-  });
+  return apiFetch(
+    `/productos/${productId}/variantes/${productVariantId}/estado`,
+    {
+      method: "PATCH",
+      storeId,
+      body: estado,
+    },
+  );
 }
 
 export async function deleteProductVariant(

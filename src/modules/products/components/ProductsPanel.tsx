@@ -19,9 +19,7 @@ import {
   type ProductFormState,
 } from "@/modules/products/components/ProductFormPanel";
 import { ProductManagementPanel } from "@/modules/products/components/ProductManagementPanel";
-import {
-  type ProductAttributeDraft,
-} from "@/modules/products/components/ProductAttributesPanel";
+import { type ProductAttributeDraft } from "@/modules/products/components/ProductAttributesPanel";
 import {
   createProduct,
   createProductAttribute,
@@ -63,11 +61,8 @@ const INITIAL_FORM: ProductFormState = {
   descripcion: "",
   categoriaId: 0,
   estado: true,
-<<<<<<< HEAD
-=======
   atributos: [],
   variantes: [],
->>>>>>> origin/develop-edgardo
 };
 
 const FORM_ANIMATION_MS = 500;
@@ -102,7 +97,8 @@ function buildAttributePayloads(
   return attributeDrafts
     .filter(
       (draft) =>
-        draft.atributoCatalogoId > 0 && draft.atributoCatalogoValorIds.length > 0,
+        draft.atributoCatalogoId > 0 &&
+        draft.atributoCatalogoValorIds.length > 0,
     )
     .map((draft) => ({
       atributoCatalogoId: draft.atributoCatalogoId,
@@ -114,7 +110,8 @@ function mapProductAttributesToDrafts(
   attributes: ProductAttribute[],
 ): ProductAttributeDraft[] {
   return attributes.map((attribute) => ({
-    key: globalThis.crypto?.randomUUID?.() ??
+    key:
+      globalThis.crypto?.randomUUID?.() ??
       `id-${attribute.id}-${attribute.atributoCatalogoId}-${Date.now()}`,
     id: attribute.id,
     atributoCatalogoId: attribute.atributoCatalogoId,
@@ -125,7 +122,9 @@ function mapProductAttributesToDrafts(
 }
 
 function createVariantDraftKey() {
-  return globalThis.crypto?.randomUUID?.() ?? `id-${Date.now()}-${Math.random()}`;
+  return (
+    globalThis.crypto?.randomUUID?.() ?? `id-${Date.now()}-${Math.random()}`
+  );
 }
 
 function mapProductVariantsToDrafts(
@@ -179,7 +178,10 @@ function alignVariantDraftsWithAttributes(
   });
 }
 
-function buildVariantPayload(variant: ProductVariantDraft, attributes: ProductAttributeDraft[]) {
+function buildVariantPayload(
+  variant: ProductVariantDraft,
+  attributes: ProductAttributeDraft[],
+) {
   const attributeIds = attributes
     .map((attribute) => attribute.atributoCatalogoId)
     .filter((attributeId) => attributeId > 0);
@@ -243,7 +245,9 @@ function validateVariantDrafts(
     const values: number[] = [];
 
     for (const attribute of activeAttributes) {
-      const valueId = Number(variant.valoresPorAtributo[attribute.atributoCatalogoId] || 0);
+      const valueId = Number(
+        variant.valoresPorAtributo[attribute.atributoCatalogoId] || 0,
+      );
       if (!valueId) {
         return "Cada variante debe contener un valor para cada atributo.";
       }
@@ -393,30 +397,22 @@ export function ProductsPanel({
   }, [openFormPanel, resetForm]);
 
   const handleEditClick = useCallback(
-<<<<<<< HEAD
-    (product: Product) => {
-      setEditingProductId(product.id);
-      setForm({
-        nombre: product.nombre,
-        descripcion: product.descripcion,
-        categoriaId: product.categoriaId,
-        estado: product.estado,
-      });
-=======
     async (product: Product) => {
       setError(null);
->>>>>>> origin/develop-edgardo
       setFormError(null);
       originalAttributeIdsRef.current = [];
       originalVariantIdsRef.current = [];
 
       try {
         const productDetail = await fetchProductById(storeId, product.id);
-        const productAttributes = await fetchProductAttributes(storeId, product.id);
+        const productAttributes = await fetchProductAttributes(
+          storeId,
+          product.id,
+        );
         const resolvedAttributes =
           productAttributes.length > 0
             ? productAttributes
-            : productDetail.atributos ?? [];
+            : (productDetail.atributos ?? []);
 
         setEditingProductId(product.id);
         setForm({
@@ -491,7 +487,10 @@ export function ProductsPanel({
       const activeAttributeIds = new Set(
         normalizedDrafts
           .map((draft) => draft.id)
-          .filter((attributeId): attributeId is number => typeof attributeId === "number" && attributeId > 0),
+          .filter(
+            (attributeId): attributeId is number =>
+              typeof attributeId === "number" && attributeId > 0,
+          ),
       );
 
       const operations: Promise<unknown>[] = [];
@@ -504,7 +503,9 @@ export function ProductsPanel({
 
         if (draft.atributoCatalogoValorIds.length === 0) {
           if (draft.id) {
-            operations.push(deleteProductAttribute(storeId, productId, draft.id));
+            operations.push(
+              deleteProductAttribute(storeId, productId, draft.id),
+            );
           }
 
           continue;
@@ -543,8 +544,8 @@ export function ProductsPanel({
       const normalizedAttributes = attributeDrafts.filter(
         (draft) => draft.atributoCatalogoId > 0,
       );
-      const normalizedVariants = variantDrafts.filter((draft) =>
-        draft.key.length > 0,
+      const normalizedVariants = variantDrafts.filter(
+        (draft) => draft.key.length > 0,
       );
 
       if (normalizedAttributes.length === 0) {
@@ -564,14 +565,19 @@ export function ProductsPanel({
       const originalVariantIds = new Set(originalVariantIdsRef.current);
       const activeVariantIds = new Set<number>();
       const createPayload: ProductVariantPayload[] = [];
-      const updatePayloads: Array<{ id: number; payload: ProductVariantPayload }> =
-        [];
+      const updatePayloads: Array<{
+        id: number;
+        payload: ProductVariantPayload;
+      }> = [];
       const signatures = new Set<string>();
 
       for (const variantDraft of normalizedVariants) {
         const payload = buildVariantPayload(variantDraft, normalizedAttributes);
 
-        if (payload.productoAtributoValorIds.length !== normalizedAttributes.length) {
+        if (
+          payload.productoAtributoValorIds.length !==
+          normalizedAttributes.length
+        ) {
           throw new Error(
             "Cada variante debe contener un valor para cada atributo.",
           );
@@ -583,7 +589,9 @@ export function ProductsPanel({
           .join("|");
 
         if (signatures.has(signature)) {
-          throw new Error("No puedes repetir la misma combinacion de atributos.");
+          throw new Error(
+            "No puedes repetir la misma combinacion de atributos.",
+          );
         }
 
         signatures.add(signature);
@@ -605,7 +613,9 @@ export function ProductsPanel({
 
       if (createPayload.length > 0) {
         operations.push(
-          createProductVariants(storeId, productId, { variantes: createPayload }),
+          createProductVariants(storeId, productId, {
+            variantes: createPayload,
+          }),
         );
       }
 
@@ -634,8 +644,6 @@ export function ProductsPanel({
         return;
       }
 
-<<<<<<< HEAD
-=======
       const variantValidationError = validateVariantDrafts(
         form.variantes,
         form.atributos,
@@ -645,7 +653,6 @@ export function ProductsPanel({
         return;
       }
 
->>>>>>> origin/develop-edgardo
       setIsSaving(true);
 
       try {
@@ -661,11 +668,6 @@ export function ProductsPanel({
           await updateProduct(editingProductId, storeId, payload);
           setForm(payload);
         } else {
-<<<<<<< HEAD
-          const created = await createProduct(storeId, payload);
-          setEditingProductId(created.id);
-          setForm(payload);
-=======
           const createdResponse = await createProduct(storeId, payload);
           productId = extractCreatedProductId(createdResponse.data);
 
@@ -692,7 +694,6 @@ export function ProductsPanel({
           }
 
           await syncProductVariants(productId, form.atributos, form.variantes);
->>>>>>> origin/develop-edgardo
         }
 
         await loadProducts();
@@ -706,9 +707,6 @@ export function ProductsPanel({
         setIsSaving(false);
       }
     },
-<<<<<<< HEAD
-    [editingProductId, form, loadProducts, storeId],
-=======
     [
       closeFormPanel,
       editingProductId,
@@ -718,7 +716,6 @@ export function ProductsPanel({
       syncProductAttributes,
       syncProductVariants,
     ],
->>>>>>> origin/develop-edgardo
   );
 
   const handleToggleStatus = useCallback(
@@ -829,28 +826,15 @@ export function ProductsPanel({
     [],
   );
 
-<<<<<<< HEAD
-  const rowActions = canManage
-    ? {
-        primaryButtonLabel: () => "Editar",
-        onPrimaryAction: handleEditClick,
-        dropdownOptions: [
-          {
-            label: (product: Product) =>
-              product.estado ? "Inactivar" : "Activar",
-            onClick: handleToggleStatus,
-          },
-        ],
-      }
-    : undefined;
-=======
   const rowActions =
     canEditProducts || canDeleteProducts
       ? {
           primaryButtonLabel: canEditProducts
             ? "Editar"
             : (product: Product) => (product.estado ? "Inactivar" : "Activar"),
-          onPrimaryAction: canEditProducts ? handleEditClick : handleToggleStatus,
+          onPrimaryAction: canEditProducts
+            ? handleEditClick
+            : handleToggleStatus,
           dropdownOptions:
             canEditProducts && canDeleteProducts
               ? [
@@ -863,7 +847,6 @@ export function ProductsPanel({
               : [],
         }
       : undefined;
->>>>>>> origin/develop-edgardo
 
   const toolbarActions = useMemo<DataTableToolbarAction[]>(
     () =>
@@ -931,25 +914,11 @@ export function ProductsPanel({
           formError={formError}
           form={form}
           categories={categories}
-<<<<<<< HEAD
-          configurationContent={
-            editingProductId ? (
-              <ProductManagementPanel
-                productId={editingProductId}
-                storeId={storeId}
-                currency={currency}
-                canManage={canManage}
-                onProductMutated={loadProducts}
-              />
-            ) : undefined
-          }
-=======
           canCreateProducts={canCreateProducts}
           canEditProducts={canEditProducts}
           canDeleteProducts={canDeleteProducts}
           canEditAttributes={canEditAttributes}
           canDeleteAttributes={canDeleteAttributes}
->>>>>>> origin/develop-edgardo
           onClose={() => closeFormPanel(true)}
           onSubmit={handleSubmit}
           onNombreChange={(value) =>
@@ -964,15 +933,12 @@ export function ProductsPanel({
           onEstadoChange={(value) =>
             setForm((current) => ({ ...current, estado: value }))
           }
-<<<<<<< HEAD
-=======
           onAtributosChange={(atributos) =>
             setForm((current) => ({ ...current, atributos }))
           }
           onVariantesChange={(variantes) =>
             setForm((current) => ({ ...current, variantes }))
           }
->>>>>>> origin/develop-edgardo
         />
       ) : null}
 
