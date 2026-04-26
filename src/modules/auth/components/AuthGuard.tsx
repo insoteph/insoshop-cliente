@@ -37,14 +37,14 @@ export function AuthGuard({ children }: { children: ReactNode }) {
         return;
       }
 
+      if (isLoading) {
+        return;
+      }
+
       if (currentUser) {
         if (isMounted) {
           setIsChecking(false);
         }
-        return;
-      }
-
-      if (isLoading) {
         return;
       }
 
@@ -81,7 +81,7 @@ export function AuthGuard({ children }: { children: ReactNode }) {
     };
   }, [currentUser, isLoading, pathname, redirectToLogin]);
 
-  if (isChecking || (isLoading && !currentUser)) {
+  if (isChecking || isLoading) {
     return <ProcessingModal isOpen label="Procesando..." />;
   }
 

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { AuthGuard } from "@/modules/auth/components/AuthGuard";
 import { DashboardShell } from "@/modules/navigation/components/DashboardShell";
 
 export default function CatalogAttributesLayout({
@@ -8,8 +9,10 @@ export default function CatalogAttributesLayout({
   children: ReactNode;
 }) {
   return (
-    <DashboardShell pageTitle="Atributos">
-      {children}
-    </DashboardShell>
+    <AuthGuard>
+      <DashboardShell pageTitle="Atributos">
+        {children}
+      </DashboardShell>
+    </AuthGuard>
   );
 }

@@ -38,7 +38,7 @@ export function StoreProductCard({
   return (
     <article className="group overflow-hidden rounded-[20px] border border-[var(--line)] bg-[var(--panel-strong)] p-2 shadow-[var(--shadow)] transition duration-300 hover:-translate-y-1 sm:rounded-[24px] sm:p-3">
       <Link href={detailHref} className="block">
-        <div className="relative h-36 w-full overflow-hidden rounded-[16px] bg-[var(--panel-muted)] sm:h-64 sm:rounded-[20px]">
+        <div className="relative h-44 w-full overflow-hidden rounded-[16px] bg-[var(--panel-muted)] sm:h-72 sm:rounded-[20px] lg:h-80">
           {primaryImage ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img

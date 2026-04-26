@@ -16,6 +16,7 @@ import {
 } from "@/modules/core/components/DataTableToolbar";
 import { SearchBar } from "@/modules/core/components/SearchBar";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
+import { useToast } from "@/modules/core/providers/ToastProvider";
 import { formatDate } from "@/modules/core/lib/formatters";
 import {
   fetchTiendas,
@@ -41,6 +42,7 @@ const FORM_ANIMATION_MS = 500;
 export function StoreDirectoryView() {
   const router = useRouter();
   const { confirm } = useConfirmationDialog();
+  const toast = useToast();
   const [stores, setStores] = useState<Tienda[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -158,6 +160,12 @@ export function StoreDirectoryView() {
           estado: store.estado,
         });
         await loadStores();
+        toast.success(
+          store.estado
+            ? "Tienda inactivada correctamente."
+            : "Tienda activada correctamente.",
+          "Tienda",
+        );
       } catch (toggleError) {
         setError(
           toggleError instanceof Error
@@ -166,7 +174,7 @@ export function StoreDirectoryView() {
         );
       }
     },
-    [confirm, loadStores],
+    [confirm, loadStores, toast],
   );
 
   const columns = useMemo<DataTableColumn<Tienda>[]>(
@@ -288,6 +296,7 @@ export function StoreDirectoryView() {
         });
 
         closeCreateFormPanel(true);
+        toast.success("Tienda creada correctamente.", "Tienda");
         setPage(1);
         await loadStores();
       } catch (saveError) {
@@ -300,7 +309,7 @@ export function StoreDirectoryView() {
         setIsCreating(false);
       }
     },
-    [closeCreateFormPanel, createForm, loadStores],
+    [closeCreateFormPanel, createForm, loadStores, toast],
   );
 
   const toolbarActions = useMemo<DataTableToolbarAction[]>(

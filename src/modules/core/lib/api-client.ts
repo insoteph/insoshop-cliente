@@ -1,4 +1,8 @@
-import { getAccessToken } from "@/modules/auth/lib/session";
+import {
+  clearAccessToken,
+  getAccessToken,
+  setAccessToken,
+} from "@/modules/auth/lib/session";
 
 export type ApiResponse<T> = {
   success: true;
@@ -29,6 +33,8 @@ type ApiFetchOptions = Omit<RequestInit, "body"> & {
 const DEFAULT_API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || "http://localhost:7166/api";
 
+let refreshSessionPromise: Promise<boolean> | null = null;
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -37,6 +43,31 @@ function buildApiUrl(path: string) {
   const normalizedBase = DEFAULT_API_BASE_URL.replace(/\/+$/, "");
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   return `${normalizedBase}${normalizedPath}`;
+}
+
+async function refreshAccessTokenFromSession() {
+  if (!refreshSessionPromise) {
+    refreshSessionPromise = (async () => {
+      try {
+        const response = await fetch(buildApiUrl("/Auth/session"), {
+          method: "POST",
+          credentials: "include",
+          cache: "no-store",
+        });
+
+        const session = await readApiResponse<{ token: string }>(response);
+        setAccessToken(session.data.token);
+        return true;
+      } catch {
+        clearAccessToken();
+        return false;
+      }
+    })().finally(() => {
+      refreshSessionPromise = null;
+    });
+  }
+
+  return refreshSessionPromise;
 }
 
 async function readApiResponse<T>(response: Response) {
@@ -88,37 +119,63 @@ export async function apiFetch<T>(
     method = "GET",
     ...rest
   } = options;
-  const requestHeaders = new Headers(headers);
-
-  if (auth) {
-    const accessToken = getAccessToken();
-    if (accessToken) {
-      requestHeaders.set("Authorization", `Bearer ${accessToken}`);
-    }
-  }
-
-  if (storeId) {
-    requestHeaders.set("X-Tienda-Id", String(storeId));
-  }
-
   let payload: BodyInit | undefined;
+  let shouldSetJsonContentType = false;
+
   if (body instanceof FormData) {
     payload = body;
   } else if (typeof body === "string" || body instanceof URLSearchParams) {
     payload = body;
   } else if (body !== undefined && body !== null) {
-    requestHeaders.set("Content-Type", "application/json");
+    shouldSetJsonContentType = true;
     payload = JSON.stringify(body);
   }
 
-  const response = await fetch(buildApiUrl(path), {
-    method,
-    headers: requestHeaders,
-    body: payload,
-    credentials: "include",
-    cache: "no-store",
-    ...rest,
-  });
+  const executeRequest = () => {
+    const requestHeaders = new Headers(headers);
+
+    if (auth) {
+      const accessToken = getAccessToken();
+      if (accessToken) {
+        requestHeaders.set("Authorization", `Bearer ${accessToken}`);
+      }
+    }
+
+    if (storeId) {
+      requestHeaders.set("X-Tienda-Id", String(storeId));
+    }
+
+    if (
+      shouldSetJsonContentType &&
+      !requestHeaders.has("Content-Type")
+    ) {
+      requestHeaders.set("Content-Type", "application/json");
+    }
+
+    return fetch(buildApiUrl(path), {
+      method,
+      headers: requestHeaders,
+      body: payload,
+      credentials: "include",
+      cache: "no-store",
+      ...rest,
+    });
+  };
+
+  let response = await executeRequest();
+
+  if (auth && response.status === 401) {
+    const refreshed = await refreshAccessTokenFromSession();
+
+    if (refreshed) {
+      response = await executeRequest();
+    }
+  }
+
+  if (auth && response.status === 401) {
+    clearAccessToken();
+    throw new Error("Tu sesión expiró. Vuelve a iniciar sesión.");
+  }
 
   return readApiResponse<T>(response);
 }

@@ -6,6 +6,7 @@ import type { RefObject } from "react";
 import { MaterialInput } from "@/modules/core/components/MaterialInput";
 import { formatCurrency } from "@/modules/core/lib/formatters";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
+import { useToast } from "@/modules/core/providers/ToastProvider";
 import {
   fetchCatalogAttributeById,
   fetchCatalogAttributes,
@@ -80,6 +81,25 @@ function buildVariantSelectionMap(
   }, {});
 }
 
+function buildVariantSelectionKey(
+  product: ProductDetail,
+  variant: ProductVariant,
+) {
+  const selectionMap = buildVariantSelectionMap(product, variant);
+
+  return product.atributos
+    .map((attribute) => selectionMap[attribute.id])
+    .filter((valueId): valueId is number => Number.isInteger(valueId))
+    .sort((firstValue, secondValue) => firstValue - secondValue)
+    .join("|");
+}
+
+function buildSelectedValuesKey(valueIds: number[]) {
+  return [...valueIds]
+    .sort((firstValue, secondValue) => firstValue - secondValue)
+    .join("|");
+}
+
 function formatVariantValues(variant: ProductVariant) {
   return variant.valores.map((value) => value.valor).join(" / ");
 }
@@ -102,6 +122,7 @@ export function ProductManagementPanel({
   onProductMutated,
 }: ProductManagementPanelProps) {
   const { confirm } = useConfirmationDialog();
+  const toast = useToast();
   const variantImageInputRef = useRef<HTMLInputElement | null>(null);
   const attributeEditorRef = useRef<HTMLDivElement | null>(null);
   const variantEditorRef = useRef<HTMLDivElement | null>(null);
@@ -328,6 +349,10 @@ export function ProductManagementPanel({
         closeAttributeEditor();
         closeVariantEditor();
         await refreshAfterMutation();
+        toast.success(
+          "Atributo del producto eliminado correctamente.",
+          "Producto",
+        );
       } catch (deleteError) {
         setAttributeFormError(
           deleteError instanceof Error
@@ -343,6 +368,7 @@ export function ProductManagementPanel({
       productId,
       refreshAfterMutation,
       storeId,
+      toast,
     ],
   );
 
@@ -376,8 +402,16 @@ export function ProductManagementPanel({
             editingAttributeId,
             payload,
           );
+          toast.success(
+            "Atributo del producto editado correctamente.",
+            "Producto",
+          );
         } else {
           await createProductAttribute(storeId, productId, payload);
+          toast.success(
+            "Atributo del producto creado correctamente.",
+            "Producto",
+          );
         }
 
         closeAttributeEditor();
@@ -401,6 +435,7 @@ export function ProductManagementPanel({
       productId,
       refreshAfterMutation,
       storeId,
+      toast,
     ],
   );
 
@@ -504,17 +539,27 @@ export function ProductManagementPanel({
           productoAtributoValorIds: selectedValueIds,
         };
 
-        if (editingVariantId) {
+        const existingVariant = product.variantes.find(
+          (variant) =>
+            variant.id !== editingVariantId &&
+            buildVariantSelectionKey(product, variant) ===
+              buildSelectedValuesKey(selectedValueIds),
+        );
+        const variantIdToUpdate = editingVariantId ?? existingVariant?.id;
+
+        if (variantIdToUpdate) {
           await updateProductVariant(
             storeId,
             productId,
-            editingVariantId,
+            variantIdToUpdate,
             payload,
           );
+          toast.success("Variante editada correctamente.", "Producto");
         } else {
           await createProductVariants(storeId, productId, {
             variantes: [payload],
           });
+          toast.success("Variante creada correctamente.", "Producto");
         }
 
         closeVariantEditor();
@@ -536,6 +581,7 @@ export function ProductManagementPanel({
       productId,
       refreshAfterMutation,
       storeId,
+      toast,
       variantForm,
     ],
   );
@@ -561,6 +607,12 @@ export function ProductManagementPanel({
           !variant.estado,
         );
         await refreshAfterMutation();
+        toast.success(
+          variant.estado
+            ? "Variante inactivada correctamente."
+            : "Variante activada correctamente.",
+          "Producto",
+        );
       } catch (toggleError) {
         setVariantFormError(
           toggleError instanceof Error
@@ -569,7 +621,7 @@ export function ProductManagementPanel({
         );
       }
     },
-    [confirm, productId, refreshAfterMutation, storeId],
+    [confirm, productId, refreshAfterMutation, storeId, toast],
   );
 
   if (isLoading) {

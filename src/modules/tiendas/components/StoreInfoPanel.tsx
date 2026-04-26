@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import { MaterialInput } from "@/modules/core/components/MaterialInput";
 import { formatDate } from "@/modules/core/lib/formatters";
+import { useToast } from "@/modules/core/providers/ToastProvider";
 import {
   fetchTiendaById,
   updateTienda,
@@ -32,6 +33,7 @@ const INITIAL_FORM: StoreFormState = {
 };
 
 export function StoreInfoPanel({ storeId, canEdit }: StoreInfoPanelProps) {
+  const toast = useToast();
   const [store, setStore] = useState<TiendaDetalle | null>(null);
   const [form, setForm] = useState<StoreFormState>(INITIAL_FORM);
   const [isLoading, setIsLoading] = useState(true);
@@ -79,6 +81,7 @@ export function StoreInfoPanel({ storeId, canEdit }: StoreInfoPanelProps) {
       const updated = await fetchTiendaById(storeId);
       setStore(updated);
       setFeedback("Informacion de tienda actualizada correctamente.");
+      toast.success("Tienda editada correctamente.", "Tienda");
     } catch (saveError) {
       setError(
         saveError instanceof Error

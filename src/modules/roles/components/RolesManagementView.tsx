@@ -7,6 +7,7 @@ import { permissions } from "@/modules/auth/lib/permissions";
 import { useAdminSession } from "@/modules/auth/providers/AdminSessionProvider";
 import { DataTable } from "@/modules/core/components/DataTable";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
+import { useToast } from "@/modules/core/providers/ToastProvider";
 
 import {
   deleteRole,
@@ -66,6 +67,7 @@ function dedupeRolePermissions(items: RolePermission[]) {
 export function RolesManagementView() {
   const router = useRouter();
   const { confirm } = useConfirmationDialog();
+  const toast = useToast();
   const { hasPermission } = useAdminSession();
   const canCreateRole = hasPermission(permissions.roles.crear);
   const canEditRole = hasPermission(permissions.roles.editar);
@@ -324,6 +326,7 @@ export function RolesManagementView() {
       setSelectedRoleId(editingRole.id);
       setSelectedRoleName(editingName.trim());
       setFormMessage("Rol actualizado correctamente.");
+      toast.success("Rol editado correctamente.", "Rol");
       closeEditFormPanel(true);
       await loadRoles();
     } catch (saveError) {
@@ -408,6 +411,7 @@ export function RolesManagementView() {
                       closeEditFormPanel(true);
                     }
                     setFormMessage("Rol eliminado correctamente.");
+                    toast.success("Rol eliminado correctamente.", "Rol");
                     await loadRoles();
                   } catch (deleteError) {
                     setError(
@@ -427,7 +431,7 @@ export function RolesManagementView() {
         ),
       },
     ],
-    [canDeleteRole, canEditRole, closeEditFormPanel, confirm, editingRole?.id, handleEditRole, isDeletingRoleId, loadRoles, selectedRoleId]
+    [canDeleteRole, canEditRole, closeEditFormPanel, confirm, editingRole?.id, handleEditRole, isDeletingRoleId, loadRoles, selectedRoleId, toast]
   );
 
   return (

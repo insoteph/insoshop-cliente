@@ -27,6 +27,8 @@ import {
 } from "@/modules/store-catalog/services/store-catalog-service";
 import type {
   PublicStoreProduct,
+  PublicStoreProductAttribute,
+  PublicStoreProductAttributeValue,
   PublicStoreProductDetail,
   PublicStoreProductVariant,
   PublicStoreSummary,
@@ -62,6 +64,25 @@ function ColorSwatch({ colorHexadecimal }: { colorHexadecimal: string }) {
   );
 }
 
+function isColorAttribute(attribute: PublicStoreProductAttribute) {
+  return (
+    attribute.nombre.trim().toLowerCase().includes("color") ||
+    attribute.valores.some((value) => Boolean(value.colorHexadecimal))
+  );
+}
+
+function getVariantImageUrl(variant: PublicStoreProductVariant | null) {
+  if (!variant) {
+    return null;
+  }
+
+  return (
+    variant.imagenes.find((image) => image.trim())?.trim() ||
+    variant.urlImagenPrincipal?.trim() ||
+    null
+  );
+}
+
 function buildImageSet(
   selectedVariant: PublicStoreProductVariant | null,
   allVariants: PublicStoreProductVariant[],
@@ -86,6 +107,115 @@ function buildImageSet(
   return [...preferred, ...fallback].filter((image, index, values) => {
     return image.length > 0 && values.indexOf(image) === index;
   });
+}
+
+function findVariantForAttributeValue(
+  variants: PublicStoreProductVariant[],
+  selectedValues: Record<number, number>,
+  attributeId: number,
+  valueId: number,
+) {
+  const compatibleVariants = variants.filter((variant) =>
+    variant.valores.some(
+      (value) =>
+        value.atributoCatalogoId === attributeId &&
+        value.atributoCatalogoValorId === valueId,
+    ),
+  );
+
+  return (
+    compatibleVariants.find((variant) =>
+      variant.valores.every((value) => {
+        if (value.atributoCatalogoId === attributeId) {
+          return value.atributoCatalogoValorId === valueId;
+        }
+
+        const selected = selectedValues[value.atributoCatalogoId];
+        return !selected || selected === value.atributoCatalogoValorId;
+      }),
+    ) ??
+    compatibleVariants.find((variant) => variant.cantidad > 0) ??
+    compatibleVariants[0] ??
+    null
+  );
+}
+
+function ColorOptionCard({
+  value,
+  currency,
+  isSelected,
+  variant,
+  fallbackImageUrl,
+  onSelect,
+}: {
+  value: PublicStoreProductAttributeValue;
+  currency: string;
+  isSelected: boolean;
+  variant: PublicStoreProductVariant | null;
+  fallbackImageUrl: string | null;
+  onSelect: () => void;
+}) {
+  const imageUrl = getVariantImageUrl(variant) ?? fallbackImageUrl;
+  const isAvailable = Boolean(variant);
+  const isInStock = Boolean(variant && variant.cantidad > 0);
+
+  return (
+    <button
+      type="button"
+      disabled={!isAvailable}
+      onClick={onSelect}
+      className={`group min-h-[9rem] overflow-hidden rounded-2xl border bg-[var(--panel)] text-left transition ${
+        isSelected
+          ? "border-[var(--accent)] shadow-[0_0_0_2px_var(--accent-soft)]"
+          : "border-[var(--line)] hover:border-[var(--line-strong)] hover:shadow-[var(--shadow)]"
+      } disabled:cursor-not-allowed disabled:opacity-45`}
+    >
+      <div className="aspect-[4/3] bg-[var(--panel-muted)]">
+        {imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={imageUrl}
+            alt={value.valor}
+            className="h-full w-full object-cover transition duration-200 group-hover:scale-[1.03]"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            {value.colorHexadecimal ? (
+              <span
+                className="h-12 w-12 rounded-full border border-black/10 shadow-inner"
+                style={{ backgroundColor: value.colorHexadecimal }}
+              />
+            ) : (
+              <span className="text-xs font-semibold text-[var(--muted)]">
+                Sin imagen
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-1 p-2.5">
+        <div className="flex items-center gap-1.5">
+          {value.colorHexadecimal ? (
+            <ColorSwatch colorHexadecimal={value.colorHexadecimal} />
+          ) : null}
+          <span className="line-clamp-1 text-xs font-semibold text-[var(--foreground)]">
+            {value.valor}
+          </span>
+        </div>
+        <p className="text-sm font-bold text-[var(--foreground-strong)]">
+          {variant ? formatCurrency(variant.precio, currency) : "No disponible"}
+        </p>
+        <p
+          className={`text-[11px] font-semibold ${
+            isInStock ? "text-[var(--success)]" : "text-[var(--muted)]"
+          }`}
+        >
+          {isInStock ? `Disponible (${variant?.cantidad})` : "Agotado"}
+        </p>
+      </div>
+    </button>
+  );
 }
 
 function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
@@ -414,66 +544,112 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
 
               {product.atributos.length > 0 ? (
                 <div className="space-y-3 rounded-[22px] border border-[var(--line)] bg-[var(--panel-muted)] p-3">
-                  {product.atributos.map((attribute) => (
-                    <div key={attribute.atributoCatalogoId} className="space-y-2">
-                      <p className="text-sm font-semibold text-[var(--foreground)]">
-                        {attribute.nombre}
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {attribute.valores.map((value) => {
-                          const isSelected =
-                            selectedValues[attribute.atributoCatalogoId] ===
-                            value.atributoCatalogoValorId;
-                          const isAvailable = variants.some((variant) =>
-                            variant.valores.every((variantValue) => {
-                              if (
-                                variantValue.atributoCatalogoId ===
-                                attribute.atributoCatalogoId
-                              ) {
-                                return (
-                                  variantValue.atributoCatalogoValorId ===
-                                  value.atributoCatalogoValorId
-                                );
-                              }
+                  {product.atributos.map((attribute) => {
+                    const selectedValueId =
+                      selectedValues[attribute.atributoCatalogoId];
+                    const selectedAttributeValue = attribute.valores.find(
+                      (value) =>
+                        value.atributoCatalogoValorId === selectedValueId,
+                    );
+                    const shouldRenderColorCards = isColorAttribute(attribute);
 
-                              const selected =
-                                selectedValues[variantValue.atributoCatalogoId];
-                              return (
-                                !selected ||
-                                selected === variantValue.atributoCatalogoValorId
-                              );
-                            }),
-                          );
+                    return (
+                      <div
+                        key={attribute.atributoCatalogoId}
+                        className="space-y-2.5"
+                      >
+                        <div className="flex flex-wrap items-baseline gap-1.5">
+                          <p className="text-sm font-semibold text-[var(--foreground)]">
+                            {attribute.nombre}
+                          </p>
+                          {selectedAttributeValue ? (
+                            <span className="text-sm font-semibold text-[var(--foreground-strong)]">
+                              {selectedAttributeValue.valor}
+                            </span>
+                          ) : (
+                            <span className="text-sm text-[var(--muted)]">
+                              Selecciona una opción
+                            </span>
+                          )}
+                        </div>
 
-                          return (
-                            <button
-                              key={value.atributoCatalogoValorId}
-                              type="button"
-                              disabled={!isAvailable}
-                              className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
-                                isSelected
-                                  ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]"
-                                  : "border-[var(--line)] bg-[var(--panel)] text-[var(--foreground)]"
-                              } disabled:cursor-not-allowed disabled:opacity-45`}
-                              onClick={() =>
-                                handleAttributeSelect(
+                        {shouldRenderColorCards ? (
+                          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
+                            {attribute.valores.map((value) => {
+                              const isSelected =
+                                selectedValueId ===
+                                value.atributoCatalogoValorId;
+                              const optionVariant =
+                                findVariantForAttributeValue(
+                                  variants,
+                                  selectedValues,
                                   attribute.atributoCatalogoId,
                                   value.atributoCatalogoValorId,
-                                )
-                              }
-                            >
-                              {value.colorHexadecimal ? (
-                                <ColorSwatch
-                                  colorHexadecimal={value.colorHexadecimal}
+                                );
+
+                              return (
+                                <ColorOptionCard
+                                  key={value.atributoCatalogoValorId}
+                                  value={value}
+                                  currency={currency}
+                                  isSelected={isSelected}
+                                  variant={optionVariant}
+                                  fallbackImageUrl={imageUrls[0] ?? null}
+                                  onSelect={() =>
+                                    handleAttributeSelect(
+                                      attribute.atributoCatalogoId,
+                                      value.atributoCatalogoValorId,
+                                    )
+                                  }
                                 />
-                              ) : null}
-                              {value.valor}
-                            </button>
-                          );
-                        })}
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <div className="flex flex-wrap gap-2">
+                            {attribute.valores.map((value) => {
+                              const isSelected =
+                                selectedValueId ===
+                                value.atributoCatalogoValorId;
+                              const isAvailable =
+                                findVariantForAttributeValue(
+                                  variants,
+                                  selectedValues,
+                                  attribute.atributoCatalogoId,
+                                  value.atributoCatalogoValorId,
+                                ) !== null;
+
+                              return (
+                                <button
+                                  key={value.atributoCatalogoValorId}
+                                  type="button"
+                                  disabled={!isAvailable}
+                                  className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                                    isSelected
+                                      ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]"
+                                      : "border-[var(--line)] bg-[var(--panel)] text-[var(--foreground)]"
+                                  } disabled:cursor-not-allowed disabled:opacity-45`}
+                                  onClick={() =>
+                                    handleAttributeSelect(
+                                      attribute.atributoCatalogoId,
+                                      value.atributoCatalogoValorId,
+                                    )
+                                  }
+                                >
+                                  {value.colorHexadecimal ? (
+                                    <ColorSwatch
+                                      colorHexadecimal={value.colorHexadecimal}
+                                    />
+                                  ) : null}
+                                  {value.valor}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : null}
 

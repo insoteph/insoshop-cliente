@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { DataTable } from "@/modules/core/components/DataTable";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
+import { useToast } from "@/modules/core/providers/ToastProvider";
 import { formatCurrency, formatDateTime } from "@/modules/core/lib/formatters";
 import {
   fetchSaleDetail,
@@ -24,6 +25,7 @@ function isPendingSale(estadoVentaNombre: string) {
 
 export function SalesPanel({ storeId, currency }: SalesPanelProps) {
   const { confirm } = useConfirmationDialog();
+  const toast = useToast();
   const [sales, setSales] = useState<Sale[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
@@ -168,6 +170,12 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
       );
       await loadSaleDetail(sale.id, true);
       setReloadTick((current) => current + 1);
+      toast.success(
+        estado === "Completado"
+          ? "Venta completada correctamente."
+          : "Venta cancelada correctamente.",
+        "Venta",
+      );
     } catch (updateError) {
       setError(
         updateError instanceof Error

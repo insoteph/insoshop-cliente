@@ -12,7 +12,11 @@ export function ProductImageGallery({
   imageUrls,
 }: ProductImageGalleryProps) {
   const images = useMemo(
-    () => imageUrls.map((image) => image.trim()).filter(Boolean).slice(0, 4),
+    () =>
+      imageUrls
+        .map((image) => image.trim())
+        .filter(Boolean)
+        .slice(0, 4),
     [imageUrls],
   );
   const [activeIndex, setActiveIndex] = useState(0);
@@ -23,7 +27,7 @@ export function ProductImageGallery({
 
   if (!activeImage) {
     return (
-      <div className="app-card-muted flex h-[460px] items-center justify-center rounded-3xl border border-dashed border-[var(--line)] text-sm font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+      <div className="app-card-muted flex h-[520px] items-center justify-center rounded-3xl border border-dashed border-[var(--line)] text-sm font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
         NO IMAGE
       </div>
     );
@@ -32,7 +36,7 @@ export function ProductImageGallery({
   return (
     <div className="space-y-4">
       <div
-        className="relative h-[460px] overflow-hidden rounded-3xl border border-[var(--line)] bg-[var(--panel-muted)]"
+        className="relative h-[50rem] overflow-hidden rounded-3xl border border-[var(--line)] bg-[var(--panel-muted)]"
         onMouseEnter={() => setIsZooming(true)}
         onMouseLeave={() => {
           setIsZooming(false);

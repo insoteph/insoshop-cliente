@@ -13,6 +13,7 @@ import {
   type DataTableToolbarAction,
 } from "@/modules/core/components/DataTableToolbar";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
+import { useToast } from "@/modules/core/providers/ToastProvider";
 import { SearchBar } from "@/modules/core/components/SearchBar";
 
 import {
@@ -39,6 +40,7 @@ export function CategoriesPanel({
   canManage,
 }: CategoriesPanelProps) {
   const { confirm } = useConfirmationDialog();
+  const toast = useToast();
   const [categories, setCategories] = useState<Category[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(8);
@@ -143,8 +145,10 @@ export function CategoriesPanel({
 
       if (editingCategoryId) {
         await updateCategory(editingCategoryId, storeId, payload);
+        toast.success("Categoria editada correctamente.", "Categoria");
       } else {
         await createCategory(storeId, payload);
+        toast.success("Categoria creada correctamente.", "Categoria");
       }
 
       closeFormPanel(true);
@@ -191,6 +195,12 @@ export function CategoriesPanel({
       try {
         await toggleCategoryStatus(category.id, storeId);
         await loadCategories();
+        toast.success(
+          category.estado
+            ? "Categoria inactivada correctamente."
+            : "Categoria activada correctamente.",
+          "Categoria",
+        );
       } catch (toggleError) {
         setError(
           toggleError instanceof Error
@@ -199,7 +209,7 @@ export function CategoriesPanel({
         );
       }
     },
-    [confirm, loadCategories, storeId],
+    [confirm, loadCategories, storeId, toast],
   );
 
   const columns = useMemo<DataTableColumn<Category>[]>(

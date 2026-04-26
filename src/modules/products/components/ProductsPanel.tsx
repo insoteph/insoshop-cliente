@@ -14,6 +14,7 @@ import {
 } from "@/modules/core/components/DataTableToolbar";
 import { formatCurrency } from "@/modules/core/lib/formatters";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
+import { useToast } from "@/modules/core/providers/ToastProvider";
 import {
   ProductFormPanel,
   type ProductFormState,
@@ -88,21 +89,6 @@ function extractCreatedProductId(data: unknown): number | null {
   }
 
   return null;
-}
-
-function buildAttributePayloads(
-  attributeDrafts: ProductAttributeDraft[],
-): ProductAttributeDraftPayload[] {
-  return attributeDrafts
-    .filter(
-      (draft) =>
-        draft.atributoCatalogoId > 0 &&
-        draft.atributoCatalogoValorIds.length > 0,
-    )
-    .map((draft) => ({
-      atributoCatalogoId: draft.atributoCatalogoId,
-      atributoCatalogoValorIds: draft.atributoCatalogoValorIds,
-    }));
 }
 
 function mapProductAttributesToDrafts(
@@ -180,10 +166,17 @@ function alignVariantDraftsWithAttributes(
 function buildVariantPayload(
   variant: ProductVariantDraft,
   attributes: ProductAttributeDraft[],
+  persistedAttributes: ProductAttribute[],
 ) {
   const attributeIds = attributes
     .map((attribute) => attribute.atributoCatalogoId)
     .filter((attributeId) => attributeId > 0);
+  const persistedAttributeByCatalogId = new Map(
+    persistedAttributes.map((attribute) => [
+      attribute.atributoCatalogoId,
+      attribute,
+    ]),
+  );
 
   const selectedValues: number[] = [];
   const valuesByAttribute = new Map(
@@ -195,8 +188,13 @@ function buildVariantPayload(
 
   attributeIds.forEach((attributeId) => {
     const valueId = Number(valuesByAttribute.get(attributeId) || 0);
-    if (valueId > 0) {
-      selectedValues.push(valueId);
+    const persistedAttribute = persistedAttributeByCatalogId.get(attributeId);
+    const persistedValue = persistedAttribute?.valores.find(
+      (value) => value.atributoCatalogoValorId === valueId,
+    );
+
+    if (persistedValue && persistedValue.id > 0) {
+      selectedValues.push(persistedValue.id);
     }
   });
 
@@ -275,6 +273,7 @@ export function ProductsPanel({
   currency,
 }: ProductsPanelProps) {
   const { confirm } = useConfirmationDialog();
+  const toast = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [page, setPage] = useState(1);
@@ -530,6 +529,8 @@ export function ProductsPanel({
       if (operations.length > 0) {
         await Promise.all(operations);
       }
+
+      return fetchProductAttributes(storeId, productId);
     },
     [storeId],
   );
@@ -539,6 +540,7 @@ export function ProductsPanel({
       productId: number,
       attributeDrafts: ProductAttributeDraft[],
       variantDrafts: ProductVariantDraft[],
+      persistedAttributes: ProductAttribute[],
     ) => {
       const normalizedAttributes = attributeDrafts.filter(
         (draft) => draft.atributoCatalogoId > 0,
@@ -571,7 +573,11 @@ export function ProductsPanel({
       const signatures = new Set<string>();
 
       for (const variantDraft of normalizedVariants) {
-        const payload = buildVariantPayload(variantDraft, normalizedAttributes);
+        const payload = buildVariantPayload(
+          variantDraft,
+          normalizedAttributes,
+          persistedAttributes,
+        );
 
         if (
           payload.productoAtributoValorIds.length !==
@@ -663,6 +669,8 @@ export function ProductsPanel({
         };
         let productId = editingProductId;
 
+        const isEditing = Boolean(editingProductId);
+
         if (editingProductId) {
           await updateProduct(editingProductId, storeId, payload);
           setForm((current) => ({ ...current, ...payload }));
@@ -678,24 +686,27 @@ export function ProductsPanel({
         }
 
         if (productId) {
-          if (editingProductId) {
-            await syncProductAttributes(productId, form.atributos);
-          } else {
-            const attributePayloads = buildAttributePayloads(form.atributos);
+          const persistedAttributes = await syncProductAttributes(
+            productId,
+            form.atributos,
+          );
 
-            if (attributePayloads.length > 0) {
-              await Promise.all(
-                attributePayloads.map((attributePayload) =>
-                  createProductAttribute(storeId, productId, attributePayload),
-                ),
-              );
-            }
-          }
-
-          await syncProductVariants(productId, form.atributos, form.variantes);
+          await syncProductVariants(
+            productId,
+            form.atributos,
+            form.variantes,
+            persistedAttributes,
+          );
         }
 
         await loadProducts();
+        toast.success(
+          isEditing
+            ? "Producto editado correctamente."
+            : "Producto creado correctamente.",
+          "Producto",
+        );
+        closeFormPanel(true);
       } catch (saveError) {
         setFormError(
           saveError instanceof Error
@@ -713,6 +724,8 @@ export function ProductsPanel({
       storeId,
       syncProductAttributes,
       syncProductVariants,
+      toast,
+      closeFormPanel,
     ],
   );
 
@@ -733,6 +746,12 @@ export function ProductsPanel({
       try {
         await toggleProductStatus(product.id, storeId);
         await loadProducts();
+        toast.success(
+          product.estado
+            ? "Producto inactivado correctamente."
+            : "Producto activado correctamente.",
+          "Producto",
+        );
       } catch (toggleError) {
         setError(
           toggleError instanceof Error
@@ -741,7 +760,7 @@ export function ProductsPanel({
         );
       }
     },
-    [confirm, loadProducts, storeId],
+    [confirm, loadProducts, storeId, toast],
   );
 
   const columns = useMemo<DataTableColumn<Product>[]>(

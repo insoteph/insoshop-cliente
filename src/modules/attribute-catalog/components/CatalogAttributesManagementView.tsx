@@ -23,6 +23,7 @@ import {
 } from "@/modules/core/components/DataTableToolbar";
 import { MaterialInput } from "@/modules/core/components/MaterialInput";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
+import { useToast } from "@/modules/core/providers/ToastProvider";
 
 type CatalogAttributeFormValue = {
   id: string;
@@ -76,6 +77,7 @@ function buildFormValues(detail: CatalogAttributeDetail): CatalogAttributeFormVa
 
 export function CatalogAttributesManagementView() {
   const { confirm } = useConfirmationDialog();
+  const toast = useToast();
   const [attributes, setAttributes] = useState<CatalogAttribute[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
@@ -212,6 +214,12 @@ export function CatalogAttributesManagementView() {
       try {
         await toggleCatalogAttributeStatus(attribute.id);
         await loadAttributes();
+        toast.success(
+          attribute.estado
+            ? "Atributo inactivado correctamente."
+            : "Atributo activado correctamente.",
+          "Atributo",
+        );
       } catch (toggleError) {
         setError(
           toggleError instanceof Error
@@ -220,7 +228,7 @@ export function CatalogAttributesManagementView() {
         );
       }
     },
-    [confirm, loadAttributes],
+    [confirm, loadAttributes, toast],
   );
 
   const handleSubmit = useCallback(
@@ -259,8 +267,10 @@ export function CatalogAttributesManagementView() {
 
         if (editingAttributeId) {
           await updateCatalogAttribute(editingAttributeId, payload);
+          toast.success("Atributo editado correctamente.", "Atributo");
         } else {
           await createCatalogAttribute(payload);
+          toast.success("Atributo creado correctamente.", "Atributo");
         }
 
         closeFormPanel(true);
@@ -275,7 +285,7 @@ export function CatalogAttributesManagementView() {
         setIsSaving(false);
       }
     },
-    [closeFormPanel, editingAttributeId, form, loadAttributes],
+    [closeFormPanel, editingAttributeId, form, loadAttributes, toast],
   );
 
   const columns = useMemo<DataTableColumn<CatalogAttribute>[]>(
@@ -485,7 +495,7 @@ export function CatalogAttributesManagementView() {
                 {form.valores.map((value, index) => (
                   <div
                     key={value.id}
-                    className="grid gap-3 rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-3 xl:grid-cols-[minmax(0,1fr)_160px_120px_auto]"
+                    className="grid gap-3 rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-3 xl:grid-cols-[minmax(0,1fr)_190px_120px_auto]"
                   >
                     <MaterialInput
                       id={`catalog-value-${value.id}`}
@@ -505,8 +515,8 @@ export function CatalogAttributesManagementView() {
                         }))
                       }
                     />
-                    <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-3 py-2">
-                      <label className="flex items-center gap-2 text-sm text-[var(--foreground)]">
+                    <div className="flex min-h-[58px] items-center justify-between gap-3 rounded-xl border border-[var(--line)] bg-[var(--panel-muted)] px-3 py-2">
+                      <label className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
                         <input
                           type="checkbox"
                           checked={value.usaColor}
@@ -523,12 +533,13 @@ export function CatalogAttributesManagementView() {
                               ),
                             }))
                           }
+                          className="h-4 w-4 accent-[var(--primary)]"
                         />
-                        Usar color visual
+                        Es color
                       </label>
 
                       {value.usaColor ? (
-                        <div className="mt-3 flex items-center gap-3">
+                        <div className="flex items-center gap-2">
                           <input
                             type="color"
                             value={value.colorHexadecimal}
@@ -545,19 +556,14 @@ export function CatalogAttributesManagementView() {
                                 ),
                               }))
                             }
-                            className="h-10 w-14 cursor-pointer rounded-xl border border-[var(--line)] bg-transparent p-1"
+                            className="h-9 w-11 cursor-pointer rounded-lg border border-[var(--line)] bg-transparent p-1"
                             aria-label={`Color para ${value.valor || `valor ${index + 1}`}`}
                           />
-                          <span className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
+                          <span className="hidden text-[11px] font-semibold uppercase text-[var(--muted)] sm:inline">
                             {value.colorHexadecimal}
                           </span>
                         </div>
-                      ) : (
-                        <p className="mt-3 text-xs text-[var(--muted)]">
-                          Actívalo cuando este valor represente un color que
-                          deba mostrarse como muestra visual en la tienda.
-                        </p>
-                      )}
+                      ) : null}
                     </div>
                     <MaterialInput
                       id={`catalog-order-${value.id}`}

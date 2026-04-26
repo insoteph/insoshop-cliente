@@ -10,6 +10,7 @@ import {
 import { DataTableToolbar } from "@/modules/core/components/DataTableToolbar";
 import { SearchBar } from "@/modules/core/components/SearchBar";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
+import { useToast } from "@/modules/core/providers/ToastProvider";
 import {
   createPaymentMethod,
   fetchPaymentMethods,
@@ -42,6 +43,7 @@ export function PaymentMethodsSettingsPanel({
   canToggle,
 }: PaymentMethodsSettingsPanelProps) {
   const { confirm } = useConfirmationDialog();
+  const toast = useToast();
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(8);
@@ -153,6 +155,12 @@ export function PaymentMethodsSettingsPanel({
             ? "Metodo de pago inactivado correctamente."
             : "Metodo de pago activado correctamente.",
         );
+        toast.success(
+          method.estado
+            ? "Metodo de pago inactivado correctamente."
+            : "Metodo de pago activado correctamente.",
+          "Metodo de pago",
+        );
         await loadMethods();
       } catch (toggleError) {
         setError(
@@ -162,7 +170,7 @@ export function PaymentMethodsSettingsPanel({
         );
       }
     },
-    [confirm, loadMethods, storeId],
+    [confirm, loadMethods, storeId, toast],
   );
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -185,6 +193,7 @@ export function PaymentMethodsSettingsPanel({
           hasGlobalAccess,
         });
         setMessage("Metodo de pago actualizado correctamente.");
+        toast.success("Metodo de pago editado correctamente.", "Metodo de pago");
       } else {
         await createPaymentMethod({
           nombre: form.nombre.trim(),
@@ -192,6 +201,7 @@ export function PaymentMethodsSettingsPanel({
           hasGlobalAccess,
         });
         setMessage("Metodo de pago creado correctamente.");
+        toast.success("Metodo de pago creado correctamente.", "Metodo de pago");
       }
 
       closeForm();

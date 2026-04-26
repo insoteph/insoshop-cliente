@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { permissions } from "@/modules/auth/lib/permissions";
 import { useAdminSession } from "@/modules/auth/providers/AdminSessionProvider";
+import { useToast } from "@/modules/core/providers/ToastProvider";
 import {
   createRoleWithPermissions,
   fetchPermissionsCatalog,
@@ -32,6 +33,7 @@ function buildPermissionGroups(items: string[]) {
 export function RoleCreateView() {
   const router = useRouter();
   const { hasPermission } = useAdminSession();
+  const toast = useToast();
   const canCreateRole = hasPermission(permissions.roles.crear);
   const canManagePermissions = hasPermission(permissions.permiso.gestionar);
 
@@ -102,6 +104,7 @@ export function RoleCreateView() {
         permissions: canManagePermissions ? selectedPermissions : [],
       });
 
+      toast.success("Rol creado correctamente.", "Rol");
       router.push("/roles");
     } catch (saveError) {
       setFormError(

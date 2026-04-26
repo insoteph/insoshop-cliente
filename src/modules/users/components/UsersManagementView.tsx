@@ -17,6 +17,7 @@ import {
 } from "@/modules/core/components/DataTableToolbar";
 import { SearchBar } from "@/modules/core/components/SearchBar";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
+import { useToast } from "@/modules/core/providers/ToastProvider";
 
 import { fetchRoles } from "@/modules/roles/services/roles-service";
 import type { RoleListItem } from "@/modules/roles/types/roles-types";
@@ -38,6 +39,7 @@ const FORM_ANIMATION_MS = 400;
 export function UsersManagementView() {
   const router = useRouter();
   const { confirm } = useConfirmationDialog();
+  const toast = useToast();
   const { currentUser, stores, activeStoreId, hasPermission } = useAdminSession();
   const canSeeUsers = hasPermission(permissions.usuarios.ver);
   const canCreateUser = hasPermission(permissions.usuarios.crear);
@@ -263,6 +265,12 @@ export function UsersManagementView() {
       try {
         await toggleUserStatus(user.id, selectedStoreId);
         await loadUsers();
+        toast.success(
+          user.status
+            ? "Usuario inactivado correctamente."
+            : "Usuario activado correctamente.",
+          "Usuario",
+        );
       } catch (toggleError) {
         setError(
           toggleError instanceof Error
@@ -271,7 +279,7 @@ export function UsersManagementView() {
         );
       }
     },
-    [confirm, loadUsers, selectedStoreId],
+    [confirm, loadUsers, selectedStoreId, toast],
   );
 
   const handleOpenPasswordModal = useCallback((user: UserRecord) => {
@@ -322,6 +330,7 @@ export function UsersManagementView() {
         [editingUser.id]: refreshedRoles,
       }));
       setRolesFormMessage("Roles actualizados correctamente.");
+      toast.success("Roles de usuario actualizados correctamente.", "Usuario");
     } catch (saveError) {
       setRolesFormError(
         saveError instanceof Error
@@ -360,6 +369,7 @@ export function UsersManagementView() {
       setPasswordFormMessage("Contraseña actualizada correctamente.");
       setNewPassword("");
       setConfirmPassword("");
+      toast.success("Contraseña actualizada correctamente.", "Usuario");
     } catch (saveError) {
       setPasswordFormError(
         saveError instanceof Error

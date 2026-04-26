@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { permissions } from "@/modules/auth/lib/permissions";
 import { useAdminSession } from "@/modules/auth/providers/AdminSessionProvider";
+import { useToast } from "@/modules/core/providers/ToastProvider";
 import { fetchRoles } from "@/modules/roles/services/roles-service";
 import type { RoleListItem } from "@/modules/roles/types/roles-types";
 import { createUser, syncUserRoles } from "@/modules/users/services/user-service";
@@ -28,6 +29,7 @@ const INITIAL_USER_FORM: CreateUserPayload = {
 export function UserCreateView() {
   const router = useRouter();
   const { hasPermission } = useAdminSession();
+  const toast = useToast();
   const canCreateUser = hasPermission(permissions.usuarios.crear);
   const canSeeRoles = hasPermission(permissions.roles.ver);
   const canManageUserRoles =
@@ -95,6 +97,7 @@ export function UserCreateView() {
         });
       }
 
+      toast.success("Usuario creado correctamente.", "Usuario");
       router.push("/usuarios");
     } catch (saveError) {
       setFormError(
