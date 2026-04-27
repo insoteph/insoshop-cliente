@@ -109,34 +109,33 @@ function buildImageSet(
   });
 }
 
-function findVariantForAttributeValue(
+function findAnyVariantForAttributeValue(
   variants: PublicStoreProductVariant[],
-  selectedValues: Record<number, number>,
   attributeId: number,
   valueId: number,
 ) {
-  const compatibleVariants = variants.filter((variant) =>
+  return (
+    variants.find((variant) =>
+      variant.valores.some(
+        (value) =>
+          value.atributoCatalogoId === attributeId &&
+          value.atributoCatalogoValorId === valueId,
+      ),
+    ) ?? null
+  );
+}
+
+function hasAnyVariantForAttributeValue(
+  variants: PublicStoreProductVariant[],
+  attributeId: number,
+  valueId: number,
+) {
+  return variants.some((variant) =>
     variant.valores.some(
       (value) =>
         value.atributoCatalogoId === attributeId &&
         value.atributoCatalogoValorId === valueId,
     ),
-  );
-
-  return (
-    compatibleVariants.find((variant) =>
-      variant.valores.every((value) => {
-        if (value.atributoCatalogoId === attributeId) {
-          return value.atributoCatalogoValorId === valueId;
-        }
-
-        const selected = selectedValues[value.atributoCatalogoId];
-        return !selected || selected === value.atributoCatalogoValorId;
-      }),
-    ) ??
-    compatibleVariants.find((variant) => variant.cantidad > 0) ??
-    compatibleVariants[0] ??
-    null
   );
 }
 
@@ -145,6 +144,7 @@ function ColorOptionCard({
   currency,
   isSelected,
   variant,
+  canSelect,
   fallbackImageUrl,
   onSelect,
 }: {
@@ -152,11 +152,12 @@ function ColorOptionCard({
   currency: string;
   isSelected: boolean;
   variant: PublicStoreProductVariant | null;
+  canSelect: boolean;
   fallbackImageUrl: string | null;
   onSelect: () => void;
 }) {
   const imageUrl = getVariantImageUrl(variant) ?? fallbackImageUrl;
-  const isAvailable = Boolean(variant);
+  const isAvailable = canSelect;
   const isInStock = Boolean(variant && variant.cantidad > 0);
 
   return (
@@ -458,27 +459,27 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
       className="bg-[var(--background)]"
       style={storeCatalogThemeTokens.light}
     >
-      <main className="min-h-screen bg-[var(--background)] px-4 pb-4 pt-0 sm:px-6 sm:pb-6 sm:pt-0 lg:px-8">
-        <section className="mx-auto w-full max-w-[1440px] space-y-5">
-          <header className="overflow-hidden rounded-b-[32px] bg-[linear-gradient(135deg,#2563EB_0%,#1D4ED8_60%,#1E3A8A_100%)] px-4 py-3 shadow-[0_20px_50px_rgba(37,99,235,0.18)] sm:px-5 lg:px-6">
-            <div className="flex items-center justify-between gap-3">
-              <Link
-                href={`/${encodeURIComponent(slug)}`}
-                className="inline-flex shrink-0 items-center rounded-full border border-white/25 bg-white/15 px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(15,23,42,0.12)] backdrop-blur-sm transition hover:bg-white/20"
-              >
-                Volver al catalogo
-              </Link>
+      <main className="min-h-screen bg-[var(--background)] pb-4 pt-0 sm:pb-6 sm:pt-0">
+        <header className="overflow-hidden rounded-b-[32px] bg-[linear-gradient(135deg,#2563EB_0%,#1D4ED8_60%,#1E3A8A_100%)] shadow-[0_20px_50px_rgba(37,99,235,0.18)] lg:rounded-none">
+          <div className="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-3 px-4 py-3 sm:px-5 lg:px-6">
+            <Link
+              href={`/${encodeURIComponent(slug)}`}
+              className="inline-flex shrink-0 items-center rounded-full border border-white/25 bg-white/15 px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(15,23,42,0.12)] backdrop-blur-sm transition hover:bg-white/20"
+            >
+              Volver al catalogo
+            </Link>
 
-              <div className="flex shrink-0 items-center gap-2">
-                <StoreCartButton
-                  slug={slug}
-                  totalItems={totalItems}
-                  className="border-white/25 bg-white text-[#2563EB] shadow-[0_10px_24px_rgba(15,23,42,0.12)]"
-                />
-              </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <StoreCartButton
+                slug={slug}
+                totalItems={totalItems}
+                className="border-white/25 bg-white text-[#2563EB] shadow-[0_10px_24px_rgba(15,23,42,0.12)]"
+              />
             </div>
-          </header>
+          </div>
+        </header>
 
+        <section className="mx-auto w-full max-w-[1440px] space-y-5 px-4 pt-5 sm:px-6 lg:px-8">
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1.06fr)_minmax(0,0.94fr)] lg:gap-6">
             <ProductImageGallery
               key={selectedVariant?.id ?? product.id}
@@ -588,28 +589,34 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
 
                         {shouldRenderColorCards ? (
                           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
-                            {attribute.valores.map((value) => {
-                              const isSelected =
-                                selectedValueId ===
-                                value.atributoCatalogoValorId;
-                              const optionVariant =
-                                findVariantForAttributeValue(
-                                  variants,
-                                  selectedValues,
-                                  attribute.atributoCatalogoId,
-                                  value.atributoCatalogoValorId,
-                                );
+                              {attribute.valores.map((value) => {
+                                const isSelected =
+                                  selectedValueId ===
+                                  value.atributoCatalogoValorId;
+                                const optionVariant =
+                                  findAnyVariantForAttributeValue(
+                                    variants,
+                                    attribute.atributoCatalogoId,
+                                    value.atributoCatalogoValorId,
+                                  );
+                                const canSelect =
+                                  hasAnyVariantForAttributeValue(
+                                    variants,
+                                    attribute.atributoCatalogoId,
+                                    value.atributoCatalogoValorId,
+                                  );
 
-                              return (
-                                <ColorOptionCard
-                                  key={value.atributoCatalogoValorId}
-                                  value={value}
-                                  currency={currency}
-                                  isSelected={isSelected}
-                                  variant={optionVariant}
-                                  fallbackImageUrl={imageUrls[0] ?? null}
-                                  onSelect={() =>
-                                    handleAttributeSelect(
+                                return (
+                                  <ColorOptionCard
+                                    key={value.atributoCatalogoValorId}
+                                    value={value}
+                                    currency={currency}
+                                    isSelected={isSelected}
+                                    variant={optionVariant}
+                                    canSelect={canSelect}
+                                    fallbackImageUrl={imageUrls[0] ?? null}
+                                    onSelect={() =>
+                                      handleAttributeSelect(
                                       attribute.atributoCatalogoId,
                                       value.atributoCatalogoValorId,
                                     )
@@ -620,20 +627,19 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                           </div>
                         ) : (
                           <div className="flex flex-wrap gap-2">
-                            {attribute.valores.map((value) => {
-                              const isSelected =
-                                selectedValueId ===
-                                value.atributoCatalogoValorId;
-                              const isAvailable =
-                                findVariantForAttributeValue(
-                                  variants,
-                                  selectedValues,
-                                  attribute.atributoCatalogoId,
-                                  value.atributoCatalogoValorId,
-                                ) !== null;
+                              {attribute.valores.map((value) => {
+                                const isSelected =
+                                  selectedValueId ===
+                                  value.atributoCatalogoValorId;
+                                const isAvailable =
+                                  hasAnyVariantForAttributeValue(
+                                    variants,
+                                    attribute.atributoCatalogoId,
+                                    value.atributoCatalogoValorId,
+                                  );
 
-                              return (
-                                <button
+                                return (
+                                  <button
                                   key={value.atributoCatalogoValorId}
                                   type="button"
                                   disabled={!isAvailable}
@@ -680,7 +686,21 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                       }
                       disabled={isOutOfStock || quantity <= 1}
                     >
-                      -
+                      <span
+                        aria-hidden="true"
+                        className="h-5 w-5 text-[#2563EB]"
+                        style={{
+                          WebkitMaskImage: "url(/icons/minus-circle.svg)",
+                          maskImage: "url(/icons/minus-circle.svg)",
+                          WebkitMaskRepeat: "no-repeat",
+                          maskRepeat: "no-repeat",
+                          WebkitMaskPosition: "center",
+                          maskPosition: "center",
+                          WebkitMaskSize: "contain",
+                          maskSize: "contain",
+                          backgroundColor: "currentColor",
+                        }}
+                      />
                     </button>
                     <span className="min-w-0 flex-1 text-center text-sm font-semibold text-[var(--foreground)] sm:w-12 sm:flex-none">
                       {quantity}
@@ -695,7 +715,21 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                       }
                       disabled={isOutOfStock || quantity >= maxQuantity}
                     >
-                      +
+                      <span
+                        aria-hidden="true"
+                        className="h-5 w-5 text-[#2563EB]"
+                        style={{
+                          WebkitMaskImage: "url(/icons/plus-circle.svg)",
+                          maskImage: "url(/icons/plus-circle.svg)",
+                          WebkitMaskRepeat: "no-repeat",
+                          maskRepeat: "no-repeat",
+                          WebkitMaskPosition: "center",
+                          maskPosition: "center",
+                          WebkitMaskSize: "contain",
+                          maskSize: "contain",
+                          backgroundColor: "currentColor",
+                        }}
+                      />
                     </button>
                   </div>
                 </div>

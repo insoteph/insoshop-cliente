@@ -42,13 +42,13 @@ export default function CartFeedbackModal({
 
   return (
     <div
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-[70] flex justify-center px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-4 sm:inset-0 sm:items-center sm:px-4 sm:pb-4"
+      className="pointer-events-none fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/55 px-4 py-4 backdrop-blur-[1px] sm:bg-slate-950/45"
       aria-live="polite"
       aria-atomic="true"
       role="status"
     >
       <div
-        className="pointer-events-auto w-full max-w-sm animate-[cart-feedback-enter_220ms_ease-out] rounded-[1.75rem] border border-white/50 bg-white/92 p-4 shadow-[0_20px_48px_rgba(15,23,42,0.18)] backdrop-blur-xl sm:max-w-md sm:p-5"
+        className="pointer-events-auto w-full max-w-sm animate-[cart-feedback-enter_220ms_ease-out] rounded-[1.75rem] border border-white/55 bg-white/95 p-4 shadow-[0_24px_56px_rgba(15,23,42,0.28)] backdrop-blur-xl sm:max-w-md sm:p-5"
       >
         <div className="flex items-center gap-3 sm:gap-4">
           <div
@@ -82,7 +82,7 @@ export default function CartFeedbackModal({
         @keyframes cart-feedback-enter {
           0% {
             opacity: 0;
-            transform: translateY(18px) scale(0.96);
+            transform: translateY(12px) scale(0.96);
           }
           100% {
             opacity: 1;
@@ -94,7 +94,7 @@ export default function CartFeedbackModal({
           @keyframes cart-feedback-enter {
             0% {
               opacity: 0;
-              transform: translateY(10px) scale(0.96);
+              transform: translateY(8px) scale(0.96);
             }
             100% {
               opacity: 1;

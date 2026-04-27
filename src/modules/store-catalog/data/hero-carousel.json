@@ -1,0 +1,13 @@
+{
+  "intervalMs": 3000,
+  "slides": [
+    {
+      "image": "/assets/2%20HeroPanel.png",
+      "alt": "Panel hero 2"
+    },
+    {
+      "image": "/assets/3%20HeroPanel.png",
+      "alt": "Panel hero 3"
+    }
+  ]
+}

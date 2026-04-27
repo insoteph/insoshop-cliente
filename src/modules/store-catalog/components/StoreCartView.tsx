@@ -271,43 +271,44 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
       className="bg-[var(--background)]"
       style={storeCatalogThemeTokens.light}
     >
-      <main className="min-h-screen bg-[var(--background)] px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
-        <section className="mx-auto w-full max-w-[1440px] space-y-5">
-          <header className="overflow-hidden rounded-b-[32px] border border-[#dbe7ff] bg-[linear-gradient(135deg,#2563EB_0%,#1D4ED8_60%,#1E3A8A_100%)] px-4 py-4 shadow-[0_20px_50px_rgba(37,99,235,0.18)] sm:px-5 lg:px-6">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div className="min-w-0">
-                <p className="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-white/70">
-                  InsoShop
-                </p>
-                <h1 className="text-2xl font-bold text-white sm:text-[2rem]">
-                  Carrito
-                </h1>
-                <p className="text-sm text-white/70">
-                  {store?.nombre ? `Pedido para ${store.nombre}` : `/${slug}`}
-                </p>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2">
-                <Link
-                  href={`/${encodeURIComponent(slug)}`}
-                  className="inline-flex rounded-full border border-white/25 bg-white/15 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(15,23,42,0.12)] backdrop-blur-sm transition hover:bg-white/20"
-                >
-                  Seguir comprando
-                </Link>
-                {items.length > 0 ? (
-                  <button
-                    type="button"
-                    className="inline-flex rounded-full border border-white/25 bg-white px-4 py-2.5 text-sm font-semibold text-[#DC2626] shadow-[0_10px_24px_rgba(15,23,42,0.12)] transition hover:bg-[#FEF2F2]"
-                    onClick={() =>
-                      clearCart({ notify: true, feedbackType: "cancel" })
-                    }
-                  >
-                    Vaciar carrito
-                  </button>
-                ) : null}
-              </div>
+      <main className="min-h-screen bg-[var(--background)] py-0">
+        <header className="overflow-hidden rounded-b-[32px] border border-transparent bg-[linear-gradient(135deg,#2563EB_0%,#1D4ED8_60%,#1E3A8A_100%)] shadow-[0_20px_50px_rgba(37,99,235,0.18)] lg:rounded-none">
+          <div className="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-3 px-4 py-4 sm:px-5 lg:px-6">
+            <div className="min-w-0 flex-1">
+              <p className="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-white/70">
+                InsoShop
+              </p>
+              <h1 className="text-2xl font-bold text-white sm:text-[2rem]">
+                Carrito
+              </h1>
+              <p className="text-sm text-white/70">
+                {store?.nombre ? `Pedido para ${store.nombre}` : `/${slug}`}
+              </p>
             </div>
-          </header>
+
+            <div className="flex shrink-0 items-center gap-2">
+              <Link
+                href={`/${encodeURIComponent(slug)}`}
+                className="inline-flex rounded-full border border-white/25 bg-white/15 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(15,23,42,0.12)] backdrop-blur-sm transition hover:bg-white/20"
+              >
+                Seguir comprando
+              </Link>
+              {items.length > 0 ? (
+                <button
+                  type="button"
+                  className="inline-flex rounded-full border border-white/25 bg-white px-4 py-2.5 text-sm font-semibold text-[#DC2626] shadow-[0_10px_24px_rgba(15,23,42,0.12)] transition hover:bg-[#FEF2F2]"
+                  onClick={() =>
+                    clearCart({ notify: true, feedbackType: "cancel" })
+                  }
+                >
+                  Vaciar carrito
+                </button>
+              ) : null}
+            </div>
+          </div>
+        </header>
+
+        <section className="mx-auto w-full max-w-[1440px] space-y-5 px-4 pt-5 sm:px-6 lg:px-8">
 
           {error ? (
             <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
@@ -327,79 +328,107 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
                 {items.map((item) => (
                   <article
                     key={item.productoVarianteId}
-                    className="flex flex-col gap-3 rounded-[28px] border border-[#dbe7ff] bg-white p-4 shadow-[0_16px_36px_rgba(15,23,42,0.06)] sm:flex-row sm:items-center"
+                    className="rounded-[28px] border border-[#dbe7ff] bg-white p-4 shadow-[0_16px_36px_rgba(15,23,42,0.06)]"
                   >
-                    <div className="h-20 w-20 overflow-hidden rounded-2xl border border-[#dbe7ff] bg-[#F8FBFF]">
-                      {item.imagenUrl?.trim() ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={item.imagenUrl.trim()}
-                          alt={item.nombre}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full items-center justify-center text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
-                          NO IMAGE
+                    <div className="flex items-center gap-4">
+                      <div className="flex min-w-0 flex-1 gap-3">
+                        <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-[#dbe7ff] bg-[#F8FBFF]">
+                          {item.imagenUrl?.trim() ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={item.imagenUrl.trim()}
+                              alt={item.nombre}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-full items-center justify-center text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
+                              NO IMAGE
+                            </div>
+                          )}
                         </div>
-                      )}
+
+                        <div className="min-w-0 flex-1 space-y-1">
+                          <p className="truncate text-base font-semibold text-[var(--foreground-strong)]">
+                            {item.nombre}
+                          </p>
+                          <p className="text-sm text-[#64748B]">
+                            {item.categoria}
+                          </p>
+                          {item.varianteResumen ? (
+                            <p className="text-xs font-medium text-[#64748B]">
+                              {item.varianteResumen}
+                            </p>
+                          ) : null}
+                          <p className="text-sm font-medium text-[#2563EB]">
+                            {formatCurrency(item.precio, store?.moneda ?? "HNL")}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex h-full shrink-0 items-center">
+                        <div className="flex h-[8.75rem] w-[3.25rem] flex-col items-center justify-between rounded-[20px] border border-[#dbe7ff] bg-[#F8FBFF] p-1.5">
+                          <button
+                            type="button"
+                            className="flex h-8 w-8 items-center justify-center rounded-full bg-transparent text-[var(--foreground)] disabled:opacity-50"
+                            onClick={() =>
+                              setItemQuantity(
+                                item.productoVarianteId,
+                                item.cantidad - 1,
+                              )
+                            }
+                            disabled={item.cantidad <= 1}
+                          >
+                            <span
+                              aria-hidden="true"
+                              className="h-5 w-5 text-[#2563EB]"
+                              style={{
+                                WebkitMaskImage: "url(/icons/minus-circle.svg)",
+                                maskImage: "url(/icons/minus-circle.svg)",
+                                WebkitMaskRepeat: "no-repeat",
+                                maskRepeat: "no-repeat",
+                                WebkitMaskPosition: "center",
+                                maskPosition: "center",
+                                WebkitMaskSize: "contain",
+                                maskSize: "contain",
+                                backgroundColor: "currentColor",
+                              }}
+                            />
+                          </button>
+                          <span className="w-full text-center text-sm font-semibold text-[var(--foreground)]">
+                            {item.cantidad}
+                          </span>
+                          <button
+                            type="button"
+                            className="flex h-8 w-8 items-center justify-center rounded-full bg-transparent text-[var(--foreground)] disabled:opacity-50"
+                            onClick={() =>
+                              setItemQuantity(
+                                item.productoVarianteId,
+                                item.cantidad + 1,
+                              )
+                            }
+                            disabled={item.cantidad >= item.cantidadDisponible}
+                          >
+                            <span
+                              aria-hidden="true"
+                              className="h-5 w-5 text-[#2563EB]"
+                              style={{
+                                WebkitMaskImage: "url(/icons/plus-circle.svg)",
+                                maskImage: "url(/icons/plus-circle.svg)",
+                                WebkitMaskRepeat: "no-repeat",
+                                maskRepeat: "no-repeat",
+                                WebkitMaskPosition: "center",
+                                maskPosition: "center",
+                                WebkitMaskSize: "contain",
+                                maskSize: "contain",
+                                backgroundColor: "currentColor",
+                              }}
+                            />
+                          </button>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="min-w-0 flex-1 space-y-1">
-                      <p className="truncate text-base font-semibold text-[var(--foreground-strong)]">
-                        {item.nombre}
-                      </p>
-                      <p className="text-sm text-[#64748B]">
-                        {item.categoria}
-                      </p>
-                      {item.varianteResumen ? (
-                        <p className="text-xs font-medium text-[#64748B]">
-                          {item.varianteResumen}
-                        </p>
-                      ) : null}
-                      <p className="text-sm font-medium text-[#2563EB]">
-                        {formatCurrency(item.precio, store?.moneda ?? "HNL")}
-                      </p>
-                    </div>
-
-                    <div className="inline-flex items-center gap-2 rounded-2xl border border-[#dbe7ff] bg-[#F8FBFF] p-2">
-                      <button
-                        type="button"
-                        className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#dbe7ff] bg-white text-[var(--foreground)] disabled:opacity-50"
-                        onClick={() =>
-                          setItemQuantity(
-                            item.productoVarianteId,
-                            item.cantidad - 1,
-                          )
-                        }
-                        disabled={item.cantidad <= 1}
-                      >
-                        -
-                      </button>
-                      <span className="w-8 text-center text-sm font-semibold text-[var(--foreground)]">
-                        {item.cantidad}
-                      </span>
-                      <button
-                        type="button"
-                        className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#dbe7ff] bg-white text-[var(--foreground)] disabled:opacity-50"
-                        onClick={() =>
-                          setItemQuantity(
-                            item.productoVarianteId,
-                            item.cantidad + 1,
-                          )
-                        }
-                        disabled={item.cantidad >= item.cantidadDisponible}
-                      >
-                        +
-                      </button>
-                    </div>
-
-                    <div className="space-y-2 text-right">
-                      <p className="text-sm font-semibold text-[var(--foreground)]">
-                        {formatCurrency(
-                          item.precio * item.cantidad,
-                          store?.moneda ?? "HNL",
-                        )}
-                      </p>
+                    <div className="mt-3 flex items-end justify-between gap-3">
                       <button
                         type="button"
                         className="inline-flex rounded-full border border-[#fecaca] bg-[#FEF2F2] px-3 py-1 text-xs font-semibold text-[#DC2626]"
@@ -407,6 +436,13 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
                       >
                         Quitar
                       </button>
+
+                      <p className="text-sm font-semibold text-[var(--foreground)]">
+                        {formatCurrency(
+                          item.precio * item.cantidad,
+                          store?.moneda ?? "HNL",
+                        )}
+                      </p>
                     </div>
                   </article>
                 ))}
@@ -419,7 +455,7 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
 
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-[#64748B]">Subtotal</span>
+                    <span className="text-[#64748B]">Subtotal:</span>
                     <span className="font-medium text-[var(--foreground)]">
                       {formatCurrency(subtotal, store?.moneda ?? "HNL")}
                     </span>

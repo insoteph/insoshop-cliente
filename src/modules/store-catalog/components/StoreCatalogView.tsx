@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { SearchBar } from "@/modules/core/components/SearchBar";
 import { FloatingWhatsAppButton } from "@/modules/store-catalog/components/FloatingWhatsAppButton";
+import { StoreCatalogHeroCarousel } from "@/modules/store-catalog/components/StoreCatalogHeroCarousel";
 import { StoreCartButton } from "@/modules/store-catalog/components/StoreCartButton";
 import { StoreCatalogFilters } from "@/modules/store-catalog/components/StoreCatalogFilters";
 import { StoreCatalogFooter } from "@/modules/store-catalog/components/StoreCatalogFooter";
@@ -178,7 +179,7 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
       style={storeCatalogThemeTokens.light}
     >
       <main className="min-h-screen overflow-x-clip bg-[var(--background)]">
-        <header className="sticky top-0 z-30 overflow-hidden rounded-b-[32px] border border-transparent bg-[linear-gradient(135deg,#1D4ED8_0%,#2563EB_45%,#1E40AF_100%)] text-white shadow-[0_24px_60px_rgba(37,99,235,0.28)]">
+        <header className="sticky top-0 z-30 overflow-hidden rounded-b-[32px] border border-transparent bg-[linear-gradient(135deg,#1D4ED8_0%,#2563EB_45%,#1E40AF_100%)] text-white shadow-[0_24px_60px_rgba(37,99,235,0.28)] lg:rounded-none">
           <div className="relative mx-auto w-full max-w-[1440px] px-4 py-5 md:px-6 lg:px-8 lg:py-6">
             <div className="absolute -right-12 top-0 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
             <div className="absolute bottom-0 left-0 h-28 w-28 rounded-full bg-white/10 blur-3xl" />
@@ -279,6 +280,8 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
             </div>
           </div>
         </header>
+
+        <StoreCatalogHeroCarousel />
 
         <section className="mx-auto w-full max-w-[1440px] px-4 pb-4 pt-6 md:px-6 lg:px-8 lg:pb-6">
           <div className="grid items-start gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
