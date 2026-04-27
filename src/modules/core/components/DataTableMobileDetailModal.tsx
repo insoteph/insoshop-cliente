@@ -21,7 +21,7 @@ function CloseIcon() {
   return (
     <span
       aria-hidden="true"
-      className="inline-block h-4 w-4"
+      className="inline-block h-6 w-6"
       style={{
         WebkitMaskImage: "url(/icons/cross.svg)",
         maskImage: "url(/icons/cross.svg)",
@@ -49,25 +49,40 @@ export function DataTableMobileDetailModal({
   const [isVisible, setIsVisible] = useState(open);
 
   useEffect(() => {
-    if (open) {
-      const frame = requestAnimationFrame(() => {
-        setIsMounted(true);
-        setIsVisible(true);
-      });
+    let mountTimer: number | undefined;
+    let visibleTimer: number | undefined;
+    let hideTimer: number | undefined;
 
-      return () => cancelAnimationFrame(frame);
+    if (open) {
+      mountTimer = window.setTimeout(() => {
+        setIsMounted(true);
+      }, 0);
+
+      visibleTimer = window.setTimeout(() => {
+        setIsVisible(true);
+      }, 20);
+    } else {
+      visibleTimer = window.setTimeout(() => {
+        setIsVisible(false);
+      }, 0);
+
+      hideTimer = window.setTimeout(() => {
+        setIsMounted(false);
+      }, 240);
     }
 
-    const frame = requestAnimationFrame(() => {
-      setIsVisible(false);
-    });
-    const timeout = window.setTimeout(() => {
-      setIsMounted(false);
-    }, 180);
-
     return () => {
-      window.cancelAnimationFrame(frame);
-      window.clearTimeout(timeout);
+      if (mountTimer !== undefined) {
+        window.clearTimeout(mountTimer);
+      }
+
+      if (visibleTimer !== undefined) {
+        window.clearTimeout(visibleTimer);
+      }
+
+      if (hideTimer !== undefined) {
+        window.clearTimeout(hideTimer);
+      }
     };
   }, [open]);
 
@@ -85,7 +100,7 @@ export function DataTableMobileDetailModal({
     >
       <div
         className={`w-full max-w-[28rem] rounded-[26px] border border-[var(--line)] bg-white shadow-[var(--shadow)] transition-all duration-300 ease-out ${
-          isVisible ? "translate-y-0 scale-100 opacity-100" : "translate-y-3 scale-97 opacity-0"
+          isVisible ? "translate-y-0 scale-100 opacity-100" : "translate-y-5 scale-95 opacity-0"
         }`}
         onClick={(event) => event.stopPropagation()}
         role="dialog"
@@ -104,7 +119,7 @@ export function DataTableMobileDetailModal({
 
           <button
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--line)] bg-[var(--panel-muted)] text-[var(--foreground)]"
+            className="inline-flex h-10 w-10 items-center justify-center text-red-600 transition-transform duration-200 hover:scale-110"
             onClick={onClose}
             aria-label="Cerrar detalle"
           >

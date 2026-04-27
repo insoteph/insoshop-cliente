@@ -16,8 +16,8 @@ export function TitleBar({ title, status, actions }: TitleBarProps) {
 
   return (
     <div className="app-card rounded-2xl px-4 py-3">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0 flex flex-1 flex-wrap items-center gap-2">
           <h2 className="text-xl font-semibold text-[var(--foreground-strong)]">
             {title}
           </h2>
@@ -44,7 +44,7 @@ export function TitleBar({ title, status, actions }: TitleBarProps) {
           ) : null}
         </div>
 
-        {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
+        {actions ? <div className="shrink-0">{actions}</div> : null}
       </div>
     </div>
   );
