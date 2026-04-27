@@ -96,7 +96,7 @@ export function ProductImageUploader({
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={isUploading}
-            className="app-button-primary inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
+            className="app-button-primary inline-flex h-10 items-center gap-2 rounded-xl px-3.5 text-sm font-semibold disabled:opacity-60"
           >
             {isUploading ? "Subiendo imágenes..." : "Subir imagen"}
           </button>
@@ -128,20 +128,20 @@ export function ProductImageUploader({
               className="h-44 w-full rounded-2xl object-cover"
             />
             <div className="mt-4 flex gap-2">
-              <button
-                type="button"
-                className="rounded-xl border border-[var(--line)] px-3 py-2 text-xs font-semibold text-[var(--foreground)]"
-                onClick={() => setPrimary(index)}
-              >
-                {image.esPrincipal ? "Principal" : "Marcar principal"}
-              </button>
-              <button
-                type="button"
-                className="rounded-xl border border-red-200 px-3 py-2 text-xs font-semibold text-red-600"
-                onClick={() => removeImage(index)}
-              >
-                Eliminar
-              </button>
+            <button
+              type="button"
+              className="inline-flex h-9 items-center rounded-xl border border-[var(--line)] px-3 text-xs font-semibold text-[var(--foreground)] transition hover:bg-[var(--panel-muted)]"
+              onClick={() => setPrimary(index)}
+            >
+              {image.esPrincipal ? "Principal" : "Marcar principal"}
+            </button>
+            <button
+              type="button"
+              className="inline-flex h-9 items-center rounded-xl border border-red-200/80 bg-red-50/70 px-3 text-xs font-semibold text-red-600 transition hover:bg-red-100"
+              onClick={() => removeImage(index)}
+            >
+              Eliminar
+            </button>
             </div>
           </div>
         ))}

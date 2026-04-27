@@ -75,59 +75,61 @@ export function ProductFormPanel({
         className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-sm"
         onSubmit={onSubmit}
       >
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h4 className="text-lg font-semibold text-[var(--foreground-strong)]">
-              {editingProductId ? "Editar producto" : "Crear producto"}
-            </h4>
-            <p className="text-sm text-[var(--muted)]">
-              Ingresa los datos basicos del producto y selecciona la categoria.
-            </p>
-          </div>
-          <button
-            type="button"
-            className="app-button-danger rounded-xl px-3 py-2 text-sm"
-            onClick={onClose}
-          >
-            Cerrar
-          </button>
-        </div>
-
-        <MaterialInput
-          id="producto-nombre"
-          label="Nombre del producto"
-          value={form.nombre}
-          onChange={(event) => onNombreChange(event.target.value)}
-          required
-        />
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <div>
-            <textarea
-              value={form.descripcion}
-              onChange={(event) => onDescripcionChange(event.target.value)}
-              placeholder="Descripcion del producto"
-              rows={7}
-              className="app-input h-full min-h-[11rem] w-full rounded-2xl px-4 py-3 text-sm"
-            />
-          </div>
-
-          <div className="grid content-start gap-4">
-            <select
-              required
-              value={form.categoriaId || ""}
-              onChange={(event) => onCategoriaChange(Number(event.target.value))}
-              className="app-input w-full justify-self-start rounded-2xl px-4 py-3 text-sm md:w-auto md:min-w-[260px] md:max-w-[320px]"
+        <section className="space-y-4 rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)]/40 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h4 className="text-lg font-semibold text-[var(--foreground-strong)]">
+                {editingProductId ? "Editar producto" : "Crear producto"}
+              </h4>
+              <p className="text-sm text-[var(--muted)]">
+                Ingresa los datos basicos del producto y selecciona la categoria.
+              </p>
+            </div>
+            <button
+              type="button"
+              className="app-button-danger inline-flex h-10 items-center rounded-xl px-3.5 text-sm font-semibold"
+              onClick={onClose}
             >
-              <option value="">Selecciona una categoria</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.nombre}
-                </option>
-              ))}
-            </select>
+              Cerrar
+            </button>
           </div>
-        </div>
+
+          <MaterialInput
+            id="producto-nombre"
+            label="Nombre del producto"
+            value={form.nombre}
+            onChange={(event) => onNombreChange(event.target.value)}
+            required
+          />
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <textarea
+                value={form.descripcion}
+                onChange={(event) => onDescripcionChange(event.target.value)}
+                placeholder="Descripcion del producto"
+                rows={7}
+                className="app-input h-full min-h-[11rem] w-full rounded-2xl px-4 py-3 text-sm"
+              />
+            </div>
+
+            <div className="grid content-start gap-4">
+              <select
+                required
+                value={form.categoriaId || ""}
+                onChange={(event) => onCategoriaChange(Number(event.target.value))}
+                className="app-input w-full justify-self-start rounded-2xl px-4 py-3 text-sm md:w-auto md:min-w-[260px] md:max-w-[320px]"
+              >
+                <option value="">Selecciona una categoria</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.nombre}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </section>
 
         <ProductAttributesPanel
           storeId={storeId}
@@ -158,7 +160,7 @@ export function ProductFormPanel({
             disabled={
               isSaving || (editingProductId ? !canEditProducts : !canCreateProducts)
             }
-            className="app-button-primary inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
+            className="app-button-primary inline-flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-semibold disabled:opacity-60"
           >
             <span>{isSaving ? "Guardando..." : "Guardar"}</span>
           </button>

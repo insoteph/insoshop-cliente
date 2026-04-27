@@ -24,7 +24,7 @@ export function ToolbarActions({ actions = [], className }: ToolbarActionsProps)
           key={`${action.label}-${index}`}
           type="button"
           onClick={action.onClick}
-          className="app-button-primary inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium"
+          className="app-button-primary inline-flex h-10 items-center gap-2 rounded-xl px-3.5 text-sm font-medium"
         >
           <span
             aria-hidden="true"

@@ -702,7 +702,7 @@ export function ProductManagementPanel({
             {canManage ? (
               <button
                 type="button"
-                className="app-button-secondary rounded-xl px-3 py-2 text-sm font-semibold"
+                className="app-button-secondary inline-flex h-10 items-center rounded-xl px-3.5 text-sm font-semibold"
                 onClick={() => {
                   resetAttributeForm();
                   openAttributeEditor();
@@ -746,14 +746,14 @@ export function ProductManagementPanel({
                       <div className="flex flex-wrap gap-2">
                         <button
                           type="button"
-                          className="app-button-secondary rounded-xl px-3 py-2 text-xs font-semibold"
+                        className="app-button-secondary inline-flex h-9 items-center rounded-xl px-3 text-xs font-semibold"
                           onClick={() => void handleEditAttribute(attribute)}
                         >
                           Editar
                         </button>
                         <button
                           type="button"
-                          className="app-button-danger rounded-xl px-3 py-2 text-xs font-semibold"
+                        className="app-button-danger inline-flex h-9 items-center rounded-xl px-3 text-xs font-semibold"
                           onClick={() => void handleDeleteAttribute(attribute)}
                         >
                           Quitar
@@ -791,7 +791,7 @@ export function ProductManagementPanel({
                     </div>
                     <button
                       type="button"
-                      className="app-button-secondary rounded-xl px-3 py-2 text-xs font-semibold"
+                    className="app-button-secondary inline-flex h-10 items-center rounded-xl px-3.5 text-sm font-semibold"
                       onClick={closeAttributeEditor}
                     >
                       Cerrar
@@ -803,7 +803,7 @@ export function ProductManagementPanel({
                     onChange={(event) =>
                       void handleCatalogAttributeChange(Number(event.target.value))
                     }
-                    className="app-input w-full rounded-2xl px-4 py-3 text-sm"
+                      className="app-input w-full rounded-2xl px-4 py-3 text-sm"
                   >
                     <option value="">Selecciona una opción</option>
                     {availableCatalogAttributes.map((attribute) => (
@@ -872,7 +872,7 @@ export function ProductManagementPanel({
                   <div className="flex flex-wrap justify-end gap-2">
                     <button
                       type="button"
-                      className="app-button-secondary rounded-xl px-3 py-2 text-sm font-semibold"
+                      className="app-button-secondary inline-flex h-10 items-center rounded-xl px-3.5 text-sm font-semibold"
                       onClick={resetAttributeForm}
                     >
                       Limpiar
@@ -880,7 +880,7 @@ export function ProductManagementPanel({
                     <button
                       type="submit"
                       disabled={isSavingAttribute}
-                      className="app-button-primary rounded-xl px-4 py-2 text-sm font-semibold disabled:opacity-60"
+                      className="app-button-primary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold disabled:opacity-60"
                     >
                       {isSavingAttribute ? "Guardando..." : "Guardar opción"}
                     </button>
@@ -909,7 +909,7 @@ export function ProductManagementPanel({
             {canManage ? (
               <button
                 type="button"
-                className="app-button-secondary rounded-xl px-3 py-2 text-sm font-semibold"
+                className="app-button-secondary inline-flex h-10 items-center rounded-xl px-3.5 text-sm font-semibold"
                 onClick={() => {
                   resetVariantForm();
                   openVariantEditor();
@@ -984,14 +984,14 @@ export function ProductManagementPanel({
                       <div className="flex flex-wrap gap-2 md:justify-end">
                         <button
                           type="button"
-                          className="app-button-secondary rounded-xl px-3 py-2 text-xs font-semibold"
+                          className="app-button-secondary inline-flex h-9 items-center rounded-xl px-3 text-xs font-semibold"
                           onClick={() => handleEditVariant(variant)}
                         >
                           Editar
                         </button>
                         <button
                           type="button"
-                          className={`rounded-xl px-3 py-2 text-xs font-semibold ${
+                          className={`inline-flex h-9 items-center rounded-xl px-3 text-xs font-semibold ${
                             variant.estado
                               ? "app-button-danger"
                               : "app-button-primary"
@@ -1033,7 +1033,7 @@ export function ProductManagementPanel({
                     </div>
                     <button
                       type="button"
-                      className="app-button-secondary rounded-xl px-3 py-2 text-xs font-semibold"
+                      className="app-button-secondary inline-flex h-10 items-center rounded-xl px-3.5 text-sm font-semibold"
                       onClick={closeVariantEditor}
                     >
                       Cerrar
@@ -1129,7 +1129,7 @@ export function ProductManagementPanel({
                         </div>
                         <button
                           type="button"
-                          className="app-button-primary rounded-xl px-3 py-2 text-sm font-semibold disabled:opacity-60"
+                          className="app-button-primary inline-flex h-10 items-center rounded-xl px-3.5 text-sm font-semibold disabled:opacity-60"
                           onClick={() => variantImageInputRef.current?.click()}
                           disabled={isUploadingVariantImage}
                         >
@@ -1192,7 +1192,7 @@ export function ProductManagementPanel({
                   <div className="flex flex-wrap justify-end gap-2">
                     <button
                       type="button"
-                      className="app-button-secondary rounded-xl px-3 py-2 text-sm font-semibold"
+                      className="app-button-secondary inline-flex h-10 items-center rounded-xl px-3.5 text-sm font-semibold"
                       onClick={resetVariantForm}
                     >
                       Limpiar
@@ -1200,7 +1200,7 @@ export function ProductManagementPanel({
                     <button
                       type="submit"
                       disabled={isSavingVariant || product.atributos.length === 0}
-                      className="app-button-primary rounded-xl px-4 py-2 text-sm font-semibold disabled:opacity-60"
+                      className="app-button-primary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold disabled:opacity-60"
                     >
                       {isSavingVariant ? "Guardando..." : "Guardar combinación"}
                     </button>

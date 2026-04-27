@@ -51,23 +51,23 @@ function createValuePicker(): ValuePickerDraft {
   };
 }
 
-function TrashIcon() {
+function TrashIcon({ className = "h-5 w-5" }: { className?: string }) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      className="h-5 w-5"
+    <span
       aria-hidden="true"
-    >
-      <path d="M3 6h18" />
-      <path d="M8 6V4h8v2" />
-      <path d="M19 6l-1 14H6L5 6" />
-      <path d="M10 11v6" />
-      <path d="M14 11v6" />
-    </svg>
+      className={`inline-block ${className}`}
+      style={{
+        WebkitMaskImage: "url(/icons/trash.svg)",
+        maskImage: "url(/icons/trash.svg)",
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+        backgroundColor: "currentColor",
+      }}
+    />
   );
 }
 
@@ -336,7 +336,7 @@ export function ProductAttributesPanel({
             type="button"
             disabled={disabled || isCatalogLoading}
             onClick={addAttribute}
-            className="app-button-primary inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
+            className="app-button-primary inline-flex h-10 items-center gap-2 rounded-xl px-3.5 text-sm font-semibold disabled:opacity-60"
           >
             <PlusIcon />
             <span>Agregar atributo</span>
@@ -425,12 +425,12 @@ export function ProductAttributesPanel({
                           {canEdit ? (
                             <button
                               type="button"
-                              className="inline-flex h-5 w-5 items-center justify-center rounded-full text-[var(--muted)] transition hover:bg-red-50 hover:text-red-600"
+                              className="inline-flex h-5 w-5 items-center justify-center rounded-full text-red-500 transition hover:bg-red-100 hover:text-red-700"
                               onClick={() => removeValueFromRow(draft.key, selectedValue.id)}
                               aria-label={`Eliminar valor ${getValueLabel(selectedValue)}`}
                               title={`Eliminar valor ${getValueLabel(selectedValue)}`}
                             >
-                              <span className="text-base leading-none">x</span>
+                              <TrashIcon className="h-3.5 w-3.5" />
                             </button>
                           ) : null}
                         </span>
@@ -504,7 +504,7 @@ export function ProductAttributesPanel({
                     type="button"
                     onClick={() => removeAttribute(draft.key)}
                     disabled={disabled}
-                    className="inline-flex h-11 w-11 self-end justify-center rounded-xl border border-red-200 text-red-600 transition hover:bg-red-50 disabled:opacity-60 lg:self-end"
+                    className="inline-flex h-11 w-11 self-end items-center justify-center rounded-2xl border border-red-200/80 bg-red-50/70 text-red-600 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-red-300 hover:bg-red-100 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300/70 disabled:translate-y-0 disabled:opacity-60 lg:self-end"
                     aria-label="Eliminar atributo"
                     title="Eliminar atributo"
                   >

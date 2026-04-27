@@ -68,21 +68,23 @@ function getValueLabel(value: AttributeCatalogValue) {
   return value.nombre ?? value.valor ?? `Valor ${value.id}`;
 }
 
-function ImageIcon() {
+function ImageIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      className="h-4 w-4"
+    <span
       aria-hidden="true"
-    >
-      <rect x="3" y="4" width="18" height="16" rx="2" />
-      <circle cx="8.5" cy="9.5" r="1.5" />
-      <path d="m21 16-5-5-4 4-2-2-5 5" />
-    </svg>
+      className={`inline-block ${className}`}
+      style={{
+        WebkitMaskImage: "url(/icons/uploadimg.svg)",
+        maskImage: "url(/icons/uploadimg.svg)",
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+        backgroundColor: "currentColor",
+      }}
+    />
   );
 }
 
@@ -105,21 +107,41 @@ function PlusIcon() {
 
 function TrashIcon() {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      className="h-4 w-4"
+    <span
       aria-hidden="true"
-    >
-      <path d="M3 6h18" />
-      <path d="M8 6V4h8v2" />
-      <path d="M19 6l-1 14H6L5 6" />
-      <path d="M10 11v6" />
-      <path d="M14 11v6" />
-    </svg>
+      className="inline-block h-4 w-4"
+      style={{
+        WebkitMaskImage: "url(/icons/trash.svg)",
+        maskImage: "url(/icons/trash.svg)",
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+        backgroundColor: "currentColor",
+      }}
+    />
+  );
+}
+
+function CloseIcon() {
+  return (
+    <span
+      aria-hidden="true"
+      className="inline-block h-3.5 w-3.5"
+      style={{
+        WebkitMaskImage: "url(/icons/cross.svg)",
+        maskImage: "url(/icons/cross.svg)",
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+        backgroundColor: "currentColor",
+      }}
+    />
   );
 }
 
@@ -141,6 +163,12 @@ function VariantImagePicker({
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const preview = value?.trim() ? value.trim() : null;
+
+  const openPicker = useCallback(() => {
+    if (!disabled && !isUploading) {
+      inputRef.current?.click();
+    }
+  }, [disabled, isUploading]);
 
   const handleUpload = useCallback(async () => {
     const file = inputRef.current?.files?.[0];
@@ -170,24 +198,62 @@ function VariantImagePicker({
 
   return (
     <div className="space-y-2">
-      <div className="flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          disabled={disabled || isUploading}
-          className="inline-flex items-center gap-2 rounded-xl border border-[var(--line)] px-3 py-2 text-xs font-semibold text-[var(--foreground)] transition hover:bg-[var(--panel-muted)] disabled:opacity-60"
-        >
-          <ImageIcon />
-          <span>{isUploading ? "Subiendo..." : "Subir"}</span>
-        </button>
+      <div
+        role="button"
+        tabIndex={disabled || isUploading ? -1 : 0}
+        onClick={openPicker}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openPicker();
+          }
+        }}
+        aria-disabled={disabled || isUploading}
+        className={`group relative inline-flex h-11 w-full items-center justify-center overflow-hidden rounded-2xl border px-4 text-sm font-semibold transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40 ${
+          disabled || isUploading ? "cursor-not-allowed opacity-60" : "cursor-pointer"
+        } ${
+          preview
+            ? "border-[var(--line)] bg-[var(--panel-muted)] text-[var(--foreground-strong)] hover:border-[var(--line-strong)]"
+            : "border-dashed border-[var(--line)] bg-transparent text-[var(--foreground)] hover:border-[var(--line-strong)] hover:bg-[var(--panel-muted)]"
+        }`}
+      >
+        {preview ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={preview}
+            alt="Imagen de la variante"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : null}
+
+        {preview ? <div className="absolute inset-0 bg-black/10 transition group-hover:bg-black/15" /> : null}
+
+        {preview ? (
+          <span className="relative z-10 sr-only">
+            {isUploading ? "Subiendo..." : "Cambiar imagen"}
+          </span>
+        ) : (
+          <span className="relative z-10 inline-flex items-center gap-2">
+            <span className="text-[var(--accent)]">
+              <ImageIcon />
+            </span>
+            <span>{isUploading ? "Subiendo..." : "Subir"}</span>
+          </span>
+        )}
+
         {preview ? (
           <button
             type="button"
-            onClick={() => onChange(null)}
+            onClick={(event) => {
+              event.stopPropagation();
+              onChange(null);
+            }}
             disabled={disabled || isUploading}
-            className="rounded-xl border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-60"
+            className="absolute right-2 top-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white/90 shadow-sm transition hover:bg-black/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 disabled:opacity-60"
+            aria-label="Quitar imagen"
+            title="Quitar imagen"
           >
-            Quitar
+            <CloseIcon />
           </button>
         ) : null}
       </div>
@@ -199,19 +265,6 @@ function VariantImagePicker({
         onChange={handleUpload}
         className="sr-only"
       />
-
-      {preview ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={preview}
-          alt="Imagen de la variante"
-          className="h-16 w-16 rounded-xl object-cover ring-1 ring-[var(--line)]"
-        />
-      ) : (
-        <div className="rounded-xl border border-dashed border-[var(--line)] px-3 py-2 text-xs text-[var(--muted)]">
-          Opcional
-        </div>
-      )}
 
       {feedback ? <p className="text-xs text-red-600">{feedback}</p> : null}
     </div>
@@ -357,10 +410,6 @@ export function ProductVariantsPanel({
           <h4 className="text-lg font-semibold text-[var(--foreground-strong)]">
             Variantes
           </h4>
-          <p className="text-sm text-[var(--muted)]">
-            Define manual y explicitamente cada combinacion de atributos.
-            La imagen por variante es opcional y solo se guarda una.
-          </p>
         </div>
 
         {canEdit ? (
@@ -372,7 +421,7 @@ export function ProductVariantsPanel({
               !canBuildVariants
             }
             onClick={addVariant}
-            className="app-button-primary inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
+            className="app-button-primary inline-flex h-10 items-center gap-2 rounded-xl px-3.5 text-sm font-semibold disabled:opacity-60"
           >
             <PlusIcon />
             <span>Agregar variante</span>
@@ -524,7 +573,7 @@ export function ProductVariantsPanel({
 
                   <td className="px-4 py-3">
                     {canEdit ? (
-                      <label className="inline-flex items-center gap-2 text-sm text-[var(--foreground)]">
+                      <label className="inline-flex h-11 items-center gap-2 rounded-2xl border border-[var(--line)]/70 bg-[var(--panel-muted)] px-4 text-sm text-[var(--foreground)]">
                         <input
                           type="checkbox"
                           checked={draft.estado}
@@ -554,10 +603,11 @@ export function ProductVariantsPanel({
                         type="button"
                         onClick={() => removeVariant(draft.key)}
                         disabled={disabled}
-                        className="inline-flex items-center gap-2 rounded-xl border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-60"
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-red-200/80 bg-red-50/70 text-red-600 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-red-300 hover:bg-red-100 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300/70 disabled:translate-y-0 disabled:opacity-60"
+                        aria-label="Eliminar variante"
+                        title="Eliminar variante"
                       >
                         <TrashIcon />
-                        <span>Eliminar</span>
                       </button>
                     </td>
                   ) : null}
