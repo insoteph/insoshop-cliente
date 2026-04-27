@@ -76,7 +76,7 @@ export function StoreModuleTabs({
     <div
       ref={containerRef}
       onScroll={updateIndicator}
-      className={`app-card relative flex flex-wrap gap-0 overflow-x-auto rounded-2xl p-0 ${className ?? ""}`}
+      className={`app-card relative flex flex-nowrap gap-0 overflow-x-auto scroll-smooth rounded-2xl p-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${className ?? ""}`}
     >
       <span
         aria-hidden="true"
@@ -97,7 +97,7 @@ export function StoreModuleTabs({
             tabRefs.current[tabId] = element;
           }}
           onClick={() => onTabChange(tabId)}
-          className={`border-r border-[var(--line)] px-4 py-3 text-sm text-[var(--foreground)] transition last:border-r-0 ${
+          className={`shrink-0 snap-start whitespace-nowrap border-r border-[var(--line)] px-4 py-3 text-sm text-[var(--foreground)] transition last:border-r-0 ${
             activeTab === tabId
               ? "bg-[var(--accent-soft)] text-[var(--foreground-strong)]"
               : "bg-transparent text-[var(--muted)] hover:bg-[var(--panel-muted)] hover:text-[var(--foreground)]"

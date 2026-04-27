@@ -449,84 +449,97 @@ export function ProductVariantsPanel({
       ) : null}
 
       {value.length > 0 ? (
-        <div className="overflow-x-auto rounded-2xl border border-[var(--line)]/70">
-          <table className="min-w-full border-collapse text-sm">
-            <thead className="bg-[var(--panel-muted)] text-left text-[var(--foreground-strong)]">
-              <tr>
-                {attributeInfoById.map((attribute) => (
-                  <th
-                    key={attribute.attribute.atributoCatalogoId}
-                    className="px-4 py-3 font-semibold"
-                  >
-                    {attribute.label}
-                  </th>
-                ))}
-                <th className="px-4 py-3 font-semibold">Precio</th>
-                <th className="px-4 py-3 font-semibold">Cantidad</th>
-                <th className="px-4 py-3 font-semibold">Imagen</th>
-                <th className="px-4 py-3 font-semibold">Estado</th>
-                {canDelete ? <th className="px-4 py-3 font-semibold">Acciones</th> : null}
-              </tr>
-            </thead>
-            <tbody>
-              {value.map((draft) => (
-                <tr key={draft.key} className="border-t border-[var(--line)]/70 align-top">
-                  {attributeInfoById.map((attribute) => {
-                    const selectedValueId = draft.valoresPorAtributo[attribute.attribute.atributoCatalogoId] ?? "";
+        <>
+          <div className="space-y-3 md:hidden">
+            {value.map((draft) => (
+              <article
+                key={draft.key}
+                className="rounded-[22px] border border-[var(--line)] bg-[var(--panel)] p-4 shadow-sm"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1 space-y-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-semibold text-[var(--foreground-strong)]">
+                        Combinación
+                      </span>
+                      <span
+                        className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                          draft.estado
+                            ? "bg-[var(--success-soft)] text-[var(--success)]"
+                            : "bg-[var(--danger-soft)] text-[var(--danger)]"
+                        }`}
+                      >
+                        {draft.estado ? "Activa" : "Inactiva"}
+                      </span>
+                    </div>
 
-                    return (
-                      <td key={attribute.attribute.atributoCatalogoId} className="px-4 py-3">
-                        {canEdit ? (
-                          <select
-                            value={selectedValueId}
-                            onChange={(event) =>
-                              updateVariant(draft.key, {
-                                valoresPorAtributo: {
-                                  ...draft.valoresPorAtributo,
-                                  [attribute.attribute.atributoCatalogoId]: event.target.value,
-                                },
-                              })
-                            }
-                            disabled={
-                              disabled ||
-                              !attribute.attribute.atributoCatalogoId ||
-                              attribute.loading ||
-                              attribute.values.length === 0
-                            }
-                            className="app-input w-full min-w-[180px] rounded-xl px-3 py-2.5 text-sm"
+                    <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                      {attributeInfoById.map((attribute) => {
+                        const selectedValueId =
+                          draft.valoresPorAtributo[attribute.attribute.atributoCatalogoId] ?? "";
+                        const selectedLabel =
+                          attribute.values.find(
+                            (attributeValue) =>
+                              attributeValue.id === Number(selectedValueId || 0),
+                          )?.nombre ??
+                          attribute.values.find(
+                            (attributeValue) =>
+                              attributeValue.id === Number(selectedValueId || 0),
+                          )?.valor ??
+                          "Sin seleccionar";
+
+                        return (
+                          <span
+                            key={`${draft.key}-${attribute.attribute.atributoCatalogoId}`}
+                            className="inline-flex min-w-fit items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--panel-muted)] px-3 py-1 text-xs font-semibold text-[var(--foreground)]"
                           >
-                            <option value="">
-                              {attribute.loading
-                                ? "Cargando..."
-                                : attribute.values.length > 0
-                                  ? "Selecciona"
-                                  : "Sin valores"}
-                            </option>
-                            {attribute.values.map((attributeValue) => (
-                              <option key={attributeValue.id} value={attributeValue.id}>
-                                {getValueLabel(attributeValue)}
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
-                          <span className="text-[var(--foreground-strong)]">
-                            {attribute.values.find(
-                              (attributeValue) =>
-                                attributeValue.id === Number(selectedValueId || 0),
-                            )?.nombre ??
-                              attribute.values.find(
-                                (attributeValue) =>
-                                  attributeValue.id === Number(selectedValueId || 0),
-                              )?.valor ??
-                              "Sin seleccionar"}
+                            <span>{attribute.label}:</span>
+                            <span>{selectedLabel}</span>
                           </span>
-                        )}
-                      </td>
-                    );
-                  })}
+                        );
+                      })}
+                    </div>
 
-                  <td className="px-4 py-3">
-                    {canEdit ? (
+                    <div className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
+                      <span className="font-semibold text-[var(--foreground-strong)]">
+                        {canEdit ? draft.precio || "0.00" : formatVariantPrice(draft.precio)}
+                      </span>
+                      <span className="text-[var(--muted)]">
+                        Stock: {draft.cantidad || "0"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {canDelete ? (
+                    <button
+                      type="button"
+                      onClick={() => removeVariant(draft.key)}
+                      disabled={disabled}
+                      className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-red-200/80 bg-red-50/70 text-red-600 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-red-300 hover:bg-red-100 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300/70 disabled:translate-y-0 disabled:opacity-60"
+                      aria-label="Eliminar variante"
+                      title="Eliminar variante"
+                    >
+                      <TrashIcon />
+                    </button>
+                  ) : null}
+                </div>
+
+                <div className="mt-4 grid gap-3">
+                  <div className="rounded-2xl border border-dashed border-[var(--line)] bg-[var(--panel-muted)] p-3">
+                    <VariantImagePicker
+                      value={draft.urlImagen}
+                      onChange={(nextImage) =>
+                        updateVariant(draft.key, { urlImagen: nextImage })
+                      }
+                      disabled={disabled || !canEdit}
+                    />
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="space-y-2">
+                      <span className="text-sm font-medium text-[var(--foreground-strong)]">
+                        Precio
+                      </span>
                       <input
                         type="number"
                         min="0.01"
@@ -536,15 +549,14 @@ export function ProductVariantsPanel({
                           updateVariant(draft.key, { precio: event.target.value })
                         }
                         disabled={disabled}
-                        className="app-input w-full min-w-[120px] rounded-xl px-3 py-2.5 text-sm"
+                        className="app-input w-full rounded-xl px-3 py-2.5 text-sm"
                       />
-                    ) : (
-                      <span>{formatVariantPrice(draft.precio)}</span>
-                    )}
-                  </td>
+                    </label>
 
-                  <td className="px-4 py-3">
-                    {canEdit ? (
+                    <label className="space-y-2">
+                      <span className="text-sm font-medium text-[var(--foreground-strong)]">
+                        Existencias
+                      </span>
                       <input
                         type="number"
                         min="0"
@@ -554,68 +566,197 @@ export function ProductVariantsPanel({
                           updateVariant(draft.key, { cantidad: event.target.value })
                         }
                         disabled={disabled}
-                        className="app-input w-full min-w-[110px] rounded-xl px-3 py-2.5 text-sm"
+                        className="app-input w-full rounded-xl px-3 py-2.5 text-sm"
                       />
-                    ) : (
-                      <span>{draft.cantidad}</span>
-                    )}
-                  </td>
+                    </label>
+                  </div>
 
-                  <td className="px-4 py-3">
-                    <VariantImagePicker
-                      value={draft.urlImagen}
-                      onChange={(nextImage) =>
-                        updateVariant(draft.key, { urlImagen: nextImage })
-                      }
-                      disabled={disabled || !canEdit}
-                    />
-                  </td>
+                  {canEdit ? (
+                    <label className="flex items-center gap-3 rounded-2xl border border-[var(--line)]/70 bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)]">
+                      <input
+                        type="checkbox"
+                        checked={draft.estado}
+                        onChange={(event) =>
+                          updateVariant(draft.key, { estado: event.target.checked })
+                        }
+                        disabled={disabled}
+                      />
+                      Combinación activa
+                    </label>
+                  ) : null}
+                </div>
+              </article>
+            ))}
+          </div>
 
-                  <td className="px-4 py-3">
-                    {canEdit ? (
-                      <label className="inline-flex h-11 items-center gap-2 rounded-2xl border border-[var(--line)]/70 bg-[var(--panel-muted)] px-4 text-sm text-[var(--foreground)]">
+          <div className="hidden overflow-x-auto rounded-2xl border border-[var(--line)]/70 md:block">
+            <table className="min-w-full border-collapse text-sm">
+              <thead className="bg-[var(--panel-muted)] text-left text-[var(--foreground-strong)]">
+                <tr>
+                  {attributeInfoById.map((attribute) => (
+                    <th
+                      key={attribute.attribute.atributoCatalogoId}
+                      className="px-4 py-3 font-semibold"
+                    >
+                      {attribute.label}
+                    </th>
+                  ))}
+                  <th className="px-4 py-3 font-semibold">Precio</th>
+                  <th className="px-4 py-3 font-semibold">Cantidad</th>
+                  <th className="px-4 py-3 font-semibold">Imagen</th>
+                  <th className="px-4 py-3 font-semibold">Estado</th>
+                  {canDelete ? <th className="px-4 py-3 font-semibold">Acciones</th> : null}
+                </tr>
+              </thead>
+              <tbody>
+                {value.map((draft) => (
+                  <tr key={draft.key} className="border-t border-[var(--line)]/70 align-top">
+                    {attributeInfoById.map((attribute) => {
+                      const selectedValueId = draft.valoresPorAtributo[attribute.attribute.atributoCatalogoId] ?? "";
+
+                      return (
+                        <td key={attribute.attribute.atributoCatalogoId} className="px-4 py-3">
+                          {canEdit ? (
+                            <select
+                              value={selectedValueId}
+                              onChange={(event) =>
+                                updateVariant(draft.key, {
+                                  valoresPorAtributo: {
+                                    ...draft.valoresPorAtributo,
+                                    [attribute.attribute.atributoCatalogoId]: event.target.value,
+                                  },
+                                })
+                              }
+                              disabled={
+                                disabled ||
+                                !attribute.attribute.atributoCatalogoId ||
+                                attribute.loading ||
+                                attribute.values.length === 0
+                              }
+                              className="app-input w-full min-w-[180px] rounded-xl px-3 py-2.5 text-sm"
+                            >
+                              <option value="">
+                                {attribute.loading
+                                  ? "Cargando..."
+                                  : attribute.values.length > 0
+                                    ? "Selecciona"
+                                    : "Sin valores"}
+                              </option>
+                              {attribute.values.map((attributeValue) => (
+                                <option key={attributeValue.id} value={attributeValue.id}>
+                                  {getValueLabel(attributeValue)}
+                                </option>
+                              ))}
+                            </select>
+                          ) : (
+                            <span className="text-[var(--foreground-strong)]">
+                              {attribute.values.find(
+                                (attributeValue) =>
+                                  attributeValue.id === Number(selectedValueId || 0),
+                              )?.nombre ??
+                                attribute.values.find(
+                                  (attributeValue) =>
+                                    attributeValue.id === Number(selectedValueId || 0),
+                                )?.valor ??
+                                "Sin seleccionar"}
+                            </span>
+                          )}
+                        </td>
+                      );
+                    })}
+
+                    <td className="px-4 py-3">
+                      {canEdit ? (
                         <input
-                          type="checkbox"
-                          checked={draft.estado}
+                          type="number"
+                          min="0.01"
+                          step="0.01"
+                          value={draft.precio}
                           onChange={(event) =>
-                            updateVariant(draft.key, { estado: event.target.checked })
+                            updateVariant(draft.key, { precio: event.target.value })
                           }
                           disabled={disabled}
+                          className="app-input w-full min-w-[120px] rounded-xl px-3 py-2.5 text-sm"
                         />
-                        Activa
-                      </label>
-                    ) : (
-                      <span
-                        className={
-                          draft.estado
-                            ? "rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"
-                            : "rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600"
-                        }
-                      >
-                        {draft.estado ? "Activa" : "Inactiva"}
-                      </span>
-                    )}
-                  </td>
-
-                  {canDelete ? (
-                    <td className="px-4 py-3">
-                      <button
-                        type="button"
-                        onClick={() => removeVariant(draft.key)}
-                        disabled={disabled}
-                        className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-red-200/80 bg-red-50/70 text-red-600 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-red-300 hover:bg-red-100 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300/70 disabled:translate-y-0 disabled:opacity-60"
-                        aria-label="Eliminar variante"
-                        title="Eliminar variante"
-                      >
-                        <TrashIcon />
-                      </button>
+                      ) : (
+                        <span>{formatVariantPrice(draft.precio)}</span>
+                      )}
                     </td>
-                  ) : null}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+
+                    <td className="px-4 py-3">
+                      {canEdit ? (
+                        <input
+                          type="number"
+                          min="0"
+                          step="1"
+                          value={draft.cantidad}
+                          onChange={(event) =>
+                            updateVariant(draft.key, { cantidad: event.target.value })
+                          }
+                          disabled={disabled}
+                          className="app-input w-full min-w-[110px] rounded-xl px-3 py-2.5 text-sm"
+                        />
+                      ) : (
+                        <span>{draft.cantidad}</span>
+                      )}
+                    </td>
+
+                    <td className="px-4 py-3">
+                      <VariantImagePicker
+                        value={draft.urlImagen}
+                        onChange={(nextImage) =>
+                          updateVariant(draft.key, { urlImagen: nextImage })
+                        }
+                        disabled={disabled || !canEdit}
+                      />
+                    </td>
+
+                    <td className="px-4 py-3">
+                      {canEdit ? (
+                        <label className="inline-flex h-11 items-center gap-2 rounded-2xl border border-[var(--line)]/70 bg-[var(--panel-muted)] px-4 text-sm text-[var(--foreground)]">
+                          <input
+                            type="checkbox"
+                            checked={draft.estado}
+                            onChange={(event) =>
+                              updateVariant(draft.key, { estado: event.target.checked })
+                            }
+                            disabled={disabled}
+                          />
+                          Activa
+                        </label>
+                      ) : (
+                        <span
+                          className={
+                            draft.estado
+                              ? "rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"
+                              : "rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600"
+                          }
+                        >
+                          {draft.estado ? "Activa" : "Inactiva"}
+                        </span>
+                      )}
+                    </td>
+
+                    {canDelete ? (
+                      <td className="px-4 py-3">
+                        <button
+                          type="button"
+                          onClick={() => removeVariant(draft.key)}
+                          disabled={disabled}
+                          className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-red-200/80 bg-red-50/70 text-red-600 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-red-300 hover:bg-red-100 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300/70 disabled:translate-y-0 disabled:opacity-60"
+                          aria-label="Eliminar variante"
+                          title="Eliminar variante"
+                        >
+                          <TrashIcon />
+                        </button>
+                      </td>
+                    ) : null}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       ) : null}
     </section>
   );

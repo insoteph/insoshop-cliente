@@ -8,6 +8,7 @@ import { StoreCatalogFooter } from "@/modules/store-catalog/components/StoreCata
 import { FloatingWhatsAppButton } from "@/modules/store-catalog/components/FloatingWhatsAppButton";
 import { storeCatalogThemeTokens } from "@/modules/store-catalog/lib/store-catalog-theme-tokens";
 import { usePublicStoreLightMode } from "@/modules/store-catalog/lib/use-public-store-light-mode";
+import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
 import {
   StoreCartProvider,
   useStoreCart,
@@ -46,6 +47,7 @@ const INITIAL_CHECKOUT_FORM: CheckoutFormState = {
 function StoreCartContent({ slug }: StoreCartViewProps) {
   const { items, subtotal, removeItem, setItemQuantity, clearCart } =
     useStoreCart();
+  const { confirm } = useConfirmationDialog();
   const [store, setStore] = useState<PublicStoreSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -297,9 +299,22 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
                 <button
                   type="button"
                   className="inline-flex rounded-full border border-white/25 bg-white px-4 py-2.5 text-sm font-semibold text-[#DC2626] shadow-[0_10px_24px_rgba(15,23,42,0.12)] transition hover:bg-[#FEF2F2]"
-                  onClick={() =>
-                    clearCart({ notify: true, feedbackType: "cancel" })
-                  }
+                  onClick={async () => {
+                    const shouldContinue = await confirm({
+                      title: "Vaciar carrito",
+                      description:
+                        "Esta accion eliminara todos los productos del carrito. Deseas continuar?",
+                      confirmLabel: "Vaciar",
+                      cancelLabel: "Cancelar",
+                      variant: "danger",
+                    });
+
+                    if (!shouldContinue) {
+                      return;
+                    }
+
+                    clearCart({ notify: true, feedbackType: "cancel" });
+                  }}
                 >
                   Vaciar carrito
                 </button>

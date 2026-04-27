@@ -385,9 +385,9 @@ export function ProductAttributesPanel({
           return (
             <article
               key={draft.key}
-              className="rounded-2xl border border-[var(--line)]/70 bg-transparent p-4"
+              className="rounded-2xl border border-[var(--line)]/70 bg-[var(--panel)] p-4 shadow-sm"
             >
-              <div className="grid gap-4 lg:grid-cols-[minmax(240px,280px)_1fr_auto] lg:items-stretch">
+              <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(240px,280px)_1fr_auto] lg:items-stretch">
                 <div className="flex flex-col gap-2">
                   <label className="block text-sm font-medium text-[var(--foreground-strong)]">
                     Atributo
@@ -414,12 +414,12 @@ export function ProductAttributesPanel({
                     Valores
                   </label>
 
-                  <div className="flex min-h-11 flex-wrap items-center gap-2 rounded-xl border border-[var(--line)]/70 bg-[var(--panel-muted)] px-3 py-2">
+                  <div className="flex min-h-11 flex-wrap items-center gap-2 rounded-xl border border-[var(--line)]/70 bg-[var(--panel-muted)] px-3 py-2 sm:px-3.5">
                     <div className="flex flex-1 flex-wrap items-center gap-2">
                       {selectedValues.map((selectedValue) => (
                         <span
                           key={selectedValue.id}
-                          className="inline-flex h-8 shrink-0 items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--panel-muted)] px-3 text-sm text-[var(--foreground-strong)]"
+                              className="inline-flex min-h-8 shrink-0 items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--panel-muted)] px-3 py-1 text-sm text-[var(--foreground-strong)]"
                         >
                           <span>{getValueLabel(selectedValue)}</span>
                           {canEdit ? (
@@ -489,7 +489,7 @@ export function ProductAttributesPanel({
                           type="button"
                           disabled={disabled}
                           onClick={() => addPickerToRow(draft.key)}
-                          className="inline-flex h-8 shrink-0 items-center gap-2 rounded-full border border-dashed border-[var(--line-strong)] px-3 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent-soft)] disabled:opacity-60"
+                        className="inline-flex h-8 shrink-0 items-center gap-2 rounded-full border border-dashed border-[var(--line-strong)] px-3 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent-soft)] disabled:opacity-60"
                         >
                           <PlusIcon />
                           <span>Agregar valor</span>
@@ -504,7 +504,7 @@ export function ProductAttributesPanel({
                     type="button"
                     onClick={() => removeAttribute(draft.key)}
                     disabled={disabled}
-                    className="inline-flex h-11 w-11 self-end items-center justify-center rounded-2xl border border-red-200/80 bg-red-50/70 text-red-600 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-red-300 hover:bg-red-100 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300/70 disabled:translate-y-0 disabled:opacity-60 lg:self-end"
+                    className="inline-flex h-11 w-full items-center justify-center rounded-2xl border border-red-200/80 bg-red-50/70 text-red-600 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-red-300 hover:bg-red-100 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300/70 disabled:translate-y-0 disabled:opacity-60 lg:w-11 lg:self-end"
                     aria-label="Eliminar atributo"
                     title="Eliminar atributo"
                   >

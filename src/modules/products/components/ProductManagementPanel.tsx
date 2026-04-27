@@ -689,7 +689,7 @@ export function ProductManagementPanel({
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
         <section className="space-y-4 rounded-[24px] border border-[var(--line)] bg-[var(--panel-strong)] p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h4 className="text-base font-semibold text-[var(--foreground-strong)]">
                 Opciones del producto
@@ -702,7 +702,7 @@ export function ProductManagementPanel({
             {canManage ? (
               <button
                 type="button"
-                className="app-button-secondary inline-flex h-10 items-center rounded-xl px-3.5 text-sm font-semibold"
+                className="app-button-secondary inline-flex h-10 w-full items-center justify-center rounded-xl px-3.5 text-sm font-semibold sm:w-auto"
                 onClick={() => {
                   resetAttributeForm();
                   openAttributeEditor();
@@ -720,8 +720,8 @@ export function ProductManagementPanel({
                   key={attribute.id}
                   className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] px-4 py-4"
                 >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0 flex-1">
                       <p className="text-sm font-semibold text-[var(--foreground-strong)]">
                         {attribute.atributoCatalogoNombre}
                       </p>
@@ -779,8 +779,8 @@ export function ProductManagementPanel({
                 className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-4"
               >
                 <form className="space-y-4" onSubmit={handleSaveAttribute}>
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0 flex-1">
                       <h5 className="text-sm font-semibold text-[var(--foreground-strong)]">
                         {editingAttributeId ? "Editar opción" : "Nueva opción"}
                       </h5>
@@ -872,7 +872,7 @@ export function ProductManagementPanel({
                   <div className="flex flex-wrap justify-end gap-2">
                     <button
                       type="button"
-                      className="app-button-secondary inline-flex h-10 items-center rounded-xl px-3.5 text-sm font-semibold"
+                      className="app-button-secondary inline-flex h-10 w-full items-center justify-center rounded-xl px-3.5 text-sm font-semibold sm:w-auto"
                       onClick={resetAttributeForm}
                     >
                       Limpiar
@@ -896,7 +896,7 @@ export function ProductManagementPanel({
         </section>
 
         <section className="space-y-4 rounded-[24px] border border-[var(--line)] bg-[var(--panel-strong)] p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h4 className="text-base font-semibold text-[var(--foreground-strong)]">
                 Combinaciones de venta
@@ -909,7 +909,7 @@ export function ProductManagementPanel({
             {canManage ? (
               <button
                 type="button"
-                className="app-button-secondary inline-flex h-10 items-center rounded-xl px-3.5 text-sm font-semibold"
+                className="app-button-secondary inline-flex h-10 w-full items-center justify-center rounded-xl px-3.5 text-sm font-semibold sm:w-auto"
                 onClick={() => {
                   resetVariantForm();
                   openVariantEditor();
@@ -1033,7 +1033,7 @@ export function ProductManagementPanel({
                     </div>
                     <button
                       type="button"
-                      className="app-button-secondary inline-flex h-10 items-center rounded-xl px-3.5 text-sm font-semibold"
+                      className="app-button-secondary inline-flex h-10 w-full items-center justify-center rounded-xl px-3.5 text-sm font-semibold sm:w-auto"
                       onClick={closeVariantEditor}
                     >
                       Cerrar
