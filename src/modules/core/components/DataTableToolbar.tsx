@@ -24,11 +24,13 @@ export function ToolbarActions({ actions = [], className }: ToolbarActionsProps)
           key={`${action.label}-${index}`}
           type="button"
           onClick={action.onClick}
-          className="app-button-primary inline-flex h-10 items-center gap-2 rounded-xl px-3.5 text-sm font-medium"
+          className="app-button-primary inline-flex h-10 items-center justify-center gap-2 rounded-xl px-3.5 text-sm font-medium sm:justify-start"
+          aria-label={action.label}
+          title={action.label}
         >
           <span
             aria-hidden="true"
-            className="h-4 w-4 bg-current"
+            className="h-4 w-4 shrink-0 bg-current"
             style={{
               WebkitMaskImage: `url(${action.iconPath ?? "/icons/cross.svg"})`,
               maskImage: `url(${action.iconPath ?? "/icons/cross.svg"})`,
@@ -40,7 +42,7 @@ export function ToolbarActions({ actions = [], className }: ToolbarActionsProps)
               maskSize: "contain",
             }}
           />
-          <span>{action.label}</span>
+          <span className="hidden sm:inline">{action.label}</span>
         </button>
       ))}
     </div>

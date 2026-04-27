@@ -112,6 +112,30 @@ function createVariantDraftKey() {
   );
 }
 
+function NoImageThumbnail({ size = 56 }: { size?: number }) {
+  return (
+    <div
+      aria-hidden="true"
+      className="inline-flex items-center justify-center overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)]"
+      style={{ width: size, height: size }}
+    >
+      <span
+        className="inline-block h-6 w-6 bg-[var(--muted)]"
+        style={{
+          WebkitMaskImage: "url(/icons/no-image.svg)",
+          maskImage: "url(/icons/no-image.svg)",
+          WebkitMaskRepeat: "no-repeat",
+          maskRepeat: "no-repeat",
+          WebkitMaskPosition: "center",
+          maskPosition: "center",
+          WebkitMaskSize: "contain",
+          maskSize: "contain",
+        }}
+      />
+    </div>
+  );
+}
+
 function mapProductVariantsToDrafts(
   variants: ProductVariant[],
   attributes: ProductAttribute[],
@@ -768,16 +792,12 @@ export function ProductsPanel({
       {
         key: "imagenes",
         header: "Imagen",
-        render: (product) => {
-          const imageUrl = product.imagenes[0]?.url?.trim();
+          render: (product) => {
+            const imageUrl = product.imagenes[0]?.url?.trim();
 
-          if (!imageUrl) {
-            return (
-              <span className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
-                Sin imagen
-              </span>
-            );
-          }
+            if (!imageUrl) {
+              return <NoImageThumbnail />;
+            }
 
           return (
             <div className="h-14 w-14 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)]">
@@ -882,8 +902,8 @@ export function ProductsPanel({
   return (
     <section className="space-y-5">
       <div className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-md">
-        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-          <div className="w-full">
+        <div className="flex flex-row items-center gap-2 xl:justify-between">
+          <div className="min-w-0 flex-1">
             <SearchBar
               value={search}
               onChange={(value) => {
@@ -894,7 +914,7 @@ export function ProductsPanel({
               ariaLabel="Buscar productos"
             />
           </div>
-          <ToolbarActions actions={toolbarActions} className="xl:shrink-0" />
+          <ToolbarActions actions={toolbarActions} className="shrink-0" />
         </div>
 
         <div className="grid gap-3 md:grid-cols-[220px] md:justify-end">

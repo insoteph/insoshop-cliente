@@ -94,6 +94,38 @@ function formatCellValue(value: unknown) {
   return String(value);
 }
 
+function ImagePlaceholder({
+  size = 48,
+  className = "",
+  iconPath = "/icons/no-image.svg",
+}: {
+  size?: number;
+  className?: string;
+  iconPath?: string;
+}) {
+  return (
+    <div
+      aria-hidden="true"
+      className={`inline-flex items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--panel-muted)] ${className}`}
+      style={{ width: size, height: size }}
+    >
+      <span
+        className="inline-block h-5 w-5 bg-[var(--muted)]"
+        style={{
+          WebkitMaskImage: `url(${iconPath})`,
+          maskImage: `url(${iconPath})`,
+          WebkitMaskRepeat: "no-repeat",
+          maskRepeat: "no-repeat",
+          WebkitMaskPosition: "center",
+          maskPosition: "center",
+          WebkitMaskSize: "contain",
+          maskSize: "contain",
+        }}
+      />
+    </div>
+  );
+}
+
 function isLikelyImageUrl(value: string) {
   const trimmed = value.trim();
 
@@ -269,7 +301,7 @@ function renderCompactImagePreview(srcs: string[], title: string) {
   const [firstImage] = srcs;
 
   if (!firstImage) {
-    return <span className="text-xs text-[var(--muted)]">Sin imagen</span>;
+    return <ImagePlaceholder />;
   }
 
   return (
@@ -337,21 +369,21 @@ function renderImageCell<TData extends Record<string, unknown>>(
   imageConfig?: DataTableImageConfig<TData>,
 ) {
   const src = typeof value === "string" ? value.trim() : "";
-
-  if (!src) {
-    return (
-      <span className="text-xs text-[var(--muted)]">
-        {imageConfig?.fallbackText ?? "Sin imagen"}
-      </span>
-    );
-  }
-
   const width = imageConfig?.width ?? 44;
   const height = imageConfig?.height ?? 44;
   const alt =
     typeof imageConfig?.alt === "function"
       ? imageConfig.alt(row)
       : (imageConfig?.alt ?? "Imagen");
+
+  if (!src) {
+    return (
+      <ImagePlaceholder
+        size={Math.max(width, height)}
+        iconPath="/icons/no-image.svg"
+      />
+    );
+  }
 
   return (
     <div
@@ -450,7 +482,7 @@ export function DataTable<TData extends Record<string, unknown>>({
         return renderCompactImagePreview(imageSources, column.header);
       }
 
-      return column.imageConfig?.fallbackText ?? "Sin imagen";
+      return <ImagePlaceholder size={44} />;
     }
 
     const rawValue = resolveColumnValue(row, column.key);
@@ -475,7 +507,7 @@ export function DataTable<TData extends Record<string, unknown>>({
         return renderImagePreviewStack(imageSources, column.header);
       }
 
-      return column.imageConfig?.fallbackText ?? "Sin imagen";
+      return <ImagePlaceholder size={192} className="w-full rounded-2xl" iconPath="/icons/no-image.svg" />;
     }
 
     const imageSources = collectImageSources(rawValue);

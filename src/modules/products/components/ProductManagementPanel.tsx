@@ -114,6 +114,30 @@ function ColorSwatch({ colorHexadecimal }: { colorHexadecimal: string }) {
   );
 }
 
+function NoImageThumbnail({ size = 80 }: { size?: number }) {
+  return (
+    <div
+      aria-hidden="true"
+      className="flex items-center justify-center overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)]"
+      style={{ width: size, height: size }}
+    >
+      <span
+        className="inline-block h-8 w-8 bg-[var(--muted)]"
+        style={{
+          WebkitMaskImage: "url(/icons/no-image.svg)",
+          maskImage: "url(/icons/no-image.svg)",
+          WebkitMaskRepeat: "no-repeat",
+          maskRepeat: "no-repeat",
+          WebkitMaskPosition: "center",
+          maskPosition: "center",
+          WebkitMaskSize: "contain",
+          maskSize: "contain",
+        }}
+      />
+    </div>
+  );
+}
+
 export function ProductManagementPanel({
   productId,
   storeId,
@@ -938,9 +962,7 @@ export function ProductManagementPanel({
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <div className="flex h-full items-center justify-center text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
-                          SIN IMAGEN
-                        </div>
+                        <NoImageThumbnail size={80} />
                       )}
                     </div>
 
@@ -1161,8 +1183,8 @@ export function ProductManagementPanel({
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <div className="flex h-full items-center justify-center text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
-                            SIN IMAGEN
+                          <div className="flex h-full items-center justify-center">
+                            <NoImageThumbnail size={72} />
                           </div>
                         )}
                       </div>

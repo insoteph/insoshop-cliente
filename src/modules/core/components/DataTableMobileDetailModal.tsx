@@ -99,7 +99,7 @@ export function DataTableMobileDetailModal({
       role="presentation"
     >
       <div
-        className={`w-full max-w-[28rem] rounded-[26px] border border-[var(--line)] bg-white shadow-[var(--shadow)] transition-all duration-300 ease-out ${
+        className={`w-full max-w-[28rem] rounded-[26px] border border-[var(--line)] bg-[var(--panel)] shadow-[var(--shadow)] transition-all duration-300 ease-out ${
           isVisible ? "translate-y-0 scale-100 opacity-100" : "translate-y-5 scale-95 opacity-0"
         }`}
         onClick={(event) => event.stopPropagation()}
@@ -131,7 +131,7 @@ export function DataTableMobileDetailModal({
           {items.map((item) => (
             <div
               key={item.label}
-              className="rounded-2xl border border-[var(--line)] bg-white px-4 py-3"
+              className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3"
             >
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
                 {item.label}
