@@ -643,7 +643,7 @@ export function ProductManagementPanel({
   }
 
   return (
-    <div className="space-y-5 rounded-[26px] border border-[var(--line)] bg-[var(--panel)] p-4 shadow-[var(--shadow)]">
+    <div className="space-y-5 sm:rounded-[26px] sm:border sm:border-[var(--line)] sm:bg-[var(--panel)] sm:p-4 sm:shadow-[var(--shadow)]">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
         <div className="space-y-1">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
