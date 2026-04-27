@@ -271,39 +271,41 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
       className="bg-[var(--background)]"
       style={storeCatalogThemeTokens.light}
     >
-      <main className="min-h-screen bg-[var(--background)] px-4 py-8 md:px-8 lg:px-12">
-        <section className="mx-auto w-full max-w-7xl space-y-5">
-          <header className="rounded-[28px] border border-[var(--line)] bg-[var(--panel-strong)] p-5 shadow-[var(--shadow)] md:flex md:items-center md:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
-                InsoShop
-              </p>
-              <h1 className="text-2xl font-bold text-[var(--foreground-strong)]">
-                Carrito
-              </h1>
-              <p className="text-sm text-[var(--muted)]">
-                {store?.nombre ? `Pedido para ${store.nombre}` : `/${slug}`}
-              </p>
-            </div>
+      <main className="min-h-screen bg-[var(--background)] px-4 py-5 sm:px-6 sm:py-8 lg:px-8">
+        <section className="mx-auto w-full max-w-[1440px] space-y-5">
+          <header className="overflow-hidden rounded-b-[32px] border border-[#dbe7ff] bg-[linear-gradient(135deg,#2563EB_0%,#1D4ED8_60%,#1E3A8A_100%)] px-4 py-4 shadow-[0_20px_50px_rgba(37,99,235,0.18)] sm:px-5 lg:px-6">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="min-w-0">
+                <p className="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-white/70">
+                  InsoShop
+                </p>
+                <h1 className="text-2xl font-bold text-white sm:text-[2rem]">
+                  Carrito
+                </h1>
+                <p className="text-sm text-white/70">
+                  {store?.nombre ? `Pedido para ${store.nombre}` : `/${slug}`}
+                </p>
+              </div>
 
-            <div className="mt-4 flex items-center gap-2 md:mt-0">
-              <Link
-                href={`/${encodeURIComponent(slug)}`}
-                className="inline-flex rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)]"
-              >
-                Seguir comprando
-              </Link>
-              {items.length > 0 ? (
-                <button
-                  type="button"
-                  className="inline-flex rounded-2xl bg-[var(--danger)] px-4 py-2.5 text-sm font-semibold text-white"
-                  onClick={() =>
-                    clearCart({ notify: true, feedbackType: "cancel" })
-                  }
+              <div className="flex flex-wrap items-center gap-2">
+                <Link
+                  href={`/${encodeURIComponent(slug)}`}
+                  className="inline-flex rounded-full border border-white/25 bg-white/15 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(15,23,42,0.12)] backdrop-blur-sm transition hover:bg-white/20"
                 >
-                  Vaciar carrito
-                </button>
-              ) : null}
+                  Seguir comprando
+                </Link>
+                {items.length > 0 ? (
+                  <button
+                    type="button"
+                    className="inline-flex rounded-full border border-white/25 bg-white px-4 py-2.5 text-sm font-semibold text-[#DC2626] shadow-[0_10px_24px_rgba(15,23,42,0.12)] transition hover:bg-[#FEF2F2]"
+                    onClick={() =>
+                      clearCart({ notify: true, feedbackType: "cancel" })
+                    }
+                  >
+                    Vaciar carrito
+                  </button>
+                ) : null}
+              </div>
             </div>
           </header>
 
@@ -314,7 +316,7 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
           ) : null}
 
           {items.length === 0 ? (
-            <div className="rounded-[28px] border border-[var(--line)] bg-[var(--panel-strong)] px-4 py-16 text-center shadow-[var(--shadow)]">
+            <div className="rounded-[32px] border border-[#dbe7ff] bg-white px-4 py-16 text-center shadow-[0_18px_40px_rgba(15,23,42,0.06)]">
               <p className="text-lg font-semibold text-[var(--foreground)]">
                 Tu carrito esta vacio.
               </p>
@@ -325,9 +327,9 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
                 {items.map((item) => (
                   <article
                     key={item.productoVarianteId}
-                    className="flex flex-col gap-3 rounded-[24px] border border-[var(--line)] bg-[var(--panel-strong)] p-4 shadow-[var(--shadow)] sm:flex-row sm:items-center"
+                    className="flex flex-col gap-3 rounded-[28px] border border-[#dbe7ff] bg-white p-4 shadow-[0_16px_36px_rgba(15,23,42,0.06)] sm:flex-row sm:items-center"
                   >
-                    <div className="h-20 w-20 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)]">
+                    <div className="h-20 w-20 overflow-hidden rounded-2xl border border-[#dbe7ff] bg-[#F8FBFF]">
                       {item.imagenUrl?.trim() ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -346,23 +348,23 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
                       <p className="truncate text-base font-semibold text-[var(--foreground-strong)]">
                         {item.nombre}
                       </p>
-                      <p className="text-sm text-[var(--muted)]">
+                      <p className="text-sm text-[#64748B]">
                         {item.categoria}
                       </p>
                       {item.varianteResumen ? (
-                        <p className="text-xs font-medium text-[var(--muted)]">
+                        <p className="text-xs font-medium text-[#64748B]">
                           {item.varianteResumen}
                         </p>
                       ) : null}
-                      <p className="text-sm font-medium text-[var(--accent)]">
+                      <p className="text-sm font-medium text-[#2563EB]">
                         {formatCurrency(item.precio, store?.moneda ?? "HNL")}
                       </p>
                     </div>
 
-                    <div className="inline-flex items-center gap-2 rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] p-2">
+                    <div className="inline-flex items-center gap-2 rounded-2xl border border-[#dbe7ff] bg-[#F8FBFF] p-2">
                       <button
                         type="button"
-                        className="flex h-8 w-8 items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] text-[var(--foreground)] disabled:opacity-50"
+                        className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#dbe7ff] bg-white text-[var(--foreground)] disabled:opacity-50"
                         onClick={() =>
                           setItemQuantity(
                             item.productoVarianteId,
@@ -378,7 +380,7 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
                       </span>
                       <button
                         type="button"
-                        className="flex h-8 w-8 items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] text-[var(--foreground)] disabled:opacity-50"
+                        className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#dbe7ff] bg-white text-[var(--foreground)] disabled:opacity-50"
                         onClick={() =>
                           setItemQuantity(
                             item.productoVarianteId,
@@ -400,7 +402,7 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
                       </p>
                       <button
                         type="button"
-                        className="text-xs font-semibold text-[var(--danger)]"
+                        className="inline-flex rounded-full border border-[#fecaca] bg-[#FEF2F2] px-3 py-1 text-xs font-semibold text-[#DC2626]"
                         onClick={() => removeItem(item.productoVarianteId)}
                       >
                         Quitar
@@ -410,23 +412,23 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
                 ))}
               </div>
 
-              <aside className="h-fit space-y-4 rounded-[24px] border border-[var(--line)] bg-[var(--panel-strong)] p-5 shadow-[var(--shadow)] lg:sticky lg:top-3">
+              <aside className="h-fit space-y-4 rounded-[32px] border border-[#dbe7ff] bg-white p-5 shadow-[0_18px_40px_rgba(15,23,42,0.06)] lg:sticky lg:top-3">
                 <h2 className="text-base font-semibold text-[var(--foreground-strong)]">
                   Resumen del pedido
                 </h2>
 
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-[var(--muted)]">Subtotal</span>
+                    <span className="text-[#64748B]">Subtotal</span>
                     <span className="font-medium text-[var(--foreground)]">
                       {formatCurrency(subtotal, store?.moneda ?? "HNL")}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between border-t border-[var(--line)] pt-3">
+                  <div className="flex items-center justify-between border-t border-[#dbe7ff] pt-3">
                     <span className="font-semibold text-[var(--foreground)]">
                       Total
                     </span>
-                    <span className="text-lg font-bold text-[var(--accent)]">
+                    <span className="text-lg font-bold text-[#2563EB]">
                       {formatCurrency(total, store?.moneda ?? "HNL")}
                     </span>
                   </div>
@@ -435,14 +437,14 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
                 {!isCheckoutOpen ? (
                   <button
                     type="button"
-                    className="inline-flex w-full items-center justify-center rounded-2xl bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white shadow-[var(--shadow)]"
+                    className="inline-flex w-full items-center justify-center rounded-full bg-[#2563EB] px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_30px_rgba(37,99,235,0.22)]"
                     onClick={() => setIsCheckoutOpen(true)}
                   >
                     Proceder con la compra
                   </button>
                 ) : (
                   <form
-                    className="space-y-3 rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] p-4"
+                    className="space-y-3 rounded-[28px] border border-[#dbe7ff] bg-[#F8FBFF] p-4"
                     onSubmit={handleCheckoutSubmit}
                   >
                     <h3 className="text-sm font-semibold text-[var(--foreground-strong)]">
@@ -550,7 +552,7 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"
-                        className="app-button-secondary rounded-xl px-3 py-2.5 text-xs font-semibold"
+                        className="rounded-full border border-[#dbe7ff] bg-white px-3 py-2.5 text-xs font-semibold text-[var(--foreground)] shadow-[0_10px_24px_rgba(15,23,42,0.06)]"
                         onClick={() => {
                           setIsCheckoutOpen(false);
                           setCheckoutError(null);
@@ -561,7 +563,7 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
                       </button>
                       <button
                         type="submit"
-                        className="app-button-primary rounded-xl px-3 py-2.5 text-xs font-semibold disabled:opacity-60"
+                        className="rounded-full bg-[#2563EB] px-3 py-2.5 text-xs font-semibold text-white shadow-[0_14px_30px_rgba(37,99,235,0.22)] disabled:opacity-60"
                         disabled={isSubmittingCheckout}
                       >
                         {isSubmittingCheckout

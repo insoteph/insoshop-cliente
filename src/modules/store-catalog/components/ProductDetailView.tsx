@@ -409,11 +409,11 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
   if (isLoading) {
     return (
       <main
-        className="min-h-screen bg-[var(--background)] px-4 py-8 md:px-8 lg:px-12"
+        className="min-h-screen bg-[var(--background)] px-4 py-6 sm:px-6 sm:py-8 lg:px-8"
         style={storeCatalogThemeTokens.light}
       >
         <div className="mx-auto max-w-6xl">
-          <div className="h-[560px] rounded-[32px] border border-[var(--line)] bg-[var(--panel-strong)]" />
+          <div className="h-[560px] rounded-[32px] border border-[#dbe7ff] bg-white shadow-[0_18px_40px_rgba(15,23,42,0.06)]" />
         </div>
       </main>
     );
@@ -422,13 +422,13 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
   if (error || !product) {
     return (
       <main
-        className="min-h-screen bg-[var(--background)] px-4 py-8 md:px-8 lg:px-12"
+        className="min-h-screen bg-[var(--background)] px-4 py-6 sm:px-6 sm:py-8 lg:px-8"
         style={storeCatalogThemeTokens.light}
       >
         <div className="mx-auto max-w-3xl space-y-4">
           <Link
             href={`/${encodeURIComponent(slug)}`}
-            className="inline-flex rounded-2xl border border-[var(--line)] bg-[var(--panel-strong)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)]"
+            className="inline-flex rounded-full border border-[#dbe7ff] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] shadow-[0_10px_24px_rgba(15,23,42,0.06)]"
           >
             Volver al catalogo
           </Link>
@@ -458,31 +458,37 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
       className="bg-[var(--background)]"
       style={storeCatalogThemeTokens.light}
     >
-      <main className="min-h-screen bg-[var(--background)] px-3 py-5 sm:px-4 sm:py-8 md:px-8 lg:px-12">
-        <section className="mx-auto w-full max-w-7xl space-y-4 sm:space-y-5">
-          <header className="flex flex-wrap items-center justify-between gap-3 rounded-[28px] border border-[var(--line)] bg-[var(--panel-strong)] px-4 py-3 shadow-[var(--shadow)]">
-            <Link
-              href={`/${encodeURIComponent(slug)}`}
-              className="inline-flex rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)]"
-            >
-              Volver al catalogo
-            </Link>
+      <main className="min-h-screen bg-[var(--background)] px-4 pb-4 pt-0 sm:px-6 sm:pb-6 sm:pt-0 lg:px-8">
+        <section className="mx-auto w-full max-w-[1440px] space-y-5">
+          <header className="overflow-hidden rounded-b-[32px] bg-[linear-gradient(135deg,#2563EB_0%,#1D4ED8_60%,#1E3A8A_100%)] px-4 py-3 shadow-[0_20px_50px_rgba(37,99,235,0.18)] sm:px-5 lg:px-6">
+            <div className="flex items-center justify-between gap-3">
+              <Link
+                href={`/${encodeURIComponent(slug)}`}
+                className="inline-flex shrink-0 items-center rounded-full border border-white/25 bg-white/15 px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(15,23,42,0.12)] backdrop-blur-sm transition hover:bg-white/20"
+              >
+                Volver al catalogo
+              </Link>
 
-            <div className="flex flex-wrap items-center gap-2">
-              <StoreCartButton slug={slug} totalItems={totalItems} />
+              <div className="flex shrink-0 items-center gap-2">
+                <StoreCartButton
+                  slug={slug}
+                  totalItems={totalItems}
+                  className="border-white/25 bg-white text-[#2563EB] shadow-[0_10px_24px_rgba(15,23,42,0.12)]"
+                />
+              </div>
             </div>
           </header>
 
-          <div className="grid gap-4 rounded-[28px] border border-[var(--line)] bg-[var(--panel)] p-3 shadow-[var(--shadow)] sm:gap-5 sm:p-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-6 lg:rounded-[34px] lg:p-5">
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1.06fr)_minmax(0,0.94fr)] lg:gap-6">
             <ProductImageGallery
               key={selectedVariant?.id ?? product.id}
               productName={product.nombre}
               imageUrls={imageUrls}
             />
 
-            <div className="space-y-4 rounded-[24px] border border-[var(--line)] bg-[var(--panel-strong)] p-4 sm:space-y-5 sm:rounded-[28px] sm:p-5">
+            <div className="space-y-4 rounded-[34px] border border-[#dbe7ff] bg-white p-4 shadow-[0_18px_40px_rgba(15,23,42,0.06)] sm:space-y-5 sm:p-5 lg:sticky lg:top-4 lg:self-start">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <span className="inline-flex w-fit rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold text-[var(--accent)]">
+                <span className="inline-flex w-fit rounded-full border border-[#dbe7ff] bg-[#EEF4FF] px-3 py-1 text-xs font-semibold text-[#2563EB]">
                   {product.categoria}
                 </span>
                 <button
@@ -491,10 +497,10 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                     isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"
                   }
                   onClick={() => handleToggleFavorite(summaryProduct)}
-                  className={`inline-flex h-10 w-10 items-center justify-center rounded-full border bg-[var(--panel-strong)] transition-all ${
+                  className={`inline-flex h-10 w-10 items-center justify-center rounded-full border backdrop-blur-md transition-all ${
                     isFavorite
-                      ? "border-[#ffd2d0] text-[#e53935] shadow-[0_10px_20px_rgba(229,57,53,0.24)]"
-                      : "border-[var(--line)] text-[var(--muted)] hover:border-[var(--line-strong)]"
+                      ? "border-[#ffd2d0] bg-white text-[#e53935] shadow-[0_10px_20px_rgba(229,57,53,0.18)]"
+                      : "border-[#dbe7ff] bg-white text-[var(--muted)] hover:border-[#9bb8ff]"
                   }`}
                 >
                   <span
@@ -515,35 +521,42 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                   />
                 </button>
               </div>
-              <h1 className="text-[2.1rem] font-semibold leading-[1.08] tracking-[-0.03em] text-[var(--foreground-strong)] sm:text-3xl sm:leading-tight">
+              <h2 className="text-[2.1rem] font-semibold leading-[1.08] tracking-[-0.03em] text-[var(--foreground-strong)] sm:text-3xl sm:leading-tight">
                 {product.nombre}
-              </h1>
-              <p className="text-sm leading-6 text-[var(--muted)] sm:leading-7">
-                {product.descripcion}
-              </p>
+              </h2>
+              {product.descripcion.trim() ? (
+                <div className="rounded-[22px] border border-[#dbe7ff] bg-[#F8FBFF] p-4">
+                  <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#64748B]">
+                    Descripcion
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-[var(--foreground)] sm:leading-7">
+                    {product.descripcion}
+                  </p>
+                </div>
+              ) : null}
 
               <div className="flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-                <p className="text-[2.05rem] font-bold leading-none text-[var(--foreground-strong)] sm:text-3xl">
+                <p className="text-[2.05rem] font-bold leading-none tracking-[-0.03em] text-[#2563EB] sm:text-3xl">
                   {formatCurrency(selectedVariant?.precio ?? 0, currency)}
                 </p>
 
                 {!selectedVariant ? (
-                  <span className="rounded-full bg-[var(--danger-soft)] px-3 py-1 text-xs font-semibold text-[var(--danger)]">
+                  <span className="rounded-full bg-[#FEF2F2] px-3 py-1 text-xs font-semibold text-[#DC2626]">
                     Selecciona una variante
                   </span>
                 ) : selectedVariant.cantidad > 0 ? (
-                  <span className="rounded-full bg-[var(--success-soft)] px-3 py-1 text-xs font-semibold text-[var(--success)]">
+                  <span className="rounded-full bg-[#ECFDF5] px-3 py-1 text-xs font-semibold text-[#059669]">
                     Disponible ({selectedVariant.cantidad})
                   </span>
                 ) : (
-                  <span className="rounded-full bg-[var(--danger-soft)] px-3 py-1 text-xs font-semibold text-[var(--danger)]">
+                  <span className="rounded-full bg-[#FEF2F2] px-3 py-1 text-xs font-semibold text-[#DC2626]">
                     Agotado
                   </span>
                 )}
               </div>
 
               {product.atributos.length > 0 ? (
-                <div className="space-y-3 rounded-[22px] border border-[var(--line)] bg-[var(--panel-muted)] p-3">
+                <div className="space-y-3 rounded-[24px] border border-[#dbe7ff] bg-[#F8FBFF] p-3 sm:p-4">
                   {product.atributos.map((attribute) => {
                     const selectedValueId =
                       selectedValues[attribute.atributoCatalogoId];
@@ -559,11 +572,11 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                         className="space-y-2.5"
                       >
                         <div className="flex flex-wrap items-baseline gap-1.5">
-                          <p className="text-sm font-semibold text-[var(--foreground)]">
+                          <p className="text-sm font-semibold text-[var(--foreground-strong)]">
                             {attribute.nombre}
                           </p>
                           {selectedAttributeValue ? (
-                            <span className="text-sm font-semibold text-[var(--foreground-strong)]">
+                            <span className="text-sm font-semibold text-[#2563EB]">
                               {selectedAttributeValue.valor}
                             </span>
                           ) : (
@@ -626,8 +639,8 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                                   disabled={!isAvailable}
                                   className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
                                     isSelected
-                                      ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent)]"
-                                      : "border-[var(--line)] bg-[var(--panel)] text-[var(--foreground)]"
+                                      ? "border-[#2563EB] bg-[#EEF4FF] text-[#2563EB]"
+                                      : "border-[#dbe7ff] bg-white text-[var(--foreground)]"
                                   } disabled:cursor-not-allowed disabled:opacity-45`}
                                   onClick={() =>
                                     handleAttributeSelect(
@@ -653,36 +666,15 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                 </div>
               ) : null}
 
-              {selectedVariant ? (
-                <div className="rounded-[22px] border border-[var(--line)] bg-[var(--panel-muted)] p-3 text-sm text-[var(--foreground)]">
-                  <p className="font-semibold">Variante seleccionada</p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {selectedVariant.valores.map((value) => (
-                      <span
-                        key={`${selectedVariant.id}-${value.atributoCatalogoId}-${value.atributoCatalogoValorId}`}
-                        className="inline-flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--panel)] px-3 py-1 text-xs font-semibold text-[var(--foreground)]"
-                      >
-                        {value.colorHexadecimal ? (
-                          <ColorSwatch
-                            colorHexadecimal={value.colorHexadecimal}
-                          />
-                        ) : null}
-                        {value.atributoCatalogoNombre}: {value.valor}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-
-              <div className="rounded-[22px] border border-[var(--line)] bg-[var(--panel-muted)] p-3">
+              <div className="rounded-[24px] border border-[var(--line)] bg-[var(--panel-muted)] p-3">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-sm font-medium text-[var(--foreground)]">
                     Cantidad
                   </p>
-                  <div className="inline-flex w-full items-center justify-between gap-2 rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-2 sm:w-auto sm:justify-start">
+                  <div className="inline-flex w-full items-center justify-between gap-2 rounded-2xl border border-[#dbe7ff] bg-white p-2 sm:w-auto sm:justify-start">
                     <button
                       type="button"
-                      className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] text-lg font-semibold text-[var(--foreground)] disabled:opacity-50"
+                      className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#dbe7ff] bg-[#F8FBFF] text-lg font-semibold text-[var(--foreground)] disabled:opacity-50"
                       onClick={() =>
                         setQuantity((current) => Math.max(current - 1, 1))
                       }
@@ -695,7 +687,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                     </span>
                     <button
                       type="button"
-                      className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--panel-strong)] text-lg font-semibold text-[var(--foreground)] disabled:opacity-50"
+                      className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#dbe7ff] bg-[#F8FBFF] text-lg font-semibold text-[var(--foreground)] disabled:opacity-50"
                       onClick={() =>
                         setQuantity((current) =>
                           Math.min(current + 1, Math.max(maxQuantity, 1)),
@@ -713,7 +705,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                 <button
                   type="button"
                   disabled={isOutOfStock || !selectedVariant}
-                  className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm font-semibold text-[var(--foreground)] disabled:opacity-50"
+                  className="rounded-full border border-[#dbe7ff] bg-white px-4 py-3 text-sm font-semibold text-[var(--foreground)] shadow-[0_10px_24px_rgba(15,23,42,0.06)] transition hover:border-[#9bb8ff] hover:bg-[#F8FBFF] disabled:opacity-50"
                   onClick={() => {
                     if (!selectedVariant) {
                       return;
@@ -737,7 +729,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                 <button
                   type="button"
                   disabled={isOutOfStock || !selectedVariant}
-                  className="rounded-2xl bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white shadow-[var(--shadow)] disabled:opacity-50"
+                  className="rounded-full bg-[#2563EB] px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_30px_rgba(37,99,235,0.22)] transition hover:brightness-105 disabled:opacity-50"
                   onClick={() => {
                     if (!selectedVariant) {
                       return;

@@ -27,16 +27,16 @@ export function ProductImageGallery({
 
   if (!activeImage) {
     return (
-      <div className="app-card-muted flex h-[520px] items-center justify-center rounded-3xl border border-dashed border-[var(--line)] text-sm font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+      <div className="flex aspect-[4/5] items-center justify-center border border-dashed border-[#dbe7ff] bg-[#F8FBFF] text-sm font-semibold uppercase tracking-[0.2em] text-[var(--muted)] shadow-[0_18px_40px_rgba(15,23,42,0.06)] sm:aspect-auto sm:h-[400px] lg:h-[440px]">
         NO IMAGE
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div
-        className="relative h-[50rem] overflow-hidden rounded-3xl border border-[var(--line)] bg-[var(--panel-muted)]"
+        className="relative aspect-[4/5] overflow-hidden rounded-[10px] bg-[#F8FBFF] sm:aspect-[3/4] sm:h-auto lg:aspect-[15/16] lg:h-auto xl:aspect-[15/16]"
         onMouseEnter={() => setIsZooming(true)}
         onMouseLeave={() => {
           setIsZooming(false);
@@ -61,15 +61,27 @@ export function ProductImageGallery({
       </div>
 
       {images.length > 1 ? (
-        <div className="grid grid-cols-4 gap-2">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-[#64748B]">
+                Galeria
+              </p>
+              <p className="text-xs text-[var(--muted)]">
+                {images.length} imagen{images.length === 1 ? "" : "es"} disponibles
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-4 gap-2">
           {images.map((imageUrl, index) => (
             <button
               key={`${imageUrl}-${index}`}
               type="button"
-              className={`relative h-24 overflow-hidden rounded-xl border ${
+              className={`relative h-20 overflow-hidden rounded-xl border bg-white shadow-[0_10px_24px_rgba(15,23,42,0.06)] transition ${
                 activeIndex === index
-                  ? "border-[var(--accent)]"
-                  : "border-[var(--line)]"
+                  ? "border-[#2563EB] shadow-[0_0_0_2px_rgba(37,99,235,0.14)]"
+                  : "border-[#dbe7ff] hover:border-[#9bb8ff]"
               }`}
               onClick={() => setActiveIndex(index)}
             >
@@ -81,6 +93,7 @@ export function ProductImageGallery({
               />
             </button>
           ))}
+          </div>
         </div>
       ) : null}
     </div>

@@ -12,6 +12,7 @@ type StoreFavoritesPanelProps = {
   isOpen: boolean;
   onToggle: () => void;
   onRemoveFavorite: (productId: number) => void;
+  className?: string;
 };
 
 export function StoreFavoritesPanel({
@@ -21,13 +22,14 @@ export function StoreFavoritesPanel({
   isOpen,
   onToggle,
   onRemoveFavorite,
+  className,
 }: StoreFavoritesPanelProps) {
   return (
     <div className="relative">
       <button
         type="button"
         onClick={onToggle}
-        className="relative inline-flex h-11 w-11 items-center justify-center gap-2 rounded-2xl border border-[var(--line)] bg-[var(--panel-strong)] px-3 text-sm font-semibold text-[var(--foreground)] shadow-[var(--shadow)] hover:border-[var(--line-strong)] sm:w-auto sm:px-4"
+        className={`relative inline-flex h-11 w-11 items-center justify-center gap-2 rounded-2xl border border-[var(--line)] bg-[var(--panel-strong)] px-3 text-sm font-semibold text-[var(--foreground)] shadow-[var(--shadow)] hover:border-[var(--line-strong)] sm:w-auto sm:px-4 ${className ?? ""}`}
       >
         <span
           aria-hidden="true"

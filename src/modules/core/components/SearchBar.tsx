@@ -3,6 +3,8 @@ type SearchBarProps = {
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
+  inputClassName?: string;
+  iconClassName?: string;
   name?: string;
   ariaLabel?: string;
 };
@@ -12,6 +14,8 @@ export function SearchBar({
   onChange,
   placeholder = "Buscar...",
   className,
+  inputClassName,
+  iconClassName,
   name = "search",
   ariaLabel = "Buscar",
 }: SearchBarProps) {
@@ -19,7 +23,7 @@ export function SearchBar({
     <div className="relative w-full">
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted)]"
+        className={`pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted)] ${iconClassName ?? ""}`}
         style={{
           WebkitMaskImage: "url(/icons/lupa.svg)",
           maskImage: "url(/icons/lupa.svg)",
@@ -39,7 +43,7 @@ export function SearchBar({
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         aria-label={ariaLabel}
-        className={`app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm shadow-sm ${className ?? ""}`}
+        className={`app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm shadow-sm ${className ?? ""} ${inputClassName ?? ""}`}
       />
     </div>
   );

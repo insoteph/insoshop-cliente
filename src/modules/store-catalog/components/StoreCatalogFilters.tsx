@@ -3,100 +3,155 @@
 import type { PublicStoreCategory } from "@/modules/store-catalog/types/store-catalog-types";
 
 type StoreCatalogFiltersProps = {
-  search: string;
   onSearchChange: (value: string) => void;
   categories: PublicStoreCategory[];
   selectedCategoryId: number | null;
   onCategoryChange: (value: number | null) => void;
+  categoryCounts?: Record<number, number>;
+  resultsCount?: number;
+  onClearAll?: () => void;
 };
 
 export function StoreCatalogFilters({
-  search,
   onSearchChange,
   categories,
   selectedCategoryId,
   onCategoryChange,
+  categoryCounts = {},
+  resultsCount = 0,
+  onClearAll,
 }: StoreCatalogFiltersProps) {
   return (
-    <section className="space-y-6 rounded-[28px] border border-[var(--line)] bg-[var(--panel-strong)] p-5 shadow-[var(--shadow)]">
-      <div className="space-y-3">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
-              Categoria
-            </p>
-            <h2 className="mt-1 text-lg font-semibold text-[var(--foreground-strong)]">
-              Filtrar catalogo
-            </h2>
-          </div>
-          <span className="rounded-full bg-[var(--panel-muted)] px-2.5 py-1 text-[11px] font-semibold text-[var(--muted)]">
-            {categories.length + 1}
-          </span>
+    <section className="overflow-hidden rounded-[22px] border border-[#E5EAF3] bg-white shadow-[0_16px_40px_rgba(15,23,42,0.08)]">
+      <div className="flex items-center justify-between gap-3 border-b border-[#E5EAF3] px-6 py-5">
+        <div className="flex items-center gap-2">
+          <span
+            aria-hidden="true"
+            className="inline-block h-4 w-4 text-[#2563EB]"
+            style={{
+              WebkitMaskImage: "url(/icons/filter.svg)",
+              maskImage: "url(/icons/filter.svg)",
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+              maskPosition: "center",
+              WebkitMaskSize: "contain",
+              maskSize: "contain",
+              backgroundColor: "currentColor",
+            }}
+          />
+          <h2 className="text-base font-semibold tracking-[-0.02em] text-[#0F172A]">
+            Filtros
+          </h2>
         </div>
+        <button
+          type="button"
+          onClick={() => {
+            onSearchChange("");
+            onCategoryChange(null);
+            onClearAll?.();
+          }}
+          className="text-sm font-semibold text-[#2563EB] transition hover:text-[#1D4ED8]"
+        >
+          <span className="inline-flex items-center gap-2">
+            <span
+              aria-hidden="true"
+              className="inline-block h-4 w-4"
+              style={{
+                WebkitMaskImage: "url(/icons/refresh.svg)",
+                maskImage: "url(/icons/refresh.svg)",
+                WebkitMaskRepeat: "no-repeat",
+                maskRepeat: "no-repeat",
+                WebkitMaskPosition: "center",
+                maskPosition: "center",
+                WebkitMaskSize: "contain",
+                maskSize: "contain",
+                backgroundColor: "currentColor",
+              }}
+            />
+            <span>Limpiar todo</span>
+          </span>
+        </button>
+      </div>
 
-        <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
-            Categorias
+      <div className="space-y-6 px-6 py-6">
+        <div className="space-y-3">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#64748B]">
+            Categorías
           </p>
-          <button
-            type="button"
-            onClick={() => onCategoryChange(null)}
-            className={`flex w-full items-center justify-between rounded-2xl px-3 py-2.5 text-left text-sm font-medium transition ${
-              selectedCategoryId === null
-                ? "bg-[var(--accent-soft)] text-[var(--accent)]"
-                : "text-[var(--foreground)] hover:bg-[var(--panel-muted)]"
-            }`}
-          >
-            <span>Todas</span>
-            <span className="text-xs text-[var(--muted)]">Ver todo</span>
-          </button>
 
-          <div className="max-h-[420px] space-y-1 overflow-y-auto pr-1">
+          <div className="space-y-2">
+            <FilterRow
+              label="Todas"
+              checked={selectedCategoryId === null}
+              count={resultsCount}
+              onClick={() => onCategoryChange(null)}
+            />
+
             {categories.map((category) => (
-              <button
+              <FilterRow
                 key={category.id}
-                type="button"
+                label={category.nombre}
+                checked={selectedCategoryId === category.id}
+                count={categoryCounts[category.id] ?? 0}
                 onClick={() => onCategoryChange(category.id)}
-                className={`flex w-full items-center justify-between rounded-2xl px-3 py-2.5 text-left text-sm font-medium transition ${
-                  selectedCategoryId === category.id
-                    ? "bg-[var(--accent-soft)] text-[var(--accent)]"
-                    : "text-[var(--foreground)] hover:bg-[var(--panel-muted)]"
-                }`}
-              >
-                <span className="line-clamp-1">{category.nombre}</span>
-                <span className="text-xs text-[var(--muted)]">
-                  {selectedCategoryId === category.id ? "Activo" : ""}
-                </span>
-              </button>
+              />
             ))}
           </div>
         </div>
 
-        <div className="space-y-2 rounded-[22px] bg-[var(--panel-muted)] p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--muted)]">
-            Estado
-          </p>
-          <p className="text-sm text-[var(--foreground)]">
-            {search.trim()
-              ? `Busqueda actual: ${search.trim()}`
-              : "Sin termino de busqueda"}
-          </p>
-          {(selectedCategoryId !== null || search.trim()) && (
-            <button
-              type="button"
-              onClick={() => {
-                if (search.trim()) {
-                  onSearchChange("");
-                }
-                onCategoryChange(null);
-              }}
-              className="mt-2 w-full rounded-2xl bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-white"
-            >
-              Limpiar filtros
-            </button>
-          )}
+        <div className="border-t border-[#E5EAF3]" />
+
+        <div className="rounded-[20px] bg-[#F8FAFC] px-4 py-4 text-sm text-[#64748B]">
+          <span className="font-semibold text-[#0F172A]">{resultsCount}</span>{" "}
+          resultados encontrados
         </div>
       </div>
     </section>
+  );
+}
+
+function FilterRow({
+  label,
+  checked,
+  count,
+  onClick,
+}: {
+  label: string;
+  checked: boolean;
+  count: number;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex h-12 w-full items-center gap-3 rounded-2xl border px-4 text-left transition ${
+        checked
+          ? "border-[#BFDBFE] bg-[#EEF4FF]"
+          : "border-[#E5EAF3] bg-white hover:bg-[#F8FAFC]"
+      }`}
+    >
+      <span
+        aria-hidden="true"
+        className={`inline-flex h-5 w-5 items-center justify-center rounded-full border transition ${
+          checked
+            ? "border-[#2563EB] bg-[#2563EB]"
+            : "border-[#CBD5E1] bg-white"
+        }`}
+      >
+        {checked ? (
+          <span className="h-2.5 w-2.5 rounded-full bg-white" />
+        ) : null}
+      </span>
+
+      <span className="min-w-0 flex-1 truncate text-sm font-medium text-[#0F172A]">
+        {label}
+      </span>
+
+      <span className="inline-flex min-w-8 items-center justify-center rounded-full bg-[#E2E8F0] px-2.5 py-1 text-[11px] font-semibold text-[#475569]">
+        {count}
+      </span>
+    </button>
   );
 }

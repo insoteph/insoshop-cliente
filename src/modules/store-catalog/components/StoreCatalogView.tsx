@@ -59,6 +59,7 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(12);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [favoriteItems, setFavoriteItems] = useState<StoreFavoriteProduct[]>(
@@ -111,6 +112,7 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
       setStore(productsResult.tienda);
       setProducts(productsResult.productos.items);
       setTotalPages(productsResult.productos.totalPages);
+      setTotalRecords(productsResult.productos.totalRecords);
       setCategories(categoriesResult);
     } catch (loadError) {
       setError(
@@ -137,7 +139,19 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
     [page, totalPages],
   );
 
-  const visibleCategories = useMemo(() => categories.slice(0, 8), [categories]);
+  const categoryCounts = useMemo(() => {
+    return products.reduce<Record<number, number>>((accumulator, product) => {
+      const matchedCategory = categories.find(
+        (category) => category.nombre === product.categoria,
+      );
+
+      if (matchedCategory) {
+        accumulator[matchedCategory.id] = (accumulator[matchedCategory.id] ?? 0) + 1;
+      }
+
+      return accumulator;
+    }, {});
+  }, [categories, products]);
 
   const handleToggleFavorite = useCallback((product: PublicStoreProduct) => {
     const favorite = toFavoriteProduct(product);
@@ -163,13 +177,16 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
       className="bg-[var(--background)]"
       style={storeCatalogThemeTokens.light}
     >
-      <main className="min-h-screen bg-[var(--background)]">
-        <section className="mx-auto w-full max-w-[1440px] px-4 py-4 md:px-6 lg:px-8 lg:py-6">
-          <header className="sticky top-0 z-30 rounded-[24px] border border-[var(--line)] bg-[var(--panel-strong)] p-3 shadow-[var(--shadow)] backdrop-blur lg:static lg:rounded-[28px] lg:p-5">
-            <div className="space-y-3 lg:space-y-4">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] sm:h-12 sm:w-12">
+      <main className="min-h-screen overflow-x-clip bg-[var(--background)]">
+        <header className="sticky top-0 z-30 overflow-hidden rounded-b-[32px] border border-transparent bg-[linear-gradient(135deg,#1D4ED8_0%,#2563EB_45%,#1E40AF_100%)] text-white shadow-[0_24px_60px_rgba(37,99,235,0.28)]">
+          <div className="relative mx-auto w-full max-w-[1440px] px-4 py-5 md:px-6 lg:px-8 lg:py-6">
+            <div className="absolute -right-12 top-0 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
+            <div className="absolute bottom-0 left-0 h-28 w-28 rounded-full bg-white/10 blur-3xl" />
+
+            <div className="relative space-y-5">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md sm:h-14 sm:w-14">
                     {store?.logoUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -178,19 +195,17 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <span className="text-sm font-bold uppercase text-[var(--foreground-strong)]">
+                      <span className="text-sm font-bold uppercase text-white">
                         {(store?.nombre ?? "IS").slice(0, 2)}
                       </span>
                     )}
                   </div>
 
                   <div className="min-w-0">
-                    <p className="max-w-[42vw] truncate text-xs font-semibold uppercase tracking-[0.1em] text-[var(--muted)] sm:max-w-[320px] sm:tracking-[0.18em]">
+                    <p className="max-w-[42vw] truncate text-sm font-semibold uppercase tracking-[0.18em] text-white/75 sm:max-w-[320px]">
                       {store?.nombre ?? "Tienda"}
                     </p>
-                    <p className="text-xs text-[var(--muted)] sm:text-sm">
-                      /{slug}
-                    </p>
+                    <p className="text-sm text-white/70">/{slug}</p>
                   </div>
                 </div>
 
@@ -202,12 +217,17 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
                     isOpen={isFavoritesOpen}
                     onToggle={() => setIsFavoritesOpen((current) => !current)}
                     onRemoveFavorite={handleRemoveFavorite}
+                    className="border-white bg-white text-[#2563EB] shadow-[0_10px_24px_rgba(15,23,42,0.12)] hover:border-white hover:bg-white/95"
                   />
-                  <StoreCartButton slug={slug} totalItems={totalItems} />
+                  <StoreCartButton
+                    slug={slug}
+                    totalItems={totalItems}
+                    className="border-white bg-white text-[#2563EB] shadow-[0_10px_24px_rgba(15,23,42,0.12)] hover:border-white hover:bg-white/95"
+                  />
                 </div>
               </div>
 
-              <div>
+              <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
                 <SearchBar
                   value={search}
                   onChange={(value) => {
@@ -216,7 +236,9 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
                   }}
                   placeholder="Buscar producto"
                   ariaLabel="Buscar producto"
-                  className="!rounded-2xl"
+                  className="!h-11 !rounded-full !border-white/60 !bg-white !pl-11 !pr-4 !text-[var(--foreground-strong)] !shadow-[0_16px_34px_rgba(15,23,42,0.12)] placeholder:!text-slate-400 sm:!h-14 sm:!pl-12 sm:!pr-5"
+                  iconClassName="text-[#2563EB]"
+                  inputClassName="ring-0 focus:!border-white focus:!shadow-[0_16px_34px_rgba(15,23,42,0.16)]"
                 />
               </div>
 
@@ -227,16 +249,16 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
                     setPage(1);
                     setSelectedCategoryId(null);
                   }}
-                  className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:py-2 sm:text-sm ${
+                  className={`shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition ${
                     selectedCategoryId === null
-                      ? "bg-[var(--accent)] text-white"
-                      : "bg-[var(--panel-muted)] text-[var(--muted)]"
+                      ? "border-white bg-white text-[#1D4ED8] shadow-[0_10px_20px_rgba(15,23,42,0.18)]"
+                      : "border-white/20 bg-white/10 text-white hover:bg-white/15"
                   }`}
                 >
                   Todas
                 </button>
 
-                {visibleCategories.map((category) => (
+                {categories.map((category) => (
                   <button
                     key={category.id}
                     type="button"
@@ -244,10 +266,10 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
                       setPage(1);
                       setSelectedCategoryId(category.id);
                     }}
-                    className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:py-2 sm:text-sm ${
+                    className={`shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition ${
                       selectedCategoryId === category.id
-                        ? "bg-[var(--accent)] text-white"
-                        : "bg-[var(--panel-muted)] text-[var(--muted)]"
+                        ? "border-white bg-white text-[#1D4ED8] shadow-[0_10px_20px_rgba(15,23,42,0.18)]"
+                        : "border-white/20 bg-white/10 text-white hover:bg-white/15"
                     }`}
                   >
                     {category.nombre}
@@ -255,12 +277,13 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
                 ))}
               </div>
             </div>
-          </header>
+          </div>
+        </header>
 
-          <div className="mt-6 grid items-start gap-6 lg:grid-cols-[250px_minmax(0,1fr)]">
+        <section className="mx-auto w-full max-w-[1440px] px-4 pb-4 pt-6 md:px-6 lg:px-8 lg:pb-6">
+          <div className="grid items-start gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
             <aside className="hidden lg:sticky lg:top-4 lg:block">
               <StoreCatalogFilters
-                search={search}
                 onSearchChange={(value) => {
                   setPage(1);
                   setSearch(value);
@@ -271,10 +294,17 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
                   setPage(1);
                   setSelectedCategoryId(value);
                 }}
+                categoryCounts={categoryCounts}
+                resultsCount={totalRecords}
+                onClearAll={() => {
+                  setPage(1);
+                  setSearch("");
+                  setSelectedCategoryId(null);
+                }}
               />
             </aside>
 
-            <section className="space-y-5">
+            <section id="catalog-results" className="space-y-5">
               {error ? (
                 <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
                   {error}

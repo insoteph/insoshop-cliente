@@ -36,7 +36,7 @@ export function StoreCartButton({
       />
       <span className="hidden sm:inline">Carrito</span>
       {totalItems > 0 ? (
-        <span className="absolute -right-2 -top-2 inline-flex min-h-6 min-w-6 items-center justify-center rounded-full bg-[var(--accent)] px-1 text-xs font-bold text-white">
+        <span className="absolute -right-2 -top-2 inline-flex min-h-6 min-w-6 items-center justify-center rounded-full border border-[#dbe7ff] bg-white px-1 text-xs font-bold text-[#2563EB] shadow-[0_8px_18px_rgba(15,23,42,0.08)]">
           {totalItems}
         </span>
       ) : null}
