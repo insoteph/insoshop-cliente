@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Fragment,
-  type ReactNode,
-  useEffect,
-  useState,
-} from "react";
+import { Fragment, type ReactNode, useEffect, useState } from "react";
 
 import {
   DataTableBadge,
@@ -54,11 +49,12 @@ export type DataTableRowActionsConfig<TData extends Record<string, unknown>> = {
   }>;
 };
 
-export type DataTableExpandedRowConfig<TData extends Record<string, unknown>> = {
-  isExpanded: (row: TData) => boolean;
-  render: (row: TData) => ReactNode;
-  className?: string;
-};
+export type DataTableExpandedRowConfig<TData extends Record<string, unknown>> =
+  {
+    isExpanded: (row: TData) => boolean;
+    render: (row: TData) => ReactNode;
+    className?: string;
+  };
 
 export type DataTablePaginationConfig = {
   page: number;
@@ -93,7 +89,10 @@ function formatCellValue(value: unknown) {
   return String(value);
 }
 
-function getStableKeyPart(key: string | number | symbol, fallbackIndex?: number) {
+function getStableKeyPart(
+  key: string | number | symbol,
+  fallbackIndex?: number,
+) {
   if (typeof key === "symbol") {
     return key.description ?? `symbol-${fallbackIndex ?? 0}`;
   }
@@ -278,7 +277,9 @@ function summarizeValue(value: unknown, depth = 0): string {
 
     const meaningfulEntries = Object.entries(record)
       .slice(0, 3)
-      .map(([key, candidate]) => `${key}: ${summarizeValue(candidate, depth + 1)}`)
+      .map(
+        ([key, candidate]) => `${key}: ${summarizeValue(candidate, depth + 1)}`,
+      )
       .filter((entry) => !entry.endsWith(": -"));
 
     return meaningfulEntries.length > 0 ? meaningfulEntries.join(" • ") : "-";
@@ -470,7 +471,8 @@ export function DataTable<TData extends Record<string, unknown>>({
     const rawValue = resolveColumnValue(row, column.key);
     const badgeConfig = badges.find(
       (badge) =>
-        normalizeKeyComparison(badge.columnKey) === normalizeKeyComparison(column.key),
+        normalizeKeyComparison(badge.columnKey) ===
+        normalizeKeyComparison(column.key),
     );
     const badgeRule = badgeConfig
       ? resolveBadgeRule(rawValue, badgeConfig.rules)
@@ -542,7 +544,13 @@ export function DataTable<TData extends Record<string, unknown>>({
         return renderImagePreviewStack(imageSources, column.header);
       }
 
-      return <ImagePlaceholder size={192} className="w-full rounded-2xl" iconPath="/icons/no-image.svg" />;
+      return (
+        <ImagePlaceholder
+          size={192}
+          className="w-full rounded-2xl"
+          iconPath="/icons/no-image.svg"
+        />
+      );
     }
 
     const imageSources = collectImageSources(rawValue);
@@ -560,7 +568,8 @@ export function DataTable<TData extends Record<string, unknown>>({
 
     const badgeConfig = badges.find(
       (badge) =>
-        normalizeKeyComparison(badge.columnKey) === normalizeKeyComparison(column.key),
+        normalizeKeyComparison(badge.columnKey) ===
+        normalizeKeyComparison(column.key),
     );
     const badgeRule = badgeConfig
       ? resolveBadgeRule(rawValue, badgeConfig.rules)
@@ -598,21 +607,24 @@ export function DataTable<TData extends Record<string, unknown>>({
               className="rounded-[22px] border border-[var(--line)] bg-[var(--panel)] p-4 shadow-sm"
             >
               <div className="space-y-3">
-                {Array.from({ length: Math.max(mobileSummaryColumns.length, 2) }).map(
-                  (_, lineIndex) => (
-                    <div key={`mobile-skeleton-${rowIndex}-${lineIndex}`} className="space-y-2">
-                      <span className="block h-3 w-24 animate-pulse rounded bg-[var(--panel-muted)]" />
-                      <span className="block h-4 w-full animate-pulse rounded bg-[var(--panel-muted)]" />
-                    </div>
-                  ),
-                )}
+                {Array.from({
+                  length: Math.max(mobileSummaryColumns.length, 2),
+                }).map((_, lineIndex) => (
+                  <div
+                    key={`mobile-skeleton-${rowIndex}-${lineIndex}`}
+                    className="space-y-2"
+                  >
+                    <span className="block h-3 w-24 animate-pulse rounded bg-[var(--panel-muted)]" />
+                    <span className="block h-4 w-full animate-pulse rounded bg-[var(--panel-muted)]" />
+                  </div>
+                ))}
               </div>
             </article>
           ))
         ) : resolvedRows.length > 0 ? (
           resolvedRows.map((row, rowIndex) => {
             const computedRowKey = getRowKey(row, rowIndex, rowKey);
-            const computedRowKeyText = String(computedRowKey);
+            const mobileRowKey = String(computedRowKey);
             const visibleDropdownOptions = rowActions?.dropdownOptions
               ?.filter((option) => {
                 if (typeof option.hidden === "function") {
@@ -621,15 +633,19 @@ export function DataTable<TData extends Record<string, unknown>>({
 
                 return !option.hidden;
               })
-              .map((option): DataTableRowActionOption => ({
-                label:
-                  typeof option.label === "function" ? option.label(row) : option.label,
-                onClick: () => option.onClick(row),
-              }));
+              .map(
+                (option): DataTableRowActionOption => ({
+                  label:
+                    typeof option.label === "function"
+                      ? option.label(row)
+                      : option.label,
+                  onClick: () => option.onClick(row),
+                }),
+              );
 
             return (
               <article
-                key={`mobile-${computedRowKeyText}`}
+                key={`mobile-${mobileRowKey}`}
                 className="overflow-hidden rounded-[22px] border border-[var(--line)] bg-[var(--panel)] shadow-sm"
               >
                 <div
@@ -647,7 +663,7 @@ export function DataTable<TData extends Record<string, unknown>>({
                   <div className="space-y-3 px-4 py-4">
                     {mobileSummaryColumns.map((column, columnIndex) => (
                       <div
-                        key={`${computedRowKeyText}-${getStableKeyPart(column.key, columnIndex)}`}
+                        key={`${mobileRowKey}-${String(column.key)}`}
                         className={`flex gap-3 ${columnIndex === 0 ? "items-start" : "items-center"}`}
                       >
                         <span className="min-w-0 flex-1 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
@@ -739,11 +755,11 @@ export function DataTable<TData extends Record<string, unknown>>({
               ))
             ) : resolvedRows.length > 0 ? (
               resolvedRows.map((row, rowIndex) => {
-            const computedRowKey = getRowKey(row, rowIndex, rowKey);
-            const computedRowKeyText = String(computedRowKey);
-            const visibleDropdownOptions = rowActions?.dropdownOptions
-              ?.filter((option) => {
-                if (typeof option.hidden === "function") {
+                const computedRowKey = getRowKey(row, rowIndex, rowKey);
+                const computedRowKeyText = String(computedRowKey);
+                const visibleDropdownOptions = rowActions?.dropdownOptions
+                  ?.filter((option) => {
+                    if (typeof option.hidden === "function") {
                       return !option.hidden(row);
                     }
 
