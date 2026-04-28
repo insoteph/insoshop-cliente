@@ -179,15 +179,15 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
       style={storeCatalogThemeTokens.light}
     >
       <main className="min-h-screen overflow-x-clip bg-[var(--background)]">
-        <header className="sticky top-0 z-30 overflow-hidden rounded-b-[32px] border border-transparent bg-[linear-gradient(135deg,#1D4ED8_0%,#2563EB_45%,#1E40AF_100%)] text-white shadow-[0_24px_60px_rgba(37,99,235,0.28)] lg:static lg:rounded-none lg:shadow-none">
-          <div className="relative mx-auto w-full max-w-[1440px] px-4 py-5 md:px-6 lg:px-8 lg:py-6">
+        <header className="sticky top-0 z-30 overflow-hidden rounded-b-3xl border border-transparent bg-[linear-gradient(135deg,#1D4ED8_0%,#2563EB_45%,#1E40AF_100%)] text-white shadow-[0_20px_48px_rgba(37,99,235,0.24)] lg:static lg:rounded-none lg:shadow-none">
+          <div className="relative mx-auto w-full max-w-[1440px] px-4 py-4 md:px-6 lg:px-8 lg:py-6">
             <div className="absolute -right-12 top-0 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
             <div className="absolute bottom-0 left-0 h-28 w-28 rounded-full bg-white/10 blur-3xl" />
 
-            <div className="relative space-y-5">
+            <div className="relative space-y-4 sm:space-y-5">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-3">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md sm:h-14 sm:w-14">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/20 bg-white/10 backdrop-blur-md sm:h-14 sm:w-14">
                     {store?.logoUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -203,10 +203,10 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
                   </div>
 
                   <div className="min-w-0">
-                    <p className="max-w-[42vw] truncate text-sm font-semibold uppercase tracking-[0.18em] text-white/75 sm:max-w-[320px]">
+                    <p className="max-w-[42vw] truncate text-xs font-semibold uppercase tracking-[0.14em] text-white/75 sm:max-w-[320px] sm:text-sm sm:tracking-[0.18em]">
                       {store?.nombre ?? "Tienda"}
                     </p>
-                    <p className="text-sm text-white/70">/{slug}</p>
+                    <p className="text-xs text-white/70 sm:text-sm">/{slug}</p>
                   </div>
                 </div>
 
@@ -237,7 +237,7 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
                   }}
                   placeholder="Buscar producto"
                   ariaLabel="Buscar producto"
-                  className="!h-11 !rounded-full !border-white/60 !bg-white !pl-11 !pr-4 !text-[var(--foreground-strong)] !shadow-[0_16px_34px_rgba(15,23,42,0.12)] placeholder:!text-slate-400 sm:!h-14 sm:!pl-12 sm:!pr-5"
+                  className="!h-10 !rounded-full !border-white/60 !bg-white !pl-10 !pr-4 !text-sm !text-[var(--foreground-strong)] !shadow-[0_12px_28px_rgba(15,23,42,0.12)] placeholder:!text-slate-400 sm:!h-14 sm:!pl-12 sm:!pr-5"
                   iconClassName="text-[#2563EB]"
                   inputClassName="ring-0 focus:!border-white focus:!shadow-[0_16px_34px_rgba(15,23,42,0.16)]"
                 />
@@ -250,7 +250,7 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
                     setPage(1);
                     setSelectedCategoryId(null);
                   }}
-                  className={`shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                  className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:py-2 sm:text-sm ${
                     selectedCategoryId === null
                       ? "border-white bg-white text-[#1D4ED8] shadow-[0_10px_20px_rgba(15,23,42,0.18)]"
                       : "border-white/20 bg-white/10 text-white hover:bg-white/15"
@@ -267,7 +267,7 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
                       setPage(1);
                       setSelectedCategoryId(category.id);
                     }}
-                    className={`shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                    className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:py-2 sm:text-sm ${
                       selectedCategoryId === category.id
                         ? "border-white bg-white text-[#1D4ED8] shadow-[0_10px_20px_rgba(15,23,42,0.18)]"
                         : "border-white/20 bg-white/10 text-white hover:bg-white/15"
@@ -283,7 +283,7 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
 
         <StoreCatalogHeroCarousel />
 
-        <section className="mx-auto w-full max-w-[1440px] px-4 pb-4 pt-6 md:px-6 lg:px-8 lg:pb-6">
+        <section className="mx-auto w-full max-w-[1440px] px-3 pb-4 pt-4 sm:px-4 sm:pt-6 md:px-6 lg:px-8 lg:pb-6">
           <div className="grid items-start gap-6 lg:grid-cols-[300px_minmax(0,1fr)]">
             <aside className="hidden lg:sticky lg:top-4 lg:block">
               <StoreCatalogFilters
@@ -315,17 +315,17 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
               ) : null}
 
               {isLoading ? (
-                <div className="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-3 md:gap-4 xl:grid-cols-4">
                   {Array.from({ length: 8 }).map((_, index) => (
                     <div
                       key={`catalog-skeleton-${index}`}
-                      className="h-[280px] rounded-[24px] border border-[var(--line)] bg-[var(--panel-strong)] sm:h-[360px]"
+                      className="h-[292px] rounded-[18px] border border-[var(--line)] bg-[var(--panel-strong)] min-[390px]:h-[306px] sm:h-[360px] sm:rounded-[24px]"
                     />
                   ))}
                 </div>
               ) : products.length > 0 ? (
                 <>
-                  <div className="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
+                  <div className="grid grid-cols-2 gap-2.5 sm:gap-3 md:gap-4 xl:grid-cols-4">
                     {products.map((product) => (
                       <StoreProductCard
                         key={product.id}

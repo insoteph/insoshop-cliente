@@ -49,10 +49,10 @@ export function StoreCatalogHeroCarousel({
 
   return (
     <section
-      className="mx-auto w-full max-w-[1440px] px-4 pt-5 sm:px-6 lg:px-8"
+      className="mx-auto w-full max-w-[1440px] px-3 pt-3 sm:px-6 sm:pt-5 lg:px-8"
       aria-label="Banner promocional"
     >
-      <div className="relative h-[231px] overflow-hidden rounded-[18px] border border-[#dbe7ff] bg-white shadow-[0_18px_44px_rgba(15,23,42,0.08)] sm:h-[272px] md:h-[308px] lg:h-[332px]">
+      <div className="relative h-[148px] overflow-hidden rounded-2xl border border-[#dbe7ff] bg-white shadow-[0_12px_28px_rgba(15,23,42,0.08)] min-[390px]:h-[164px] sm:h-[272px] sm:rounded-[18px] sm:shadow-[0_18px_44px_rgba(15,23,42,0.08)] md:h-[308px] lg:h-[332px]">
         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(37,99,235,0.1)_0%,rgba(255,255,255,0)_45%,rgba(37,99,235,0.06)_100%)]" />
 
         {normalizedSlides.map((slide, index) => (

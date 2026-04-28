@@ -576,6 +576,7 @@ export function DataTable<TData extends Record<string, unknown>>({
         ) : resolvedRows.length > 0 ? (
           resolvedRows.map((row, rowIndex) => {
             const computedRowKey = getRowKey(row, rowIndex, rowKey);
+            const mobileRowKey = String(computedRowKey);
             const visibleDropdownOptions = rowActions?.dropdownOptions
               ?.filter((option) => {
                 if (typeof option.hidden === "function") {
@@ -592,7 +593,7 @@ export function DataTable<TData extends Record<string, unknown>>({
 
             return (
               <article
-                key={`mobile-${computedRowKey}`}
+                key={`mobile-${mobileRowKey}`}
                 className="overflow-hidden rounded-[22px] border border-[var(--line)] bg-[var(--panel)] shadow-sm"
               >
                 <div
@@ -610,7 +611,7 @@ export function DataTable<TData extends Record<string, unknown>>({
                   <div className="space-y-3 px-4 py-4">
                     {mobileSummaryColumns.map((column, columnIndex) => (
                       <div
-                        key={`${computedRowKey}-${String(column.key)}`}
+                        key={`${mobileRowKey}-${String(column.key)}`}
                         className={`flex gap-3 ${columnIndex === 0 ? "items-start" : "items-center"}`}
                       >
                         <span className="min-w-0 flex-1 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
