@@ -2,7 +2,6 @@
 
 import {
   Fragment,
-  type Key,
   type ReactNode,
   useEffect,
   useState,
@@ -74,7 +73,7 @@ type DataTableProps<TData extends Record<string, unknown>> = {
   data?: TData[];
   isLoading?: boolean;
   skeletonRows?: number;
-  rowKey?: keyof TData | ((row: TData, rowIndex: number) => Key);
+  rowKey?: keyof TData | ((row: TData, rowIndex: number) => string | number);
   emptyMessage?: string;
   badges?: Array<DataTableBadgeConfig<TData>>;
   rowActions?: DataTableRowActionsConfig<TData>;
@@ -92,6 +91,37 @@ function formatCellValue(value: unknown) {
   }
 
   return String(value);
+}
+
+function getStableKeyPart(key: string | number | symbol, fallbackIndex?: number) {
+  if (typeof key === "symbol") {
+    return key.description ?? `symbol-${fallbackIndex ?? 0}`;
+  }
+
+  return String(key);
+}
+
+function normalizeReactKey(
+  value: unknown,
+  fallbackIndex?: number,
+): string | number {
+  if (typeof value === "string" || typeof value === "number") {
+    return value;
+  }
+
+  if (typeof value === "symbol") {
+    return value.description ?? `symbol-${fallbackIndex ?? 0}`;
+  }
+
+  if (value === null || value === undefined || value === "") {
+    return fallbackIndex ?? 0;
+  }
+
+  return String(value);
+}
+
+function normalizeKeyComparison(key: string | number | symbol) {
+  return String(normalizeReactKey(key));
 }
 
 function ImagePlaceholder({
@@ -320,14 +350,18 @@ function renderCompactImagePreview(srcs: string[], title: string) {
 function getRowKey<TData extends Record<string, unknown>>(
   row: TData,
   rowIndex: number,
-  rowKey?: keyof TData | ((row: TData, rowIndex: number) => Key),
+  rowKey?: keyof TData | ((row: TData, rowIndex: number) => string | number),
 ) {
   if (typeof rowKey === "function") {
-    return rowKey(row, rowIndex);
+    return normalizeReactKey(rowKey(row, rowIndex), rowIndex);
   }
 
   if (rowKey) {
-    return String(row[rowKey]);
+    if (typeof rowKey === "symbol") {
+      return normalizeReactKey(row[rowKey], rowIndex);
+    }
+
+    return normalizeReactKey(row[rowKey], rowIndex);
   }
 
   return rowIndex;
@@ -435,7 +469,8 @@ export function DataTable<TData extends Record<string, unknown>>({
   function renderColumnContent(row: TData, column: DataTableColumn<TData>) {
     const rawValue = resolveColumnValue(row, column.key);
     const badgeConfig = badges.find(
-      (badge) => String(badge.columnKey) === String(column.key),
+      (badge) =>
+        normalizeKeyComparison(badge.columnKey) === normalizeKeyComparison(column.key),
     );
     const badgeRule = badgeConfig
       ? resolveBadgeRule(rawValue, badgeConfig.rules)
@@ -524,7 +559,8 @@ export function DataTable<TData extends Record<string, unknown>>({
     }
 
     const badgeConfig = badges.find(
-      (badge) => String(badge.columnKey) === String(column.key),
+      (badge) =>
+        normalizeKeyComparison(badge.columnKey) === normalizeKeyComparison(column.key),
     );
     const badgeRule = badgeConfig
       ? resolveBadgeRule(rawValue, badgeConfig.rules)
@@ -576,6 +612,7 @@ export function DataTable<TData extends Record<string, unknown>>({
         ) : resolvedRows.length > 0 ? (
           resolvedRows.map((row, rowIndex) => {
             const computedRowKey = getRowKey(row, rowIndex, rowKey);
+            const computedRowKeyText = String(computedRowKey);
             const visibleDropdownOptions = rowActions?.dropdownOptions
               ?.filter((option) => {
                 if (typeof option.hidden === "function") {
@@ -592,7 +629,7 @@ export function DataTable<TData extends Record<string, unknown>>({
 
             return (
               <article
-                key={`mobile-${computedRowKey}`}
+                key={`mobile-${computedRowKeyText}`}
                 className="overflow-hidden rounded-[22px] border border-[var(--line)] bg-[var(--panel)] shadow-sm"
               >
                 <div
@@ -610,7 +647,7 @@ export function DataTable<TData extends Record<string, unknown>>({
                   <div className="space-y-3 px-4 py-4">
                     {mobileSummaryColumns.map((column, columnIndex) => (
                       <div
-                        key={`${computedRowKey}-${String(column.key)}`}
+                        key={`${computedRowKeyText}-${getStableKeyPart(column.key, columnIndex)}`}
                         className={`flex gap-3 ${columnIndex === 0 ? "items-start" : "items-center"}`}
                       >
                         <span className="min-w-0 flex-1 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
@@ -662,7 +699,7 @@ export function DataTable<TData extends Record<string, unknown>>({
             <tr>
               {headers.map((column) => (
                 <th
-                  key={String(column.key)}
+                  key={getStableKeyPart(column.key)}
                   className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[var(--muted)] ${
                     column.headerClassName ?? ""
                   }`}
@@ -702,10 +739,11 @@ export function DataTable<TData extends Record<string, unknown>>({
               ))
             ) : resolvedRows.length > 0 ? (
               resolvedRows.map((row, rowIndex) => {
-                const computedRowKey = getRowKey(row, rowIndex, rowKey);
-                const visibleDropdownOptions = rowActions?.dropdownOptions
-                  ?.filter((option) => {
-                    if (typeof option.hidden === "function") {
+            const computedRowKey = getRowKey(row, rowIndex, rowKey);
+            const computedRowKeyText = String(computedRowKey);
+            const visibleDropdownOptions = rowActions?.dropdownOptions
+              ?.filter((option) => {
+                if (typeof option.hidden === "function") {
                       return !option.hidden(row);
                     }
 
@@ -722,12 +760,12 @@ export function DataTable<TData extends Record<string, unknown>>({
                   );
 
                 return (
-                  <Fragment key={computedRowKey}>
+                  <Fragment key={computedRowKeyText}>
                     <tr className="odd:bg-[var(--panel)] even:bg-[var(--panel-muted)]/70 hover:bg-[var(--panel-muted)]/85">
                       {headers.map((column) => {
                         return (
                           <td
-                            key={`${rowIndex}-${String(column.key)}`}
+                            key={`${rowIndex}-${getStableKeyPart(column.key, rowIndex)}`}
                             className={`px-4 py-3 text-sm text-[var(--foreground)] ${
                               column.className ?? ""
                             }`}
