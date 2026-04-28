@@ -276,50 +276,39 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
       <main className="min-h-screen bg-[var(--background)] py-0">
         <header className="overflow-hidden rounded-b-[32px] border border-transparent bg-[linear-gradient(135deg,#2563EB_0%,#1D4ED8_60%,#1E3A8A_100%)] shadow-[0_20px_50px_rgba(37,99,235,0.18)] lg:rounded-none">
           <div className="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-3 px-4 py-4 sm:px-5 lg:px-6">
-            <div className="min-w-0 flex-1">
-              <p className="text-[0.65rem] font-semibold uppercase tracking-[0.24em] text-white/70">
-                InsoShop
-              </p>
-              <h1 className="text-2xl font-bold text-white sm:text-[2rem]">
-                Carrito
-              </h1>
-              <p className="text-sm text-white/70">
-                {store?.nombre ? `Pedido para ${store.nombre}` : `/${slug}`}
-              </p>
-            </div>
+            <Link
+              href={`/${encodeURIComponent(slug)}`}
+              className="inline-flex rounded-full border border-white/25 bg-white/15 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(15,23,42,0.12)] backdrop-blur-sm transition hover:bg-white/20"
+            >
+              Seguir comprando
+            </Link>
 
-            <div className="flex shrink-0 items-center gap-2">
-              <Link
-                href={`/${encodeURIComponent(slug)}`}
-                className="inline-flex rounded-full border border-white/25 bg-white/15 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(15,23,42,0.12)] backdrop-blur-sm transition hover:bg-white/20"
+            {items.length > 0 ? (
+              <button
+                type="button"
+                className="inline-flex rounded-full border border-white/25 bg-white px-4 py-2.5 text-sm font-semibold text-[#DC2626] shadow-[0_10px_24px_rgba(15,23,42,0.12)] transition hover:bg-[#FEF2F2]"
+                onClick={async () => {
+                  const shouldContinue = await confirm({
+                    title: "Vaciar carrito",
+                    description:
+                      "Esta accion eliminara todos los productos del carrito. Deseas continuar?",
+                    confirmLabel: "Vaciar",
+                    cancelLabel: "Cancelar",
+                    variant: "danger",
+                  });
+
+                  if (!shouldContinue) {
+                    return;
+                  }
+
+                  clearCart({ notify: true, feedbackType: "cancel" });
+                }}
               >
-                Seguir comprando
-              </Link>
-              {items.length > 0 ? (
-                <button
-                  type="button"
-                  className="inline-flex rounded-full border border-white/25 bg-white px-4 py-2.5 text-sm font-semibold text-[#DC2626] shadow-[0_10px_24px_rgba(15,23,42,0.12)] transition hover:bg-[#FEF2F2]"
-                  onClick={async () => {
-                    const shouldContinue = await confirm({
-                      title: "Vaciar carrito",
-                      description:
-                        "Esta accion eliminara todos los productos del carrito. Deseas continuar?",
-                      confirmLabel: "Vaciar",
-                      cancelLabel: "Cancelar",
-                      variant: "danger",
-                    });
-
-                    if (!shouldContinue) {
-                      return;
-                    }
-
-                    clearCart({ notify: true, feedbackType: "cancel" });
-                  }}
-                >
-                  Vaciar carrito
-                </button>
-              ) : null}
-            </div>
+                Vaciar carrito
+              </button>
+            ) : (
+              <span className="inline-flex" />
+            )}
           </div>
         </header>
 
