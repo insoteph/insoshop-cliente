@@ -6,6 +6,7 @@ import { DataTable } from "@/modules/core/components/DataTable";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
 import { useToast } from "@/modules/core/providers/ToastProvider";
 import { formatCurrency, formatDateTime } from "@/modules/core/lib/formatters";
+import { SaleDetailItemsTable } from "@/modules/sales/components/SaleDetailItemsTable";
 import {
   fetchSaleDetail,
   fetchSales,
@@ -453,37 +454,11 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
                     </span>
                   </div>
 
-                  <div className="mt-4 overflow-x-auto">
-                    <table className="min-w-full divide-y divide-[var(--line)]">
-                      <thead>
-                        <tr className="text-left text-xs uppercase tracking-wide text-[var(--muted)]">
-                          <th className="px-3 py-2">Producto</th>
-                          <th className="px-3 py-2">Cantidad</th>
-                          <th className="px-3 py-2">Precio</th>
-                          <th className="px-3 py-2">Subtotal</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-[var(--line)]">
-                        {detail.detalles.map((detailItem, detailIndex) => (
-                          <tr
-                            key={`${detail.id}-${detailItem.productoId}-${detailIndex}`}
-                          >
-                            <td className="px-3 py-3 text-sm text-[var(--foreground)]">
-                              {detailItem.nombreProducto}
-                            </td>
-                            <td className="px-3 py-3 text-sm text-[var(--foreground)]">
-                              {detailItem.cantidad}
-                            </td>
-                            <td className="px-3 py-3 text-sm text-[var(--foreground)]">
-                              {formatCurrency(detailItem.precioUnitario, currency)}
-                            </td>
-                            <td className="px-3 py-3 text-sm font-medium text-[var(--foreground)]">
-                              {formatCurrency(detailItem.subTotal, currency)}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                  <div className="mt-4">
+                    <SaleDetailItemsTable
+                      items={detail.detalles}
+                      currency={currency}
+                    />
                   </div>
                 </div>
 

@@ -16,11 +16,20 @@ export type Sale = {
 };
 
 export type SaleDetailItem = {
-  productoId: number;
+  productoVarianteId: number;
   nombreProducto: string;
+  urlImagen: string | null;
   cantidad: number;
   precioUnitario: number;
   subTotal: number;
+  valores: SaleDetailAttribute[];
+};
+
+export type SaleDetailAttribute = {
+  atributoCatalogoId: number;
+  atributoCatalogoNombre: string;
+  atributoCatalogoValorId: number;
+  valor: string;
 };
 
 export type SaleDetail = {

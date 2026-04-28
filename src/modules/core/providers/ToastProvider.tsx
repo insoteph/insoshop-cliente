@@ -41,33 +41,57 @@ const EXIT_ANIMATION_MS = 220;
 
 const toastStyles: Record<
   ToastVariant,
-  { border: string; background: string; icon: string }
+  { border: string; background: string; icon: string; iconColor: string }
 > = {
   success: {
     border: "border-[color-mix(in_srgb,var(--success)_34%,transparent)]",
     background:
       "bg-[color-mix(in_srgb,var(--success-soft)_82%,var(--panel-strong)_18%)]",
     icon: "/icons/check.svg",
+    iconColor: "var(--success)",
   },
   error: {
     border: "border-[color-mix(in_srgb,var(--danger)_34%,transparent)]",
     background:
       "bg-[color-mix(in_srgb,var(--danger-soft)_82%,var(--panel-strong)_18%)]",
     icon: "/icons/cross.svg",
+    iconColor: "var(--danger)",
   },
   warning: {
     border: "border-[color-mix(in_srgb,var(--warning)_34%,transparent)]",
     background:
       "bg-[color-mix(in_srgb,var(--warning-soft)_82%,var(--panel-strong)_18%)]",
     icon: "/icons/options.svg",
+    iconColor: "var(--warning)",
   },
   info: {
     border: "border-[color-mix(in_srgb,var(--accent)_30%,transparent)]",
     background:
       "bg-[color-mix(in_srgb,var(--accent-soft)_82%,var(--panel-strong)_18%)]",
     icon: "/icons/check.svg",
+    iconColor: "var(--accent)",
   },
 };
+
+function ToastIcon({ src, color }: { src: string; color: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="inline-block h-4 w-4 shrink-0"
+      style={{
+        backgroundColor: color,
+        WebkitMaskImage: `url(${src})`,
+        maskImage: `url(${src})`,
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+      }}
+    />
+  );
+}
 
 function createToastId() {
   return globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
@@ -235,8 +259,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               onMouseLeave={() => resumeToast(toast.id)}
             >
               <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--panel-strong)]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={style.icon} alt="" className="h-4 w-4" />
+                <ToastIcon src={style.icon} color={style.iconColor} />
               </span>
 
               <span className="min-w-0 flex-1">
@@ -252,12 +275,25 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
               <button
                 type="button"
-                className="rounded-lg p-1 opacity-70 hover:bg-[var(--panel-muted)] hover:opacity-100"
+                className="rounded-lg p-1 opacity-80 hover:bg-[var(--panel-muted)] hover:opacity-100"
                 aria-label="Cerrar notificacion"
                 onClick={() => dismiss(toast.id)}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/icons/cross.svg" alt="" className="h-3.5 w-3.5" />
+                <span
+                  aria-hidden="true"
+                  className="inline-block h-3.5 w-3.5"
+                  style={{
+                    backgroundColor: "var(--danger)",
+                    WebkitMaskImage: "url(/icons/cross.svg)",
+                    maskImage: "url(/icons/cross.svg)",
+                    WebkitMaskRepeat: "no-repeat",
+                    maskRepeat: "no-repeat",
+                    WebkitMaskPosition: "center",
+                    maskPosition: "center",
+                    WebkitMaskSize: "contain",
+                    maskSize: "contain",
+                  }}
+                />
               </button>
 
               <span className="absolute inset-x-0 bottom-0 h-1 bg-[var(--panel-muted)]">
