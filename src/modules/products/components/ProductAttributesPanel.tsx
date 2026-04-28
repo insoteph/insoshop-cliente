@@ -31,6 +31,8 @@ type ValuePickerDraft = {
   selectedValueId: number | "";
 };
 
+const MAX_ATTRIBUTES = 2;
+
 function createId() {
   return globalThis.crypto?.randomUUID?.() ?? `id-${Date.now()}-${Math.random()}`;
 }
@@ -142,6 +144,8 @@ export function ProductAttributesPanel({
     [value],
   );
 
+  const canAddAttribute = canEdit && value.length < MAX_ATTRIBUTES;
+
   const loadCatalogs = useCallback(async () => {
     setIsCatalogLoading(true);
     setCatalogError(null);
@@ -232,6 +236,10 @@ export function ProductAttributesPanel({
   }, [loadValuesForAttribute, value]);
 
   const addAttribute = useCallback(() => {
+    if (value.length >= MAX_ATTRIBUTES) {
+      return;
+    }
+
     const nextDraft = createDraft();
     onChange([...value, nextDraft]);
     setPickersByRow((current) => ({
@@ -332,16 +340,15 @@ export function ProductAttributesPanel({
           Atributos y valores
         </h4>
 
-        {canEdit ? (
-                <ResponsiveIconButton
-                  type="button"
-                  disabled={disabled || isCatalogLoading}
-                  onClick={addAttribute}
-                  className="app-button-primary inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-semibold disabled:opacity-60 sm:h-10 sm:px-3.5"
-                  icon={<PlusIcon />}
-                  label="Agregar atributo"
-                >
-                </ResponsiveIconButton>
+        {canAddAttribute ? (
+          <ResponsiveIconButton
+            type="button"
+            disabled={disabled || isCatalogLoading}
+            onClick={addAttribute}
+            className="app-button-primary inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-semibold disabled:opacity-60 sm:h-10 sm:px-3.5"
+            icon={<PlusIcon />}
+            label="Agregar atributo"
+          />
         ) : null}
       </div>
 
@@ -358,7 +365,7 @@ export function ProductAttributesPanel({
         </div>
       ) : null}
 
-      <div className="space-y-3">
+      <div className="divide-y divide-[var(--line)]/60">
         {value.map((draft) => {
           const availableValues = valuesByAttributeId[draft.atributoCatalogoId] ?? [];
           const selectedValues = draft.atributoCatalogoValorIds
@@ -383,15 +390,18 @@ export function ProductAttributesPanel({
               !draft.atributoCatalogoValorIds.includes(attributeValue.id),
           );
 
+          const attributeIndex = value.findIndex((item) => item.key === draft.key);
+          const attributeLabel =
+            attributeIndex >= 0
+              ? `Atributo ${attributeIndex + 1}`
+              : "Atributo";
+
           return (
-            <article
-              key={draft.key}
-              className="rounded-2xl border border-[var(--line)]/70 bg-[var(--panel)] p-4 shadow-sm"
-            >
+            <div key={draft.key} className="py-4 first:pt-0 last:pb-0">
               <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(240px,280px)_1fr_auto] lg:items-stretch">
                 <div className="flex flex-col gap-2">
                   <label className="block text-sm font-medium text-[var(--foreground-strong)]">
-                    Atributo
+                    {attributeLabel}
                   </label>
                   <select
                     value={draft.atributoCatalogoId || ""}
@@ -486,15 +496,14 @@ export function ProductAttributesPanel({
                       {canEdit &&
                       draft.atributoCatalogoId > 0 &&
                       selectableValues.length > 0 ? (
-                  <ResponsiveIconButton
-                    type="button"
-                    disabled={disabled}
-                    onClick={() => addPickerToRow(draft.key)}
-                    className="inline-flex h-8 shrink-0 items-center gap-2 rounded-full border border-dashed border-[var(--line-strong)] px-3 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent-soft)] disabled:opacity-60"
-                    icon={<PlusIcon />}
-                    label="Agregar valor"
-                  >
-                  </ResponsiveIconButton>
+                        <ResponsiveIconButton
+                          type="button"
+                          disabled={disabled}
+                          onClick={() => addPickerToRow(draft.key)}
+                          className="inline-flex h-8 shrink-0 items-center gap-2 rounded-full border border-dashed border-[var(--line-strong)] px-3 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent-soft)] disabled:opacity-60"
+                          icon={<PlusIcon />}
+                          label="Agregar valor"
+                        />
                       ) : null}
                     </div>
                   </div>
@@ -513,7 +522,7 @@ export function ProductAttributesPanel({
                   </button>
                 ) : null}
               </div>
-            </article>
+            </div>
           );
         })}
       </div>

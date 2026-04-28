@@ -153,10 +153,12 @@ function VariantImagePicker({
   value,
   onChange,
   disabled,
+  className = "",
 }: {
   value: string | null;
   onChange: (value: string | null) => void;
   disabled: boolean;
+  className?: string;
 }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -197,7 +199,7 @@ function VariantImagePicker({
   }, [onChange]);
 
   return (
-    <div className="space-y-2">
+    <div className={`h-full ${className}`.trim()}>
       <div
         role="button"
         tabIndex={disabled || isUploading ? -1 : 0}
@@ -209,12 +211,12 @@ function VariantImagePicker({
           }
         }}
         aria-disabled={disabled || isUploading}
-        className={`group relative inline-flex h-11 w-full items-center justify-center overflow-hidden rounded-2xl border px-4 text-sm font-semibold transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40 ${
+        className={`group relative inline-flex h-[320px] w-full items-center justify-center overflow-hidden rounded-2xl border text-sm font-semibold transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40 md:h-11 md:min-h-0 ${
           disabled || isUploading ? "cursor-not-allowed opacity-60" : "cursor-pointer"
         } ${
           preview
-            ? "border-[var(--line)] bg-[var(--panel-muted)] text-[var(--foreground-strong)] hover:border-[var(--line-strong)]"
-            : "border-dashed border-[var(--line)] bg-transparent text-[var(--foreground)] hover:border-[var(--line-strong)] hover:bg-[var(--panel-muted)]"
+            ? "border-[var(--line)] bg-[var(--panel-muted)] px-0 text-[var(--foreground-strong)] hover:border-[var(--line-strong)]"
+            : "border-dashed border-[var(--line)] bg-transparent px-4 text-[var(--foreground)] hover:border-[var(--line-strong)] hover:bg-[var(--panel-muted)]"
         }`}
       >
         {preview ? (
@@ -415,17 +417,13 @@ export function ProductVariantsPanel({
         {canEdit ? (
           <button
             type="button"
-            disabled={
-              disabled ||
-              isCatalogLoading ||
-              !canBuildVariants
-            }
+            disabled={disabled || isCatalogLoading || !canBuildVariants}
             onClick={addVariant}
             className="app-button-primary inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-semibold disabled:opacity-60 sm:h-10 sm:px-3.5"
           >
-                  <PlusIcon />
-                  <span className="hidden sm:inline">Agregar variante</span>
-                </button>
+            <PlusIcon />
+            <span className="hidden sm:inline">Agregar variante</span>
+          </button>
         ) : null}
       </div>
 
@@ -450,63 +448,127 @@ export function ProductVariantsPanel({
 
       {value.length > 0 ? (
         <>
-          <div className="space-y-3 md:hidden">
-            {value.map((draft) => (
-              <article
-                key={draft.key}
-                className="rounded-[22px] border border-[var(--line)] bg-[var(--panel)] p-4 shadow-sm"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0 flex-1 space-y-3">
+          <div className="divide-y divide-[var(--line)]/60 md:hidden">
+            {value.map((draft, index) => (
+              <div key={draft.key} className="py-4 first:pt-0 last:pb-0">
+                <div className="space-y-3">
+                  <div className="min-w-0 space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-sm font-semibold text-[var(--foreground-strong)]">
-                        Combinación
-                      </span>
-                      <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${
-                          draft.estado
-                            ? "bg-[var(--success-soft)] text-[var(--success)]"
-                            : "bg-[var(--danger-soft)] text-[var(--danger)]"
-                        }`}
-                      >
-                        {draft.estado ? "Activa" : "Inactiva"}
+                        Variante {index + 1}
                       </span>
                     </div>
 
-                    <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                    <div className="grid gap-3">
                       {attributeInfoById.map((attribute) => {
                         const selectedValueId =
                           draft.valoresPorAtributo[attribute.attribute.atributoCatalogoId] ?? "";
-                        const selectedLabel =
-                          attribute.values.find(
-                            (attributeValue) =>
-                              attributeValue.id === Number(selectedValueId || 0),
-                          )?.nombre ??
-                          attribute.values.find(
-                            (attributeValue) =>
-                              attributeValue.id === Number(selectedValueId || 0),
-                          )?.valor ??
-                          "Sin seleccionar";
 
                         return (
-                          <span
+                          <label
                             key={`${draft.key}-${attribute.attribute.atributoCatalogoId}`}
-                            className="inline-flex min-w-fit items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--panel-muted)] px-3 py-1 text-xs font-semibold text-[var(--foreground)]"
+                            className="grid gap-2"
                           >
-                            <span>{attribute.label}:</span>
-                            <span>{selectedLabel}</span>
-                          </span>
+                            <span className="text-sm font-medium text-[var(--foreground-strong)]">
+                              {attribute.label}
+                            </span>
+                            <select
+                              value={selectedValueId}
+                              onChange={(event) =>
+                                updateVariant(draft.key, {
+                                  valoresPorAtributo: {
+                                    ...draft.valoresPorAtributo,
+                                    [attribute.attribute.atributoCatalogoId]: event.target.value,
+                                  },
+                                })
+                              }
+                              disabled={
+                                disabled ||
+                                !attribute.attribute.atributoCatalogoId ||
+                                attribute.loading ||
+                                attribute.values.length === 0
+                              }
+                              className="app-input w-full rounded-xl px-3 py-2.5 text-sm"
+                            >
+                              <option value="">
+                                {attribute.loading
+                                  ? "Cargando..."
+                                  : attribute.values.length > 0
+                                    ? "Selecciona"
+                                    : "Sin valores"}
+                              </option>
+                              {attribute.values.map((attributeValue) => (
+                                <option key={attributeValue.id} value={attributeValue.id}>
+                                  {getValueLabel(attributeValue)}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
                         );
                       })}
                     </div>
 
-                    <div className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-                      <span className="font-semibold text-[var(--foreground-strong)]">
-                        {canEdit ? draft.precio || "0.00" : formatVariantPrice(draft.precio)}
-                      </span>
-                      <span className="text-[var(--muted)]">
-                        Stock: {draft.cantidad || "0"}
-                      </span>
+                    <div className="grid gap-3">
+                      <div className="rounded-2xl border border-dashed border-[var(--line)] bg-[var(--panel-muted)] p-3">
+                      <VariantImagePicker
+                        value={draft.urlImagen}
+                        onChange={(nextImage) =>
+                          updateVariant(draft.key, { urlImagen: nextImage })
+                        }
+                        disabled={disabled || !canEdit}
+                        className="md:h-11"
+                      />
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <label className="space-y-2">
+                          <span className="text-sm font-medium text-[var(--foreground-strong)]">
+                            Precio
+                          </span>
+                          <input
+                            type="number"
+                            min="0.01"
+                            step="0.01"
+                            value={draft.precio}
+                            onChange={(event) =>
+                              updateVariant(draft.key, { precio: event.target.value })
+                            }
+                            disabled={disabled}
+                            className="app-input w-full rounded-xl px-3 py-2.5 text-sm"
+                          />
+                        </label>
+
+                        <label className="space-y-2">
+                          <span className="text-sm font-medium text-[var(--foreground-strong)]">
+                            Existencias
+                          </span>
+                          <input
+                            type="number"
+                            min="0"
+                            step="1"
+                            value={draft.cantidad}
+                            onChange={(event) =>
+                              updateVariant(draft.key, { cantidad: event.target.value })
+                            }
+                            disabled={disabled}
+                            className="app-input w-full rounded-xl px-3 py-2.5 text-sm"
+                          />
+                        </label>
+                      </div>
+
+                      {canEdit ? (
+                        <label className="flex items-center gap-3 rounded-2xl border border-[var(--line)]/70 bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)]">
+                          <input
+                            type="checkbox"
+                            checked={draft.estado}
+                            onChange={(event) =>
+                              updateVariant(draft.key, { estado: event.target.checked })
+                            }
+                            disabled={disabled}
+                          />
+                          Combinación activa
+                        </label>
+                      ) : null}
                     </div>
                   </div>
 
@@ -515,7 +577,7 @@ export function ProductVariantsPanel({
                       type="button"
                       onClick={() => removeVariant(draft.key)}
                       disabled={disabled}
-                      className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-red-200/80 bg-red-50/70 text-red-600 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-red-300 hover:bg-red-100 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300/70 disabled:translate-y-0 disabled:opacity-60"
+                      className="flex h-11 w-full items-center justify-center rounded-2xl border border-red-200/80 bg-red-50/70 text-red-600 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-red-300 hover:bg-red-100 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300/70 disabled:translate-y-0 disabled:opacity-60"
                       aria-label="Eliminar variante"
                       title="Eliminar variante"
                     >
@@ -523,69 +585,7 @@ export function ProductVariantsPanel({
                     </button>
                   ) : null}
                 </div>
-
-                <div className="mt-4 grid gap-3">
-                  <div className="rounded-2xl border border-dashed border-[var(--line)] bg-[var(--panel-muted)] p-3">
-                    <VariantImagePicker
-                      value={draft.urlImagen}
-                      onChange={(nextImage) =>
-                        updateVariant(draft.key, { urlImagen: nextImage })
-                      }
-                      disabled={disabled || !canEdit}
-                    />
-                  </div>
-
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <label className="space-y-2">
-                      <span className="text-sm font-medium text-[var(--foreground-strong)]">
-                        Precio
-                      </span>
-                      <input
-                        type="number"
-                        min="0.01"
-                        step="0.01"
-                        value={draft.precio}
-                        onChange={(event) =>
-                          updateVariant(draft.key, { precio: event.target.value })
-                        }
-                        disabled={disabled}
-                        className="app-input w-full rounded-xl px-3 py-2.5 text-sm"
-                      />
-                    </label>
-
-                    <label className="space-y-2">
-                      <span className="text-sm font-medium text-[var(--foreground-strong)]">
-                        Existencias
-                      </span>
-                      <input
-                        type="number"
-                        min="0"
-                        step="1"
-                        value={draft.cantidad}
-                        onChange={(event) =>
-                          updateVariant(draft.key, { cantidad: event.target.value })
-                        }
-                        disabled={disabled}
-                        className="app-input w-full rounded-xl px-3 py-2.5 text-sm"
-                      />
-                    </label>
-                  </div>
-
-                  {canEdit ? (
-                    <label className="flex items-center gap-3 rounded-2xl border border-[var(--line)]/70 bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)]">
-                      <input
-                        type="checkbox"
-                        checked={draft.estado}
-                        onChange={(event) =>
-                          updateVariant(draft.key, { estado: event.target.checked })
-                        }
-                        disabled={disabled}
-                      />
-                      Combinación activa
-                    </label>
-                  ) : null}
-                </div>
-              </article>
+              </div>
             ))}
           </div>
 

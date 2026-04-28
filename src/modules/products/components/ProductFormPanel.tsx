@@ -75,15 +75,12 @@ export function ProductFormPanel({
         className="space-y-4 sm:rounded-md sm:border sm:border-[var(--line)] sm:bg-[var(--panel)] sm:p-5 sm:shadow-sm"
         onSubmit={onSubmit}
       >
-        <section className="space-y-4 sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel-muted)]/40 sm:p-4">
+        <section className="space-y-3 rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-3 shadow-sm sm:space-y-4 sm:p-4">
           <div className="flex items-start justify-between gap-3 sm:items-center">
             <div>
               <h4 className="text-base font-semibold text-[var(--foreground-strong)] sm:text-lg">
                 {editingProductId ? "Editar producto" : "Crear producto"}
               </h4>
-              <p className="text-sm text-[var(--muted)]">
-                Ingresa los datos basicos del producto y selecciona la categoria.
-              </p>
             </div>
             <button
               type="button"
