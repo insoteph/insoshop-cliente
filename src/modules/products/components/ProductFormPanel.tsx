@@ -72,13 +72,13 @@ export function ProductFormPanel({
       }`}
     >
       <form
-        className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-sm"
+        className="space-y-4 sm:rounded-md sm:border sm:border-[var(--line)] sm:bg-[var(--panel)] sm:p-5 sm:shadow-sm"
         onSubmit={onSubmit}
       >
-        <section className="space-y-4 rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)]/40 p-4">
-          <div className="flex items-center justify-between gap-3">
+        <section className="space-y-4 sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel-muted)]/40 sm:p-4">
+          <div className="flex items-start justify-between gap-3 sm:items-center">
             <div>
-              <h4 className="text-lg font-semibold text-[var(--foreground-strong)]">
+              <h4 className="text-base font-semibold text-[var(--foreground-strong)] sm:text-lg">
                 {editingProductId ? "Editar producto" : "Crear producto"}
               </h4>
               <p className="text-sm text-[var(--muted)]">
@@ -87,7 +87,7 @@ export function ProductFormPanel({
             </div>
             <button
               type="button"
-              className="app-button-danger inline-flex h-10 items-center rounded-xl px-3.5 text-sm font-semibold"
+              className="app-button-danger inline-flex h-9 items-center rounded-xl px-3 text-sm font-semibold sm:h-10 sm:px-3.5"
               onClick={onClose}
             >
               Cerrar

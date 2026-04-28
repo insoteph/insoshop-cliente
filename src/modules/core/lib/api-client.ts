@@ -77,6 +77,14 @@ async function readApiResponse<T>(response: Response) {
     payload = await response.json();
   } catch {
     if (!response.ok) {
+      if (response.status === 403) {
+        throw new Error("No tienes permisos para realizar esta acción.");
+      }
+
+      if (response.status === 401) {
+        throw new Error("Tu sesión expiró. Vuelve a iniciar sesión.");
+      }
+
       throw new Error("No se pudo procesar la respuesta de la API.");
     }
 

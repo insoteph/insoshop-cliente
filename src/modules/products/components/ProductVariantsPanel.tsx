@@ -233,12 +233,12 @@ function VariantImagePicker({
             {isUploading ? "Subiendo..." : "Cambiar imagen"}
           </span>
         ) : (
-          <span className="relative z-10 inline-flex items-center gap-2">
-            <span className="text-[var(--accent)]">
-              <ImageIcon />
-            </span>
-            <span>{isUploading ? "Subiendo..." : "Subir"}</span>
-          </span>
+      <span className="relative z-10 inline-flex items-center gap-2">
+        <span className="text-[var(--accent)]">
+          <ImageIcon />
+        </span>
+        <span className="hidden sm:inline">{isUploading ? "Subiendo..." : "Subir"}</span>
+      </span>
         )}
 
         {preview ? (
@@ -404,10 +404,10 @@ export function ProductVariantsPanel({
   );
 
   return (
-    <section className="space-y-4 rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-5 shadow-sm">
+    <section className="space-y-4 rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-3 shadow-sm sm:p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h4 className="text-lg font-semibold text-[var(--foreground-strong)]">
+          <h4 className="text-base font-semibold text-[var(--foreground-strong)] sm:text-lg">
             Variantes
           </h4>
         </div>
@@ -421,11 +421,11 @@ export function ProductVariantsPanel({
               !canBuildVariants
             }
             onClick={addVariant}
-            className="app-button-primary inline-flex h-10 items-center gap-2 rounded-xl px-3.5 text-sm font-semibold disabled:opacity-60"
+            className="app-button-primary inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-semibold disabled:opacity-60 sm:h-10 sm:px-3.5"
           >
-            <PlusIcon />
-            <span>Agregar variante</span>
-          </button>
+                  <PlusIcon />
+                  <span className="hidden sm:inline">Agregar variante</span>
+                </button>
         ) : null}
       </div>
 

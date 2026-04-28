@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { ResponsiveIconButton } from "./ResponsiveIconButton";
 
 import {
   fetchAttributeCatalogs,
@@ -325,22 +326,22 @@ export function ProductAttributesPanel({
   );
 
   return (
-    <section className="space-y-4 rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-5 shadow-sm">
+    <section className="space-y-4 rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-3 shadow-sm sm:p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h4 className="text-lg font-semibold text-[var(--foreground-strong)]">
+        <h4 className="text-base font-semibold text-[var(--foreground-strong)] sm:text-lg">
           Atributos y valores
         </h4>
 
         {canEdit ? (
-          <button
-            type="button"
-            disabled={disabled || isCatalogLoading}
-            onClick={addAttribute}
-            className="app-button-primary inline-flex h-10 items-center gap-2 rounded-xl px-3.5 text-sm font-semibold disabled:opacity-60"
-          >
-            <PlusIcon />
-            <span>Agregar atributo</span>
-          </button>
+                <ResponsiveIconButton
+                  type="button"
+                  disabled={disabled || isCatalogLoading}
+                  onClick={addAttribute}
+                  className="app-button-primary inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-semibold disabled:opacity-60 sm:h-10 sm:px-3.5"
+                  icon={<PlusIcon />}
+                  label="Agregar atributo"
+                >
+                </ResponsiveIconButton>
         ) : null}
       </div>
 
@@ -419,7 +420,7 @@ export function ProductAttributesPanel({
                       {selectedValues.map((selectedValue) => (
                         <span
                           key={selectedValue.id}
-                              className="inline-flex min-h-8 shrink-0 items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--panel-muted)] px-3 py-1 text-sm text-[var(--foreground-strong)]"
+                          className="inline-flex min-h-8 shrink-0 items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--panel-muted)] px-3 py-1 text-sm text-[var(--foreground-strong)]"
                         >
                           <span>{getValueLabel(selectedValue)}</span>
                           {canEdit ? (
@@ -485,15 +486,15 @@ export function ProductAttributesPanel({
                       {canEdit &&
                       draft.atributoCatalogoId > 0 &&
                       selectableValues.length > 0 ? (
-                        <button
-                          type="button"
-                          disabled={disabled}
-                          onClick={() => addPickerToRow(draft.key)}
-                        className="inline-flex h-8 shrink-0 items-center gap-2 rounded-full border border-dashed border-[var(--line-strong)] px-3 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent-soft)] disabled:opacity-60"
-                        >
-                          <PlusIcon />
-                          <span>Agregar valor</span>
-                        </button>
+                  <ResponsiveIconButton
+                    type="button"
+                    disabled={disabled}
+                    onClick={() => addPickerToRow(draft.key)}
+                    className="inline-flex h-8 shrink-0 items-center gap-2 rounded-full border border-dashed border-[var(--line-strong)] px-3 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent-soft)] disabled:opacity-60"
+                    icon={<PlusIcon />}
+                    label="Agregar valor"
+                  >
+                  </ResponsiveIconButton>
                       ) : null}
                     </div>
                   </div>

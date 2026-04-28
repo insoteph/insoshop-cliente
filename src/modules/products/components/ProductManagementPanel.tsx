@@ -118,7 +118,7 @@ function NoImageThumbnail({ size = 80 }: { size?: number }) {
   return (
     <div
       aria-hidden="true"
-      className="flex items-center justify-center overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)]"
+      className="flex items-center justify-center overflow-hidden rounded-none border-0 bg-transparent sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel-muted)]"
       style={{ width: size, height: size }}
     >
       <span
@@ -650,7 +650,7 @@ export function ProductManagementPanel({
 
   if (isLoading) {
     return (
-      <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] px-4 py-5 text-sm text-[var(--muted)]">
+      <div className="rounded-none border-0 bg-transparent px-0 py-3 text-sm text-[var(--muted)] sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel)] sm:px-4 sm:py-5">
         Cargando opciones y combinaciones del producto...
       </div>
     );
@@ -658,7 +658,7 @@ export function ProductManagementPanel({
 
   if (error || !product) {
     return (
-      <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] px-4 py-5">
+      <div className="rounded-none border-0 bg-transparent px-0 py-3 sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel)] sm:px-4 sm:py-5">
         <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
           {error ?? "No se pudo cargar la configuración comercial del producto."}
         </p>
@@ -667,7 +667,7 @@ export function ProductManagementPanel({
   }
 
   return (
-    <div className="space-y-5 sm:rounded-[26px] sm:border sm:border-[var(--line)] sm:bg-[var(--panel)] sm:p-4 sm:shadow-[var(--shadow)]">
+    <div className="space-y-4 sm:rounded-[26px] sm:border sm:border-[var(--line)] sm:bg-[var(--panel)] sm:p-4 sm:shadow-[var(--shadow)]">
       <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
         <div className="space-y-1">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
@@ -684,7 +684,7 @@ export function ProductManagementPanel({
         </div>
 
         <div className="grid gap-2 sm:grid-cols-3">
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3">
+          <div className="rounded-none border-0 bg-transparent px-0 py-1 sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel-muted)] sm:px-4 sm:py-3">
             <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted)]">
               Combinaciones
             </p>
@@ -692,7 +692,7 @@ export function ProductManagementPanel({
               {product.variantes.length}
             </p>
           </div>
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3">
+          <div className="rounded-none border-0 bg-transparent px-0 py-1 sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel-muted)] sm:px-4 sm:py-3">
             <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted)]">
               Stock total
             </p>
@@ -700,7 +700,7 @@ export function ProductManagementPanel({
               {product.cantidad}
             </p>
           </div>
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3">
+          <div className="rounded-none border-0 bg-transparent px-0 py-1 sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel-muted)] sm:px-4 sm:py-3">
             <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted)]">
               Precio desde
             </p>
@@ -712,7 +712,7 @@ export function ProductManagementPanel({
       </div>
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-        <section className="space-y-4 rounded-[24px] border border-[var(--line)] bg-[var(--panel-strong)] p-4">
+        <section className="space-y-4 rounded-none border-0 bg-transparent p-0 sm:rounded-[24px] sm:border sm:border-[var(--line)] sm:bg-[var(--panel-strong)] sm:p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h4 className="text-base font-semibold text-[var(--foreground-strong)]">
@@ -742,9 +742,9 @@ export function ProductManagementPanel({
               product.atributos.map((attribute) => (
                 <article
                   key={attribute.id}
-                  className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] px-4 py-4"
+                className="rounded-none border-0 bg-transparent px-0 py-3 sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel)] sm:px-4 sm:py-4"
                 >
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-semibold text-[var(--foreground-strong)]">
                         {attribute.atributoCatalogoNombre}
@@ -788,7 +788,7 @@ export function ProductManagementPanel({
                 </article>
               ))
             ) : (
-              <div className="rounded-2xl border border-dashed border-[var(--line)] bg-[var(--panel)] px-4 py-6 text-sm text-[var(--muted)]">
+              <div className="border-0 bg-transparent px-0 py-3 text-sm text-[var(--muted)] sm:rounded-2xl sm:border sm:border-dashed sm:border-[var(--line)] sm:bg-[var(--panel)] sm:px-4 sm:py-6">
                 Este producto todavía no tiene opciones configuradas. Agrega
                 color, talla u otras opciones antes de crear combinaciones de
                 venta.
@@ -800,7 +800,7 @@ export function ProductManagementPanel({
             isAttributeEditorOpen ? (
               <div
                 ref={attributeEditorRef}
-                className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-4"
+                className="rounded-none border-0 bg-transparent p-0 sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel)] sm:p-4"
               >
                 <form className="space-y-4" onSubmit={handleSaveAttribute}>
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -838,7 +838,7 @@ export function ProductManagementPanel({
                   </select>
 
                   {activeCatalogDetail ? (
-                    <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] p-4">
+                    <div className="rounded-none border-0 bg-transparent p-0 sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel-muted)] sm:p-4">
                       <p className="text-sm font-semibold text-[var(--foreground)]">
                         Valores disponibles para este producto
                       </p>
@@ -912,14 +912,14 @@ export function ProductManagementPanel({
                 </form>
               </div>
             ) : (
-              <div className="rounded-2xl border border-dashed border-[var(--line)] bg-[var(--panel)] px-4 py-5 text-sm text-[var(--muted)]">
+              <div className="border-0 bg-transparent px-0 py-3 text-sm text-[var(--muted)] sm:rounded-2xl sm:border sm:border-dashed sm:border-[var(--line)] sm:bg-[var(--panel)] sm:px-4 sm:py-5">
                 Usa <span className="font-semibold text-[var(--foreground)]">Agregar opción</span> para asociar al producto opciones como color, talla o material con los valores que aplican.
               </div>
             )
           ) : null}
         </section>
 
-        <section className="space-y-4 rounded-[24px] border border-[var(--line)] bg-[var(--panel-strong)] p-4">
+        <section className="space-y-4 rounded-none border-0 bg-transparent p-0 sm:rounded-[24px] sm:border sm:border-[var(--line)] sm:bg-[var(--panel-strong)] sm:p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h4 className="text-base font-semibold text-[var(--foreground-strong)]">
@@ -950,10 +950,10 @@ export function ProductManagementPanel({
               product.variantes.map((variant) => (
                 <article
                   key={variant.id}
-                  className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-4"
+                className="rounded-none border-0 bg-transparent px-0 py-3 sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel)] sm:p-4"
                 >
                   <div className="grid gap-4 md:grid-cols-[88px_minmax(0,1fr)_auto] md:items-center">
-                    <div className="h-20 w-20 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)]">
+                    <div className="h-20 w-20 overflow-hidden rounded-none border-0 bg-transparent sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel-muted)]">
                       {variant.urlImagenPrincipal ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -1028,7 +1028,7 @@ export function ProductManagementPanel({
                 </article>
               ))
             ) : (
-              <div className="rounded-2xl border border-dashed border-[var(--line)] bg-[var(--panel)] px-4 py-6 text-sm text-[var(--muted)]">
+              <div className="border-0 bg-transparent px-0 py-3 text-sm text-[var(--muted)] sm:rounded-2xl sm:border sm:border-dashed sm:border-[var(--line)] sm:bg-[var(--panel)] sm:px-4 sm:py-6">
                 Aún no existen combinaciones de venta para este producto.
               </div>
             )}
@@ -1038,7 +1038,7 @@ export function ProductManagementPanel({
             isVariantEditorOpen ? (
               <div
                 ref={variantEditorRef}
-                className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-4"
+                className="rounded-none border-0 bg-transparent p-0 sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel)] sm:p-4"
               >
                 <form className="space-y-4" onSubmit={handleSaveVariant}>
                   <div className="flex flex-wrap items-start justify-between gap-3">
@@ -1062,7 +1062,7 @@ export function ProductManagementPanel({
                     </button>
                   </div>
 
-                  <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--muted)]">
+                  <div className="rounded-none border-0 bg-transparent px-0 py-2 text-sm text-[var(--muted)] sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel-muted)] sm:px-4 sm:py-3">
                     {product.atributos.length > 0 ? (
                       <span>
                         Opciones disponibles en este producto:{" "}
@@ -1138,7 +1138,7 @@ export function ProductManagementPanel({
                   </div>
 
                   <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_180px]">
-                    <div className="rounded-2xl border border-dashed border-[var(--line)] bg-[var(--panel-muted)] p-4">
+                    <div className="rounded-none border-0 bg-transparent p-0 sm:rounded-2xl sm:border sm:border-dashed sm:border-[var(--line)] sm:bg-[var(--panel-muted)] sm:p-4">
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
                           <p className="text-sm font-semibold text-[var(--foreground)]">
@@ -1173,8 +1173,8 @@ export function ProductManagementPanel({
                       />
                     </div>
 
-                    <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] p-3">
-                      <div className="h-32 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel)]">
+                    <div className="rounded-none border-0 bg-transparent p-0 sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel-muted)] sm:p-3">
+                      <div className="h-32 overflow-hidden rounded-none border-0 bg-transparent sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel)]">
                         {variantForm.urlImagen.trim() ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
@@ -1191,7 +1191,7 @@ export function ProductManagementPanel({
                     </div>
                   </div>
 
-                  <label className="flex items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)]">
+                  <label className="flex items-center gap-3 rounded-none border-0 bg-transparent px-0 py-2 text-sm text-[var(--foreground)] sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel-muted)] sm:px-4 sm:py-3">
                     <input
                       type="checkbox"
                       checked={variantForm.estado}
@@ -1230,7 +1230,7 @@ export function ProductManagementPanel({
                 </form>
               </div>
             ) : (
-              <div className="rounded-2xl border border-dashed border-[var(--line)] bg-[var(--panel)] px-4 py-5 text-sm text-[var(--muted)]">
+              <div className="border-0 bg-transparent px-0 py-3 text-sm text-[var(--muted)] sm:rounded-2xl sm:border sm:border-dashed sm:border-[var(--line)] sm:bg-[var(--panel)] sm:px-4 sm:py-5">
                 Usa <span className="font-semibold text-[var(--foreground)]">Agregar combinación</span> para definir cada presentación real de venta con su precio, existencias e imagen.
               </div>
             )
