@@ -319,7 +319,7 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
                   {Array.from({ length: 8 }).map((_, index) => (
                     <div
                       key={`catalog-skeleton-${index}`}
-                      className="h-[292px] rounded-[18px] border border-[var(--line)] bg-[var(--panel-strong)] min-[390px]:h-[306px] sm:h-[360px] sm:rounded-[24px]"
+                      className="h-[246px] rounded-[18px] border border-[var(--line)] bg-[var(--panel-strong)] min-[390px]:h-[260px] sm:h-[360px] sm:rounded-[24px]"
                     />
                   ))}
                 </div>

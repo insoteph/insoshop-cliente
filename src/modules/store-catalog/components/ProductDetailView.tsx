@@ -165,13 +165,13 @@ function ColorOptionCard({
       type="button"
       disabled={!isAvailable}
       onClick={onSelect}
-      className={`group min-h-[9rem] overflow-hidden rounded-2xl border bg-[var(--panel)] text-left transition ${
+      className={`group min-h-0 overflow-hidden rounded-2xl border bg-[var(--panel)] text-left transition active:scale-[0.98] sm:min-h-[9rem] sm:active:scale-100 ${
         isSelected
           ? "border-[var(--accent)] shadow-[0_0_0_2px_var(--accent-soft)]"
           : "border-[var(--line)] hover:border-[var(--line-strong)] hover:shadow-[var(--shadow)]"
       } disabled:cursor-not-allowed disabled:opacity-45`}
     >
-      <div className="aspect-[4/3] bg-[var(--panel-muted)]">
+      <div className="aspect-square bg-[var(--panel-muted)] sm:aspect-[4/3]">
         {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -183,7 +183,7 @@ function ColorOptionCard({
           <div className="flex h-full items-center justify-center">
             {value.colorHexadecimal ? (
               <span
-                className="h-12 w-12 rounded-full border border-black/10 shadow-inner"
+                className="h-8 w-8 rounded-full border border-black/10 shadow-inner sm:h-12 sm:w-12"
                 style={{ backgroundColor: value.colorHexadecimal }}
               />
             ) : (
@@ -195,7 +195,7 @@ function ColorOptionCard({
         )}
       </div>
 
-      <div className="space-y-1 p-2.5">
+      <div className="space-y-0.5 p-2 sm:space-y-1 sm:p-2.5">
         <div className="flex items-center gap-1.5">
           {value.colorHexadecimal ? (
             <ColorSwatch colorHexadecimal={value.colorHexadecimal} />
@@ -204,11 +204,11 @@ function ColorOptionCard({
             {value.valor}
           </span>
         </div>
-        <p className="text-sm font-bold text-[var(--foreground-strong)]">
+        <p className="hidden text-xs font-bold text-[var(--foreground-strong)] sm:block sm:text-sm">
           {variant ? formatCurrency(variant.precio, currency) : "No disponible"}
         </p>
         <p
-          className={`text-[11px] font-semibold ${
+          className={`hidden text-[10px] font-semibold sm:block sm:text-[11px] ${
             isInStock ? "text-[var(--success)]" : "text-[var(--muted)]"
           }`}
         >
@@ -460,11 +460,11 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
       style={storeCatalogThemeTokens.light}
     >
       <main className="min-h-screen bg-[var(--background)] pb-4 pt-0 sm:pb-6 sm:pt-0">
-        <header className="overflow-hidden rounded-b-[32px] bg-[linear-gradient(135deg,#2563EB_0%,#1D4ED8_60%,#1E3A8A_100%)] shadow-[0_20px_50px_rgba(37,99,235,0.18)] lg:rounded-none">
-          <div className="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-3 px-4 py-3 sm:px-5 lg:px-6">
+        <header className="overflow-hidden rounded-b-3xl bg-[linear-gradient(135deg,#2563EB_0%,#1D4ED8_60%,#1E3A8A_100%)] shadow-[0_16px_38px_rgba(37,99,235,0.16)] sm:rounded-b-[32px] sm:shadow-[0_20px_50px_rgba(37,99,235,0.18)] lg:rounded-none">
+          <div className="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-3 px-3 py-2.5 sm:px-5 sm:py-3 lg:px-6">
             <Link
               href={`/${encodeURIComponent(slug)}`}
-              className="inline-flex shrink-0 items-center rounded-full border border-white/25 bg-white/15 px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(15,23,42,0.12)] backdrop-blur-sm transition hover:bg-white/20"
+              className="inline-flex shrink-0 items-center rounded-full border border-white/25 bg-white/15 px-3 py-1.5 text-xs font-semibold text-white shadow-[0_8px_18px_rgba(15,23,42,0.1)] backdrop-blur-sm transition hover:bg-white/20 sm:px-4 sm:py-2 sm:text-sm sm:shadow-[0_10px_24px_rgba(15,23,42,0.12)]"
             >
               Volver al catalogo
             </Link>
@@ -479,17 +479,17 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
           </div>
         </header>
 
-        <section className="mx-auto w-full max-w-[1440px] space-y-5 px-4 pt-5 sm:px-6 lg:px-8">
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1.06fr)_minmax(0,0.94fr)] lg:gap-6">
+        <section className="mx-auto w-full max-w-[1440px] space-y-4 px-3 pt-3 sm:space-y-5 sm:px-6 sm:pt-5 lg:px-8">
+          <div className="grid gap-3 sm:gap-4 lg:grid-cols-[minmax(0,1.06fr)_minmax(0,0.94fr)] lg:gap-6">
             <ProductImageGallery
               key={selectedVariant?.id ?? product.id}
               productName={product.nombre}
               imageUrls={imageUrls}
             />
 
-            <div className="space-y-4 rounded-[34px] border border-[#dbe7ff] bg-white p-4 shadow-[0_18px_40px_rgba(15,23,42,0.06)] sm:space-y-5 sm:p-5 lg:sticky lg:top-4 lg:self-start">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <span className="inline-flex w-fit rounded-full border border-[#dbe7ff] bg-[#EEF4FF] px-3 py-1 text-xs font-semibold text-[#2563EB]">
+            <div className="space-y-3 rounded-2xl border border-[#dbe7ff] bg-white p-3 shadow-[0_12px_28px_rgba(15,23,42,0.05)] sm:space-y-5 sm:rounded-[34px] sm:p-5 sm:shadow-[0_18px_40px_rgba(15,23,42,0.06)] lg:sticky lg:top-4 lg:self-start">
+              <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
+                <span className="inline-flex w-fit rounded-full border border-[#dbe7ff] bg-[#EEF4FF] px-2.5 py-1 text-[11px] font-semibold text-[#2563EB] sm:px-3 sm:text-xs">
                   {product.categoria}
                 </span>
                 <button
@@ -498,7 +498,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                     isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"
                   }
                   onClick={() => handleToggleFavorite(summaryProduct)}
-                  className={`inline-flex h-10 w-10 items-center justify-center rounded-full border backdrop-blur-md transition-all ${
+                  className={`inline-flex h-9 w-9 items-center justify-center rounded-full border backdrop-blur-md transition-all sm:h-10 sm:w-10 ${
                     isFavorite
                       ? "border-[#ffd2d0] bg-white text-[#e53935] shadow-[0_10px_20px_rgba(229,57,53,0.18)]"
                       : "border-[#dbe7ff] bg-white text-[var(--muted)] hover:border-[#9bb8ff]"
@@ -506,7 +506,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                 >
                   <span
                     aria-hidden="true"
-                    className="h-5 w-5"
+                    className="h-[18px] w-[18px] sm:h-5 sm:w-5"
                     style={{
                       WebkitMaskImage: "url(/icons/heart.svg)",
                       maskImage: "url(/icons/heart.svg)",
@@ -522,42 +522,42 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                   />
                 </button>
               </div>
-              <h2 className="text-[2.1rem] font-semibold leading-[1.08] tracking-[-0.03em] text-[var(--foreground-strong)] sm:text-3xl sm:leading-tight">
+              <h2 className="text-[1.25rem] font-semibold leading-[1.16] text-[var(--foreground-strong)] sm:text-3xl sm:leading-tight sm:tracking-[-0.03em]">
                 {product.nombre}
               </h2>
               {product.descripcion.trim() ? (
-                <div className="rounded-[22px] border border-[#dbe7ff] bg-[#F8FBFF] p-4">
-                  <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#64748B]">
+                <div className="space-y-1.5 sm:rounded-[22px] sm:border sm:border-[#dbe7ff] sm:bg-[#F8FBFF] sm:p-4">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#64748B] sm:text-sm sm:tracking-[0.16em]">
                     Descripcion
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-[var(--foreground)] sm:leading-7">
+                  <p className="text-sm leading-5 text-[var(--foreground)] sm:mt-2 sm:leading-7">
                     {product.descripcion}
                   </p>
                 </div>
               ) : null}
 
-              <div className="flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-                <p className="text-[2.05rem] font-bold leading-none tracking-[-0.03em] text-[#2563EB] sm:text-3xl">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <p className="text-[1.45rem] font-bold leading-none text-[#2563EB] sm:text-3xl sm:tracking-[-0.03em]">
                   {formatCurrency(selectedVariant?.precio ?? 0, currency)}
                 </p>
 
                 {!selectedVariant ? (
-                  <span className="rounded-full bg-[#FEF2F2] px-3 py-1 text-xs font-semibold text-[#DC2626]">
+                  <span className="rounded-full bg-[#FEF2F2] px-2.5 py-1 text-[11px] font-semibold text-[#DC2626] sm:px-3 sm:text-xs">
                     Selecciona una variante
                   </span>
                 ) : selectedVariant.cantidad > 0 ? (
-                  <span className="rounded-full bg-[#ECFDF5] px-3 py-1 text-xs font-semibold text-[#059669]">
+                  <span className="rounded-full bg-[#ECFDF5] px-2.5 py-1 text-[11px] font-semibold text-[#059669] sm:px-3 sm:text-xs">
                     Disponible ({selectedVariant.cantidad})
                   </span>
                 ) : (
-                  <span className="rounded-full bg-[#FEF2F2] px-3 py-1 text-xs font-semibold text-[#DC2626]">
+                  <span className="rounded-full bg-[#FEF2F2] px-2.5 py-1 text-[11px] font-semibold text-[#DC2626] sm:px-3 sm:text-xs">
                     Agotado
                   </span>
                 )}
               </div>
 
               {product.atributos.length > 0 ? (
-                <div className="space-y-3 rounded-[24px] border border-[#dbe7ff] bg-[#F8FBFF] p-3 sm:p-4">
+                <div className="space-y-3 rounded-2xl border border-[#dbe7ff] bg-[#F8FBFF] p-2.5 sm:rounded-[24px] sm:p-4">
                   {product.atributos.map((attribute) => {
                     const selectedValueId =
                       selectedValues[attribute.atributoCatalogoId];
@@ -570,25 +570,25 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                     return (
                       <div
                         key={attribute.atributoCatalogoId}
-                        className="space-y-2.5"
+                        className="space-y-2 sm:space-y-2.5"
                       >
                         <div className="flex flex-wrap items-baseline gap-1.5">
-                          <p className="text-sm font-semibold text-[var(--foreground-strong)]">
+                          <p className="text-xs font-semibold text-[var(--foreground-strong)] sm:text-sm">
                             {attribute.nombre}
                           </p>
                           {selectedAttributeValue ? (
-                            <span className="text-sm font-semibold text-[#2563EB]">
+                            <span className="text-xs font-semibold text-[#2563EB] sm:text-sm">
                               {selectedAttributeValue.valor}
                             </span>
                           ) : (
-                            <span className="text-sm text-[var(--muted)]">
+                            <span className="text-xs text-[var(--muted)] sm:text-sm">
                               Selecciona una opción
                             </span>
                           )}
                         </div>
 
                         {shouldRenderColorCards ? (
-                          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
+                          <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-3 sm:gap-2 xl:grid-cols-4">
                               {attribute.valores.map((value) => {
                                 const isSelected =
                                   selectedValueId ===
@@ -626,7 +626,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                             })}
                           </div>
                         ) : (
-                          <div className="flex flex-wrap gap-2">
+                          <div className="flex flex-wrap gap-1.5 sm:gap-2">
                               {attribute.valores.map((value) => {
                                 const isSelected =
                                   selectedValueId ===
@@ -643,7 +643,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                                   key={value.atributoCatalogoValorId}
                                   type="button"
                                   disabled={!isAvailable}
-                                  className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                                  className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-[11px] font-semibold transition active:scale-[0.98] sm:gap-2 sm:px-3 sm:text-xs sm:active:scale-100 ${
                                     isSelected
                                       ? "border-[#2563EB] bg-[#EEF4FF] text-[#2563EB]"
                                       : "border-[#dbe7ff] bg-white text-[var(--foreground)]"
@@ -672,15 +672,15 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                 </div>
               ) : null}
 
-              <div className="rounded-[24px] border border-[var(--line)] bg-[var(--panel-muted)] p-3">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-sm font-medium text-[var(--foreground)]">
+              <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] p-2.5 sm:rounded-[24px] sm:p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-xs font-medium text-[var(--foreground)] sm:text-sm">
                     Cantidad
                   </p>
-                  <div className="inline-flex w-full items-center justify-between gap-2 rounded-2xl border border-[#dbe7ff] bg-white p-2 sm:w-auto sm:justify-start">
+                  <div className="inline-flex items-center justify-between gap-2 rounded-2xl border border-[#dbe7ff] bg-white p-1.5 sm:w-auto sm:justify-start sm:p-2">
                     <button
                       type="button"
-                      className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#dbe7ff] bg-[#F8FBFF] text-lg font-semibold text-[var(--foreground)] disabled:opacity-50"
+                      className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#dbe7ff] bg-[#F8FBFF] text-lg font-semibold text-[var(--foreground)] disabled:opacity-50 sm:h-9 sm:w-9"
                       onClick={() =>
                         setQuantity((current) => Math.max(current - 1, 1))
                       }
@@ -688,7 +688,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                     >
                       <span
                         aria-hidden="true"
-                        className="h-5 w-5 text-[#2563EB]"
+                        className="h-4 w-4 text-[#2563EB] sm:h-5 sm:w-5"
                         style={{
                           WebkitMaskImage: "url(/icons/minus-circle.svg)",
                           maskImage: "url(/icons/minus-circle.svg)",
@@ -702,12 +702,12 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                         }}
                       />
                     </button>
-                    <span className="min-w-0 flex-1 text-center text-sm font-semibold text-[var(--foreground)] sm:w-12 sm:flex-none">
+                    <span className="w-9 text-center text-sm font-semibold text-[var(--foreground)] sm:w-12">
                       {quantity}
                     </span>
                     <button
                       type="button"
-                      className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#dbe7ff] bg-[#F8FBFF] text-lg font-semibold text-[var(--foreground)] disabled:opacity-50"
+                      className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#dbe7ff] bg-[#F8FBFF] text-lg font-semibold text-[var(--foreground)] disabled:opacity-50 sm:h-9 sm:w-9"
                       onClick={() =>
                         setQuantity((current) =>
                           Math.min(current + 1, Math.max(maxQuantity, 1)),
@@ -717,7 +717,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                     >
                       <span
                         aria-hidden="true"
-                        className="h-5 w-5 text-[#2563EB]"
+                        className="h-4 w-4 text-[#2563EB] sm:h-5 sm:w-5"
                         style={{
                           WebkitMaskImage: "url(/icons/plus-circle.svg)",
                           maskImage: "url(/icons/plus-circle.svg)",
@@ -735,11 +735,11 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                 </div>
               </div>
 
-              <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-3">
+              <div className="grid gap-2 sm:grid-cols-2 sm:gap-3">
                 <button
                   type="button"
                   disabled={isOutOfStock || !selectedVariant}
-                  className="rounded-full border border-[#dbe7ff] bg-white px-4 py-3 text-sm font-semibold text-[var(--foreground)] shadow-[0_10px_24px_rgba(15,23,42,0.06)] transition hover:border-[#9bb8ff] hover:bg-[#F8FBFF] disabled:opacity-50"
+                  className="rounded-full border border-[#dbe7ff] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] shadow-[0_8px_18px_rgba(15,23,42,0.05)] transition active:scale-[0.985] hover:border-[#9bb8ff] hover:bg-[#F8FBFF] disabled:opacity-50 sm:py-3 sm:shadow-[0_10px_24px_rgba(15,23,42,0.06)] sm:active:scale-100"
                   onClick={() => {
                     if (!selectedVariant) {
                       return;
@@ -763,7 +763,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                 <button
                   type="button"
                   disabled={isOutOfStock || !selectedVariant}
-                  className="rounded-full bg-[#2563EB] px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_30px_rgba(37,99,235,0.22)] transition hover:brightness-105 disabled:opacity-50"
+                  className="rounded-full bg-[#2563EB] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_12px_26px_rgba(37,99,235,0.2)] transition active:scale-[0.985] hover:brightness-105 disabled:opacity-50 sm:py-3 sm:shadow-[0_14px_30px_rgba(37,99,235,0.22)] sm:active:scale-100"
                   onClick={() => {
                     if (!selectedVariant) {
                       return;
