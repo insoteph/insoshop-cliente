@@ -358,8 +358,8 @@ export function CatalogAttributesManagementView() {
   return (
     <section className="space-y-5">
       <div className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-md">
-        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-          <div className="w-full">
+        <div className="flex flex-row items-center gap-2">
+          <div className="min-w-0 flex-1">
             <SearchBar
               value={search}
               onChange={(value) => {
@@ -370,7 +370,7 @@ export function CatalogAttributesManagementView() {
               ariaLabel="Buscar atributos de catálogo"
             />
           </div>
-          <ToolbarActions actions={toolbarActions} className="xl:shrink-0" />
+          <ToolbarActions actions={toolbarActions} className="shrink-0" />
         </div>
 
         <div className="grid gap-3 md:grid-cols-[220px] md:justify-end">

@@ -11,7 +11,6 @@ import {
   type DataTableColumn,
 } from "@/modules/core/components/DataTable";
 import {
-  DataTableToolbar,
   ToolbarActions,
   type DataTableToolbarAction,
 } from "@/modules/core/components/DataTableToolbar";
@@ -51,7 +50,7 @@ export function UsersManagementView() {
 
   const [users, setUsers] = useState<UserRecord[]>([]);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(8);
+  const [pageSize] = useState(8);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [search, setSearch] = useState("");
@@ -535,8 +534,8 @@ export function UsersManagementView() {
   return (
     <section className="space-y-6">
       <div className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-md">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center">
-          <div className="w-full">
+        <div className="flex flex-row items-center gap-2">
+          <div className="min-w-0 flex-1">
             <SearchBar
               value={search}
               onChange={(value) => {
@@ -547,7 +546,7 @@ export function UsersManagementView() {
               ariaLabel="Buscar usuarios"
             />
           </div>
-          <ToolbarActions actions={toolbarActions} className="md:shrink-0" />
+          <ToolbarActions actions={toolbarActions} className="shrink-0" />
         </div>
 
         <div className="grid gap-3 lg:grid-cols-[220px_220px] lg:justify-end">
@@ -796,33 +795,21 @@ export function UsersManagementView() {
         </div>
       ) : null}
 
-      <div className="app-card rounded-2xl py-2">
-        <DataTableToolbar
-          pageSize={pageSize}
-          onPageSizeChange={(value) => {
-            setPage(1);
-            setPageSize(value);
-          }}
-        />
-        <div className="app-divider mb-2 mt-1 border-b" />
-        <div className="px-3">
-          <DataTable
-            headers={columns}
-            data={users}
-            isLoading={isLoading}
-            rowKey="id"
-            emptyMessage="No hay usuarios para los filtros seleccionados."
-            badges={stateBadges}
-            rowActions={rowActions}
-            pagination={{
-              page,
-              totalPages,
-              totalRecords,
-              onPageChange: setPage,
-            }}
-          />
-        </div>
-      </div>
+      <DataTable
+        headers={columns}
+        data={users}
+        isLoading={isLoading}
+        rowKey="id"
+        emptyMessage="No hay usuarios para los filtros seleccionados."
+        badges={stateBadges}
+        rowActions={rowActions}
+        pagination={{
+          page,
+          totalPages,
+          totalRecords,
+          onPageChange: setPage,
+        }}
+      />
     </section>
   );
 }

@@ -329,9 +329,9 @@ export function StoreDirectoryView() {
   return (
     <section className="space-y-5">
       <div className="space-y-4 rounded-2xl">
-        <div className="app-card rounded-2xl px-3 py-5">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center">
-            <div className="w-full">
+          <div className="app-card rounded-2xl px-3 py-5">
+          <div className="flex flex-row items-center gap-2">
+            <div className="min-w-0 flex-1">
               <SearchBar
                 value={searchTerm}
                 onChange={(value) => {
@@ -342,7 +342,7 @@ export function StoreDirectoryView() {
               />
             </div>
 
-            <ToolbarActions actions={toolbarActions} className="md:shrink-0" />
+            <ToolbarActions actions={toolbarActions} className="shrink-0" />
           </div>
         </div>
 

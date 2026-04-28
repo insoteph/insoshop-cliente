@@ -737,12 +737,12 @@ export function ProductManagementPanel({
             ) : null}
           </div>
 
-          <div className="space-y-3">
+          <div className="divide-y divide-[var(--line)]/60">
             {product.atributos.length > 0 ? (
               product.atributos.map((attribute) => (
                 <article
                   key={attribute.id}
-                className="rounded-none border-0 bg-transparent px-0 py-3 sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel)] sm:px-4 sm:py-4"
+                  className="py-3 first:pt-0 last:pb-0 sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel)] sm:px-4 sm:py-4"
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0 flex-1">
@@ -945,12 +945,12 @@ export function ProductManagementPanel({
             ) : null}
           </div>
 
-          <div className="space-y-3">
+          <div className="divide-y divide-[var(--line)]/60">
             {product.variantes.length > 0 ? (
               product.variantes.map((variant) => (
                 <article
                   key={variant.id}
-                className="rounded-none border-0 bg-transparent px-0 py-3 sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel)] sm:p-4"
+                  className="py-3 first:pt-0 last:pb-0 sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel)] sm:p-4"
                 >
                   <div className="grid gap-4 md:grid-cols-[88px_minmax(0,1fr)_auto] md:items-center">
                     <div className="h-20 w-20 overflow-hidden rounded-none border-0 bg-transparent sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel-muted)]">

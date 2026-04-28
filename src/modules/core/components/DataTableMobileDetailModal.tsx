@@ -12,6 +12,7 @@ type DataTableMobileDetailModalProps = {
   open: boolean;
   title: string;
   items: DetailItem[];
+  extraContent?: ReactNode;
   onClose: () => void;
   primaryActionLabel?: string;
   onPrimaryAction?: () => void;
@@ -41,6 +42,7 @@ export function DataTableMobileDetailModal({
   open,
   title,
   items,
+  extraContent,
   onClose,
   primaryActionLabel,
   onPrimaryAction,
@@ -99,7 +101,7 @@ export function DataTableMobileDetailModal({
       role="presentation"
     >
       <div
-        className={`w-full max-w-[28rem] rounded-[26px] border border-[var(--line)] bg-[var(--panel)] shadow-[var(--shadow)] transition-all duration-300 ease-out ${
+        className={`w-full max-w-[28rem] rounded-2xl border border-[var(--line)] bg-[var(--background)] shadow-[var(--shadow)] transition-all duration-300 ease-out ${
           isVisible ? "translate-y-0 scale-100 opacity-100" : "translate-y-5 scale-95 opacity-0"
         }`}
         onClick={(event) => event.stopPropagation()}
@@ -127,11 +129,11 @@ export function DataTableMobileDetailModal({
           </button>
         </div>
 
-        <div className="max-h-[70vh] space-y-3 overflow-y-auto px-4 py-4">
+        <div className="max-h-[70vh] space-y-3 overflow-y-auto bg-[var(--background)] px-4 py-4">
           {items.map((item) => (
             <div
               key={item.label}
-              className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3"
+              className="rounded-xl border border-[var(--line)] bg-[var(--background-soft)] px-4 py-3"
             >
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
                 {item.label}
@@ -139,6 +141,12 @@ export function DataTableMobileDetailModal({
               <div className="mt-1 text-sm text-[var(--foreground)]">{item.value}</div>
             </div>
           ))}
+
+          {extraContent ? (
+            <div className="rounded-xl border border-[var(--line)] bg-[var(--background-soft)] p-4">
+              {extraContent}
+            </div>
+          ) : null}
         </div>
 
         {primaryActionLabel && onPrimaryAction ? (

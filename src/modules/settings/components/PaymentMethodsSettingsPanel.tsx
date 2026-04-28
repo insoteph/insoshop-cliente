@@ -7,7 +7,6 @@ import {
   type DataTableBadgeConfig,
   type DataTableColumn,
 } from "@/modules/core/components/DataTable";
-import { DataTableToolbar } from "@/modules/core/components/DataTableToolbar";
 import { SearchBar } from "@/modules/core/components/SearchBar";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
 import { useToast } from "@/modules/core/providers/ToastProvider";
@@ -46,7 +45,7 @@ export function PaymentMethodsSettingsPanel({
   const toast = useToast();
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(8);
+  const [pageSize] = useState(8);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [search, setSearch] = useState("");
@@ -357,33 +356,21 @@ export function PaymentMethodsSettingsPanel({
         ) : null}
       </div>
 
-      <div className="app-card rounded-2xl py-2">
-        <DataTableToolbar
-          pageSize={pageSize}
-          onPageSizeChange={(value) => {
-            setPage(1);
-            setPageSize(value);
-          }}
-        />
-        <div className="app-divider mb-2 mt-1 border-b" />
-        <div className="px-3">
-          <DataTable
-            headers={columns}
-            data={methods}
-            isLoading={isLoading}
-            rowKey="id"
-            emptyMessage="No hay metodos de pago disponibles."
-            badges={stateBadges}
-            rowActions={rowActions}
-            pagination={{
-              page,
-              totalPages,
-              totalRecords,
-              onPageChange: setPage,
-            }}
-          />
-        </div>
-      </div>
+      <DataTable
+        headers={columns}
+        data={methods}
+        isLoading={isLoading}
+        rowKey="id"
+        emptyMessage="No hay metodos de pago disponibles."
+        badges={stateBadges}
+        rowActions={rowActions}
+        pagination={{
+          page,
+          totalPages,
+          totalRecords,
+          onPageChange: setPage,
+        }}
+      />
 
       {isFormOpen ? (
         <div

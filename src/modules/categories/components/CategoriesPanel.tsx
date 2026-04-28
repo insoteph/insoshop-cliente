@@ -8,7 +8,6 @@ import {
   type DataTableColumn,
 } from "@/modules/core/components/DataTable";
 import {
-  DataTableToolbar,
   ToolbarActions,
   type DataTableToolbarAction,
 } from "@/modules/core/components/DataTableToolbar";
@@ -43,7 +42,7 @@ export function CategoriesPanel({
   const toast = useToast();
   const [categories, setCategories] = useState<Category[]>([]);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(8);
+  const [pageSize] = useState(8);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [search, setSearch] = useState("");
@@ -283,8 +282,8 @@ export function CategoriesPanel({
   return (
     <section className="space-y-5">
       <div className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-md">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center">
-          <div className="w-full">
+        <div className="flex flex-row items-center gap-2">
+          <div className="min-w-0 flex-1">
             <SearchBar
               value={search}
               onChange={(value) => {
@@ -295,7 +294,7 @@ export function CategoriesPanel({
               ariaLabel="Buscar categorias"
             />
           </div>
-          <ToolbarActions actions={toolbarActions} className="md:shrink-0" />
+          <ToolbarActions actions={toolbarActions} className="shrink-0" />
         </div>
 
         <div className="grid gap-3 md:grid-cols-[220px] md:justify-end">
@@ -395,33 +394,21 @@ export function CategoriesPanel({
         </div>
       ) : null}
 
-      <div className="app-card rounded-2xl py-2">
-        <DataTableToolbar
-          pageSize={pageSize}
-          onPageSizeChange={(value) => {
-            setPage(1);
-            setPageSize(value);
-          }}
-        />
-        <div className="app-divider mb-2 mt-1 border-b" />
-        <div className="px-3">
-          <DataTable
-            headers={columns}
-            data={categories}
-            isLoading={isLoading}
-            rowKey="id"
-            emptyMessage="No hay categorias registradas para esta tienda."
-            badges={stateBadges}
-            rowActions={rowActions}
-            pagination={{
-              page,
-              totalPages,
-              totalRecords,
-              onPageChange: setPage,
-            }}
-          />
-        </div>
-      </div>
+      <DataTable
+        headers={columns}
+        data={categories}
+        isLoading={isLoading}
+        rowKey="id"
+        emptyMessage="No hay categorias registradas para esta tienda."
+        badges={stateBadges}
+        rowActions={rowActions}
+        pagination={{
+          page,
+          totalPages,
+          totalRecords,
+          onPageChange: setPage,
+        }}
+      />
     </section>
   );
 }

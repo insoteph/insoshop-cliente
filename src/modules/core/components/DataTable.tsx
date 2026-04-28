@@ -693,7 +693,13 @@ export function DataTable<TData extends Record<string, unknown>>({
                             ? rowActions.primaryButtonLabel(row)
                             : rowActions.primaryButtonLabel
                         }
-                        onPrimaryAction={() => rowActions.onPrimaryAction(row)}
+                        onPrimaryAction={() => {
+                          if (expandedRow) {
+                            setMobileDetailRow(row);
+                          }
+
+                          rowActions.onPrimaryAction(row);
+                        }}
                         dropdownOptions={visibleDropdownOptions}
                       />
                     ) : null}
@@ -845,9 +851,14 @@ export function DataTable<TData extends Record<string, unknown>>({
           mobileDetailRow
             ? headers.map((column) => ({
                 label: column.header,
-                value: renderDetailValue(mobileDetailRow, column),
-              }))
+              value: renderDetailValue(mobileDetailRow, column),
+            }))
             : []
+        }
+        extraContent={
+          mobileDetailRow && expandedRow
+            ? expandedRow.render(mobileDetailRow)
+            : undefined
         }
         onClose={() => setMobileDetailRow(null)}
         primaryActionLabel={

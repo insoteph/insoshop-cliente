@@ -360,8 +360,8 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
             }
 
             return (
-              <div className="space-y-4 rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] p-4">
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <div className="space-y-4 rounded-2xl border border-[var(--line)] bg-[var(--background)] p-4">
+                <div className="flex flex-col gap-3 border-b border-[var(--line)] pb-4 lg:flex-row lg:items-start lg:justify-between">
                   <div className="space-y-1">
                     <p className="text-base font-semibold text-[var(--foreground)]">
                       {detail.numeroOrden}
@@ -398,11 +398,11 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                  <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-4">
+                  <div className="space-y-1 rounded-xl border border-[var(--line)] bg-[var(--background-soft)] p-4">
                     <p className="text-xs uppercase tracking-wide text-[var(--muted)]">
                       Cliente
                     </p>
-                    <p className="mt-2 font-medium text-[var(--foreground)]">
+                    <p className="font-medium text-[var(--foreground)]">
                       {detail.clienteNombreCompleto || "Cliente no disponible"}
                     </p>
                     <p className="text-sm text-[var(--muted)]">
@@ -410,11 +410,11 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
                     </p>
                   </div>
 
-                  <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-4">
+                  <div className="space-y-1 rounded-xl border border-[var(--line)] bg-[var(--background-soft)] p-4">
                     <p className="text-xs uppercase tracking-wide text-[var(--muted)]">
                       Entrega y pago
                     </p>
-                    <p className="mt-2 font-medium text-[var(--foreground)]">
+                    <p className="font-medium text-[var(--foreground)]">
                       {detail.tipoEntrega}
                     </p>
                     <p className="text-sm text-[var(--muted)]">
@@ -422,20 +422,20 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
                     </p>
                   </div>
 
-                  <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-4">
+                  <div className="space-y-1 rounded-xl border border-[var(--line)] bg-[var(--background-soft)] p-4">
                     <p className="text-xs uppercase tracking-wide text-[var(--muted)]">
                       Dirección
                     </p>
-                    <p className="mt-2 text-sm text-[var(--foreground)]">
+                    <p className="text-sm text-[var(--foreground)]">
                       {detail.direccion || "Recoger en local"}
                     </p>
                   </div>
 
-                  <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-4">
+                  <div className="space-y-1 rounded-xl border border-[var(--line)] bg-[var(--background-soft)] p-4">
                     <p className="text-xs uppercase tracking-wide text-[var(--muted)]">
                       Resumen
                     </p>
-                    <p className="mt-2 font-medium text-[var(--foreground)]">
+                    <p className="font-medium text-[var(--foreground)]">
                       {itemCount} unidades
                     </p>
                     <p className="text-sm text-[var(--muted)]">
@@ -444,7 +444,7 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-4">
+                <div className="space-y-3 rounded-xl border border-[var(--line)] bg-[var(--background-soft)] p-4">
                   <div className="flex items-center justify-between gap-3">
                     <h4 className="text-sm font-semibold text-[var(--foreground)]">
                       Productos de la venta
@@ -454,37 +454,33 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
                     </span>
                   </div>
 
-                  <div className="mt-4">
-                    <SaleDetailItemsTable
-                      items={detail.detalles}
-                      currency={currency}
-                    />
-                  </div>
+                  <SaleDetailItemsTable
+                    items={detail.detalles}
+                    currency={currency}
+                  />
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_220px]">
-                  <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-4">
+                  <div className="space-y-1 rounded-xl border border-[var(--line)] bg-[var(--background-soft)] p-4">
                     <p className="text-xs uppercase tracking-wide text-[var(--muted)]">
                       Observación
                     </p>
-                    <p className="mt-2 text-sm text-[var(--foreground)]">
+                    <p className="text-sm text-[var(--foreground)]">
                       {detail.observacion || "Sin observación adicional."}
                     </p>
                   </div>
 
-                  <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-4">
+                  <div className="space-y-2 rounded-xl border border-[var(--line)] bg-[var(--background-soft)] p-4 text-sm text-[var(--foreground)]">
                     <p className="text-xs uppercase tracking-wide text-[var(--muted)]">
                       Totales
                     </p>
-                    <div className="mt-2 space-y-2 text-sm text-[var(--foreground)]">
-                      <div className="flex items-center justify-between gap-3">
-                        <span>Subtotal</span>
-                        <span>{formatCurrency(detail.subTotal, currency)}</span>
-                      </div>
-                      <div className="flex items-center justify-between gap-3 font-semibold">
-                        <span>Total</span>
-                        <span>{formatCurrency(detail.total, currency)}</span>
-                      </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <span>Subtotal</span>
+                      <span>{formatCurrency(detail.subTotal, currency)}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3 font-semibold">
+                      <span>Total</span>
+                      <span>{formatCurrency(detail.total, currency)}</span>
                     </div>
                   </div>
                 </div>

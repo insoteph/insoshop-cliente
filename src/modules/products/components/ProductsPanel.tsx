@@ -902,7 +902,7 @@ export function ProductsPanel({
   return (
     <section className="space-y-5">
       <div className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-md">
-        <div className="flex flex-row items-center gap-2 xl:justify-between">
+        <div className="flex flex-row items-center gap-2">
           <div className="min-w-0 flex-1">
             <SearchBar
               value={search}
