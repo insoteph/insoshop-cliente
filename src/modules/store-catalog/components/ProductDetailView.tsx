@@ -139,6 +139,19 @@ function hasAnyVariantForAttributeValue(
   );
 }
 
+function variantMatchesSelection(
+  variant: PublicStoreProductVariant,
+  selections: Record<number, number>,
+) {
+  return Object.entries(selections).every(([attributeId, valueId]) =>
+    variant.valores.some(
+      (variantValue) =>
+        variantValue.atributoCatalogoId === Number(attributeId) &&
+        variantValue.atributoCatalogoValorId === valueId,
+    ),
+  );
+}
+
 function ColorOptionCard({
   value,
   currency,
@@ -310,21 +323,29 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
     [product],
   );
 
-  const selectedVariant = useMemo(() => {
+  const previewVariant = useMemo(() => {
     if (!product) {
       return null;
     }
 
     return (
       variants.find((variant) =>
-        variant.valores.every(
-          (value) =>
-            selectedValues[value.atributoCatalogoId] ===
-            value.atributoCatalogoValorId,
-        ),
-      ) ?? null
+        variantMatchesSelection(variant, selectedValues),
+      ) ?? variants[0] ?? null
     );
   }, [product, selectedValues, variants]);
+
+  const hasCompleteSelection = useMemo(() => {
+    if (!product || product.atributos.length === 0) {
+      return false;
+    }
+
+    return product.atributos.every((attribute) =>
+      Boolean(selectedValues[attribute.atributoCatalogoId]),
+    );
+  }, [product, selectedValues]);
+
+  const selectedVariant = hasCompleteSelection ? previewVariant : null;
 
   useEffect(() => {
     if (!selectedVariant) {
@@ -346,9 +367,77 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
   }, [selectedVariant]);
 
   const imageUrls = useMemo(
-    () => buildImageSet(selectedVariant, variants),
-    [selectedVariant, variants],
+    () => buildImageSet(previewVariant, variants),
+    [previewVariant, variants],
   );
+
+  const attributeInfoByIndex = useMemo(() => {
+    if (!product) {
+      return [];
+    }
+
+    const catalogById = new Map(
+      product.atributos.map((attribute) => [
+        attribute.atributoCatalogoId,
+        attribute,
+      ]),
+    );
+
+    return product.atributos.map((attribute, index) => {
+      const priorAttributes = product.atributos.slice(0, index);
+      const priorSelections = priorAttributes.reduce<Record<number, number>>(
+        (accumulator, priorAttribute) => {
+          const selectedValueId =
+            selectedValues[priorAttribute.atributoCatalogoId];
+
+          if (selectedValueId) {
+            accumulator[priorAttribute.atributoCatalogoId] = selectedValueId;
+          }
+
+          return accumulator;
+        },
+        {},
+      );
+
+      const priorSelectionComplete =
+        index === 0 ||
+        priorAttributes.every((priorAttribute) =>
+          Boolean(selectedValues[priorAttribute.atributoCatalogoId]),
+        );
+
+      const compatibleVariants = priorSelectionComplete
+        ? variants.filter((variant) =>
+            variantMatchesSelection(variant, priorSelections),
+          )
+        : [];
+
+      const allValues = product.atributos[index]?.valores ?? [];
+      const values =
+        index === 0
+          ? allValues
+          : compatibleVariants.length > 0
+            ? allValues.filter((attributeValue) =>
+                compatibleVariants.some((variant) =>
+                  variant.valores.some(
+                    (variantValue) =>
+                      variantValue.atributoCatalogoId ===
+                        attribute.atributoCatalogoId &&
+                      variantValue.atributoCatalogoValorId ===
+                        attributeValue.atributoCatalogoValorId,
+                  ),
+                ),
+              )
+            : [];
+
+      return {
+        attribute,
+        label: catalogById.get(attribute.atributoCatalogoId)?.nombre ?? attribute.nombre,
+        values,
+        selectedValueId: selectedValues[attribute.atributoCatalogoId] ?? 0,
+        isLocked: index > 0 && !priorSelectionComplete,
+      };
+    });
+  }, [product, selectedValues, variants]);
 
   const handleToggleFavorite = useCallback(
     (targetProduct: PublicStoreProduct) => {
@@ -368,43 +457,33 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
 
   const handleAttributeSelect = useCallback(
     (attributeId: number, valueId: number) => {
-      const compatibleVariants = variants.filter((variant) =>
-        variant.valores.some(
-          (value) =>
-            value.atributoCatalogoId === attributeId &&
-            value.atributoCatalogoValorId === valueId,
-        ),
-      );
-
-      const prioritizedVariant =
-        compatibleVariants.find((variant) =>
-          variant.valores.every((value) => {
-            if (value.atributoCatalogoId === attributeId) {
-              return value.atributoCatalogoValorId === valueId;
-            }
-
-            const selected = selectedValues[value.atributoCatalogoId];
-            return !selected || selected === value.atributoCatalogoValorId;
-          }),
-        ) ??
-        compatibleVariants.find((variant) => variant.cantidad > 0) ??
-        compatibleVariants[0];
-
-      if (!prioritizedVariant) {
+      if (!product) {
         return;
       }
 
-      setSelectedValues(
-        prioritizedVariant.valores.reduce<Record<number, number>>(
-          (accumulator, value) => {
-            accumulator[value.atributoCatalogoId] = value.atributoCatalogoValorId;
-            return accumulator;
-          },
-          {},
-        ),
+      const attributeIndex = product.atributos.findIndex(
+        (attribute) => attribute.atributoCatalogoId === attributeId,
       );
+
+      if (attributeIndex < 0) {
+        return;
+      }
+
+      setSelectedValues((current) => {
+        const nextSelections: Record<number, number> = {};
+
+        product.atributos.slice(0, attributeIndex).forEach((attribute) => {
+          const selectedValueId = current[attribute.atributoCatalogoId];
+          if (selectedValueId) {
+            nextSelections[attribute.atributoCatalogoId] = selectedValueId;
+          }
+        });
+
+        nextSelections[attributeId] = valueId;
+        return nextSelections;
+      });
     },
-    [selectedValues, variants],
+    [product],
   );
 
   if (isLoading) {
@@ -556,16 +635,25 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                 )}
               </div>
 
-              {product.atributos.length > 0 ? (
+              {attributeInfoByIndex.length > 0 ? (
                 <div className="space-y-3 rounded-2xl border border-[#dbe7ff] bg-[#F8FBFF] p-2.5 sm:rounded-[24px] sm:p-4">
-                  {product.atributos.map((attribute) => {
-                    const selectedValueId =
-                      selectedValues[attribute.atributoCatalogoId];
-                    const selectedAttributeValue = attribute.valores.find(
+                  {attributeInfoByIndex.map((attributeInfo, index) => {
+                    const {
+                      attribute,
+                      label,
+                      values,
+                      selectedValueId,
+                      isLocked,
+                    } = attributeInfo;
+                    const selectedAttributeValue = values.find(
                       (value) =>
                         value.atributoCatalogoValorId === selectedValueId,
                     );
                     const shouldRenderColorCards = isColorAttribute(attribute);
+                    const previousAttributeLabel =
+                      index > 0
+                        ? attributeInfoByIndex[index - 1]?.label ?? "la opción anterior"
+                        : null;
 
                     return (
                       <div
@@ -574,7 +662,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                       >
                         <div className="flex flex-wrap items-baseline gap-1.5">
                           <p className="text-xs font-semibold text-[var(--foreground-strong)] sm:text-sm">
-                            {attribute.nombre}
+                            {label}
                           </p>
                           {selectedAttributeValue ? (
                             <span className="text-xs font-semibold text-[#2563EB] sm:text-sm">
@@ -587,36 +675,41 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                           )}
                         </div>
 
-                        {shouldRenderColorCards ? (
+                        {isLocked ? (
+                          <div className="rounded-2xl border border-dashed border-[#dbe7ff] bg-white px-3 py-2 text-xs text-[var(--muted)] sm:px-4 sm:py-3 sm:text-sm">
+                            Selecciona {previousAttributeLabel} para ver los
+                            valores disponibles.
+                          </div>
+                        ) : shouldRenderColorCards ? (
                           <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-3 sm:gap-2 xl:grid-cols-4">
-                              {attribute.valores.map((value) => {
-                                const isSelected =
-                                  selectedValueId ===
-                                  value.atributoCatalogoValorId;
-                                const optionVariant =
-                                  findAnyVariantForAttributeValue(
-                                    variants,
-                                    attribute.atributoCatalogoId,
-                                    value.atributoCatalogoValorId,
-                                  );
-                                const canSelect =
-                                  hasAnyVariantForAttributeValue(
-                                    variants,
-                                    attribute.atributoCatalogoId,
-                                    value.atributoCatalogoValorId,
-                                  );
+                            {values.map((value) => {
+                              const isSelected =
+                                selectedValueId ===
+                                value.atributoCatalogoValorId;
+                              const optionVariant =
+                                findAnyVariantForAttributeValue(
+                                  variants,
+                                  attribute.atributoCatalogoId,
+                                  value.atributoCatalogoValorId,
+                                );
+                              const canSelect =
+                                hasAnyVariantForAttributeValue(
+                                  variants,
+                                  attribute.atributoCatalogoId,
+                                  value.atributoCatalogoValorId,
+                                );
 
-                                return (
-                                  <ColorOptionCard
-                                    key={value.atributoCatalogoValorId}
-                                    value={value}
-                                    currency={currency}
-                                    isSelected={isSelected}
-                                    variant={optionVariant}
-                                    canSelect={canSelect}
-                                    fallbackImageUrl={imageUrls[0] ?? null}
-                                    onSelect={() =>
-                                      handleAttributeSelect(
+                              return (
+                                <ColorOptionCard
+                                  key={value.atributoCatalogoValorId}
+                                  value={value}
+                                  currency={currency}
+                                  isSelected={isSelected}
+                                  variant={optionVariant}
+                                  canSelect={canSelect}
+                                  fallbackImageUrl={imageUrls[0] ?? null}
+                                  onSelect={() =>
+                                    handleAttributeSelect(
                                       attribute.atributoCatalogoId,
                                       value.atributoCatalogoValorId,
                                     )
@@ -627,19 +720,19 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                           </div>
                         ) : (
                           <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                              {attribute.valores.map((value) => {
-                                const isSelected =
-                                  selectedValueId ===
-                                  value.atributoCatalogoValorId;
-                                const isAvailable =
-                                  hasAnyVariantForAttributeValue(
-                                    variants,
-                                    attribute.atributoCatalogoId,
-                                    value.atributoCatalogoValorId,
-                                  );
+                            {values.map((value) => {
+                              const isSelected =
+                                selectedValueId ===
+                                value.atributoCatalogoValorId;
+                              const isAvailable =
+                                hasAnyVariantForAttributeValue(
+                                  variants,
+                                  attribute.atributoCatalogoId,
+                                  value.atributoCatalogoValorId,
+                                );
 
-                                return (
-                                  <button
+                              return (
+                                <button
                                   key={value.atributoCatalogoValorId}
                                   type="button"
                                   disabled={!isAvailable}
