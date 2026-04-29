@@ -25,8 +25,29 @@ import { MaterialInput } from "@/modules/core/components/MaterialInput";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
 import { useToast } from "@/modules/core/providers/ToastProvider";
 
+function TrashIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`inline-block ${className}`}
+      style={{
+        WebkitMaskImage: "url(/icons/trash.svg)",
+        maskImage: "url(/icons/trash.svg)",
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+        backgroundColor: "currentColor",
+      }}
+    />
+  );
+}
+
 type CatalogAttributeFormValue = {
   id: string;
+  catalogValueId: number | null;
   valor: string;
   colorHexadecimal: string;
   usaColor: boolean;
@@ -45,6 +66,7 @@ const INITIAL_FORM: CatalogAttributeFormState = {
   valores: [
     {
       id: "initial-value",
+      catalogValueId: null,
       valor: "",
       colorHexadecimal: "#000000",
       usaColor: false,
@@ -59,6 +81,7 @@ function buildFormValues(detail: CatalogAttributeDetail): CatalogAttributeFormVa
   return detail.valores.length > 0
     ? detail.valores.map((value) => ({
         id: `value-${value.id}`,
+        catalogValueId: value.id,
         valor: value.valor,
         colorHexadecimal: value.colorHexadecimal ?? "#000000",
         usaColor: Boolean(value.colorHexadecimal),
@@ -67,6 +90,7 @@ function buildFormValues(detail: CatalogAttributeDetail): CatalogAttributeFormVa
     : [
         {
           id: "initial-value",
+          catalogValueId: null,
           valor: "",
           colorHexadecimal: "#000000",
           usaColor: false,
@@ -238,6 +262,7 @@ export function CatalogAttributesManagementView() {
 
       const valores = form.valores
         .map((value) => ({
+          id: value.catalogValueId,
           valor: value.valor.trim(),
           colorHexadecimal: value.usaColor
             ? value.colorHexadecimal.trim().toUpperCase()
@@ -414,10 +439,6 @@ export function CatalogAttributesManagementView() {
                 <h4 className="text-lg font-semibold text-[var(--foreground-strong)]">
                   {editingAttributeId ? "Editar atributo" : "Crear atributo"}
                 </h4>
-                <p className="text-sm text-[var(--muted)]">
-                  Mantén nombres y valores consistentes para reutilizarlos en
-                  todos los productos.
-                </p>
               </div>
               <button
                 type="button"
@@ -428,7 +449,7 @@ export function CatalogAttributesManagementView() {
               </button>
             </div>
 
-            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_220px]">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-stretch gap-4">
               <MaterialInput
                 id="catalog-attribute-name"
                 label="Nombre del atributo"
@@ -439,10 +460,11 @@ export function CatalogAttributesManagementView() {
                     nombre: event.target.value,
                   }))
                 }
+                className="flex-1"
                 required
               />
 
-              <label className="flex items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)]">
+              <label className="flex h-12 items-center gap-3 self-stretch rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 text-sm text-[var(--foreground)]">
                 <input
                   type="checkbox"
                   checked={form.estado}
@@ -463,39 +485,14 @@ export function CatalogAttributesManagementView() {
                   <h5 className="text-sm font-semibold text-[var(--foreground-strong)]">
                     Valores del atributo
                   </h5>
-                  <p className="text-sm text-[var(--muted)]">
-                    Define el nombre y orden de cada opción visible para los
-                    productos.
-                  </p>
                 </div>
-                <button
-                  type="button"
-                  className="app-button-secondary rounded-xl px-3 py-2 text-sm font-semibold"
-                  onClick={() =>
-                    setForm((current) => ({
-                      ...current,
-                      valores: [
-                        ...current.valores,
-                        {
-                          id: `new-${Date.now()}-${current.valores.length}`,
-                          valor: "",
-                          colorHexadecimal: "#000000",
-                          usaColor: false,
-                          orden: String(current.valores.length + 1),
-                        },
-                      ],
-                    }))
-                  }
-                >
-                  Agregar valor
-                </button>
               </div>
 
-              <div className="space-y-3">
+              <div className="divide-y divide-[var(--line)]/60">
                 {form.valores.map((value, index) => (
                   <div
                     key={value.id}
-                    className="grid gap-3 rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-3 xl:grid-cols-[minmax(0,1fr)_190px_120px_auto]"
+                    className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 py-3 first:pt-0 last:pb-0 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_120px_auto] xl:items-end"
                   >
                     <MaterialInput
                       id={`catalog-value-${value.id}`}
@@ -515,8 +512,8 @@ export function CatalogAttributesManagementView() {
                         }))
                       }
                     />
-                    <div className="flex min-h-[58px] items-center justify-between gap-3 rounded-xl border border-[var(--line)] bg-[var(--panel-muted)] px-3 py-2">
-                      <label className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
+                    <div className="flex h-12 items-center justify-between gap-3 rounded-2xl border border-[var(--line)] px-3 text-sm text-[var(--foreground)]">
+                      <label className="flex cursor-pointer items-center gap-2 font-semibold">
                         <input
                           type="checkbox"
                           checked={value.usaColor}
@@ -587,7 +584,7 @@ export function CatalogAttributesManagementView() {
                     />
                     <button
                       type="button"
-                      className="app-button-danger rounded-xl px-3 py-2 text-sm font-semibold"
+                      className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-red-200/80 bg-red-50/70 text-red-600 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-red-300 hover:bg-red-100 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300/70 disabled:translate-y-0 disabled:opacity-60"
                       onClick={() =>
                         setForm((current) => ({
                           ...current,
@@ -600,11 +597,37 @@ export function CatalogAttributesManagementView() {
                         }))
                       }
                       disabled={form.valores.length <= 1}
+                      aria-label={`Quitar ${value.valor || `valor ${index + 1}`}`}
+                      title="Quitar valor"
                     >
-                      Quitar
+                      <TrashIcon />
                     </button>
                   </div>
                 ))}
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  className="app-button-secondary inline-flex h-10 items-center rounded-xl px-3 text-sm font-semibold"
+                  onClick={() =>
+                    setForm((current) => ({
+                      ...current,
+                      valores: [
+                        ...current.valores,
+                        {
+                          id: `new-${Date.now()}-${current.valores.length}`,
+                          catalogValueId: null,
+                          valor: "",
+                          colorHexadecimal: "#000000",
+                          usaColor: false,
+                          orden: String(current.valores.length + 1),
+                        },
+                      ],
+                    }))
+                  }
+                >
+                  Agregar valor
+                </button>
               </div>
             </div>
 

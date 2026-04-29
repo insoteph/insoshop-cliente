@@ -930,19 +930,6 @@ export function ProductManagementPanel({
                 vender: precio, existencias e imagen principal.
               </p>
             </div>
-            {canManage ? (
-              <button
-                type="button"
-                className="app-button-secondary inline-flex h-10 w-full items-center justify-center rounded-xl px-3.5 text-sm font-semibold sm:w-auto"
-                onClick={() => {
-                  resetVariantForm();
-                  openVariantEditor();
-                }}
-                disabled={product.atributos.length === 0}
-              >
-                Agregar combinación
-              </button>
-            ) : null}
           </div>
 
           <div className="divide-y divide-[var(--line)]/60">
@@ -1234,6 +1221,22 @@ export function ProductManagementPanel({
                 Usa <span className="font-semibold text-[var(--foreground)]">Agregar combinación</span> para definir cada presentación real de venta con su precio, existencias e imagen.
               </div>
             )
+          ) : null}
+
+          {canManage ? (
+            <div className="flex justify-end pt-1">
+              <button
+                type="button"
+                className="app-button-secondary inline-flex h-10 w-full items-center justify-center rounded-xl px-3.5 text-sm font-semibold sm:w-auto"
+                onClick={() => {
+                  resetVariantForm();
+                  openVariantEditor();
+                }}
+                disabled={product.atributos.length === 0}
+              >
+                Agregar combinación
+              </button>
+            </div>
           ) : null}
         </section>
       </div>

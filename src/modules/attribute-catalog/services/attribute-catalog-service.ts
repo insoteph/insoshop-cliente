@@ -1,6 +1,7 @@
 import { apiFetch, type PagedResult } from "@/modules/core/lib/api-client";
 
 export type CatalogAttributeValueInput = {
+  id?: number | null;
   valor: string;
   colorHexadecimal?: string | null;
   orden: number;

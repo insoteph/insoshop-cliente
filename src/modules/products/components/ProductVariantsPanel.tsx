@@ -413,18 +413,6 @@ export function ProductVariantsPanel({
             Variantes
           </h4>
         </div>
-
-        {canEdit ? (
-          <button
-            type="button"
-            disabled={disabled || isCatalogLoading || !canBuildVariants}
-            onClick={addVariant}
-            className="app-button-primary inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-semibold disabled:opacity-60 sm:h-10 sm:px-3.5"
-          >
-            <PlusIcon />
-            <span className="hidden sm:inline">Agregar variante</span>
-          </button>
-        ) : null}
       </div>
 
       {catalogError ? (
@@ -757,6 +745,20 @@ export function ProductVariantsPanel({
             </table>
           </div>
         </>
+      ) : null}
+
+      {canEdit ? (
+        <div className="flex justify-end pt-1">
+          <button
+            type="button"
+            disabled={disabled || isCatalogLoading || !canBuildVariants}
+            onClick={addVariant}
+            className="app-button-primary inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-semibold disabled:opacity-60 sm:h-10 sm:px-3.5"
+          >
+            <PlusIcon />
+            <span className="hidden sm:inline">Agregar variante</span>
+          </button>
+        </div>
       ) : null}
     </section>
   );

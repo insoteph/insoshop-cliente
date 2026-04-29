@@ -339,17 +339,6 @@ export function ProductAttributesPanel({
         <h4 className="text-base font-semibold text-[var(--foreground-strong)] sm:text-lg">
           Atributos y valores
         </h4>
-
-        {canAddAttribute ? (
-          <ResponsiveIconButton
-            type="button"
-            disabled={disabled || isCatalogLoading}
-            onClick={addAttribute}
-            className="app-button-primary inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-semibold disabled:opacity-60 sm:h-10 sm:px-3.5"
-            icon={<PlusIcon />}
-            label="Agregar atributo"
-          />
-        ) : null}
       </div>
 
       {catalogError ? (
@@ -389,6 +378,15 @@ export function ProductAttributesPanel({
             (attributeValue) =>
               !draft.atributoCatalogoValorIds.includes(attributeValue.id),
           );
+          const canRenderValuePicker = canEdit && (loadingValues || selectableValues.length > 0);
+          const hasPendingValuePicker = valuePickers.some(
+            (picker) => !picker.selectedValueId,
+          );
+          const canAddAnotherValue =
+            canEdit &&
+            selectedValues.length > 0 &&
+            selectableValues.length > 0 &&
+            !hasPendingValuePicker;
 
           const attributeIndex = value.findIndex((item) => item.key === draft.key);
           const attributeLabel =
@@ -447,7 +445,7 @@ export function ProductAttributesPanel({
                         </span>
                       ))}
 
-                      {canEdit
+                      {canRenderValuePicker
                         ? valuePickers.map((picker) => (
                             <select
                               key={picker.id}
@@ -478,11 +476,7 @@ export function ProductAttributesPanel({
                               className="app-input h-8 min-w-[140px] shrink-0 rounded-full px-3 py-1 text-sm"
                             >
                               <option value="">
-                                {loadingValues
-                                  ? "Cargando..."
-                                  : selectableValues.length > 0
-                                    ? "Seleccione"
-                                    : "Sin valores"}
+                                {loadingValues ? "Cargando..." : "Seleccione"}
                               </option>
                               {selectableValues.map((catalogValue) => (
                                 <option key={catalogValue.id} value={catalogValue.id}>
@@ -493,9 +487,7 @@ export function ProductAttributesPanel({
                           ))
                         : null}
 
-                      {canEdit &&
-                      draft.atributoCatalogoId > 0 &&
-                      selectableValues.length > 0 ? (
+                      {canAddAnotherValue ? (
                         <ResponsiveIconButton
                           type="button"
                           disabled={disabled}
@@ -526,6 +518,19 @@ export function ProductAttributesPanel({
           );
         })}
       </div>
+
+      {canAddAttribute ? (
+        <div className="flex justify-end pt-1">
+          <ResponsiveIconButton
+            type="button"
+            disabled={disabled || isCatalogLoading}
+            onClick={addAttribute}
+            className="app-button-primary inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-semibold disabled:opacity-60 sm:h-10 sm:px-3.5"
+            icon={<PlusIcon />}
+            label="Agregar atributo"
+          />
+        </div>
+      ) : null}
     </section>
   );
 }
