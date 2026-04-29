@@ -5,11 +5,13 @@ import { useMemo, useState } from "react";
 type ProductImageGalleryProps = {
   productName: string;
   imageUrls: string[];
+  onImageSelect?: (imageUrl: string) => void;
 };
 
 export function ProductImageGallery({
   productName,
   imageUrls,
+  onImageSelect,
 }: ProductImageGalleryProps) {
   const images = useMemo(
     () =>
@@ -83,7 +85,10 @@ export function ProductImageGallery({
                   ? "border-[#2563EB] shadow-[0_0_0_2px_rgba(37,99,235,0.14)]"
                   : "border-[#dbe7ff] hover:border-[#9bb8ff]"
               }`}
-              onClick={() => setActiveIndex(index)}
+              onClick={() => {
+                setActiveIndex(index);
+                onImageSelect?.(imageUrl);
+              }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

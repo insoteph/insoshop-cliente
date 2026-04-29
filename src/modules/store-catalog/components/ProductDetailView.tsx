@@ -152,6 +152,93 @@ function variantMatchesSelection(
   );
 }
 
+function findVariantByImageUrl(
+  variants: PublicStoreProductVariant[],
+  imageUrl: string,
+) {
+  const normalizedImageUrl = imageUrl.trim();
+  if (!normalizedImageUrl) {
+    return null;
+  }
+
+  return (
+    variants.find((variant) =>
+      [
+        ...(variant.imagenes ?? []),
+        variant.urlImagenPrincipal ?? "",
+      ].some((candidate) => candidate.trim() === normalizedImageUrl),
+    ) ?? null
+  );
+}
+
+function buildSelectionFromVariantPreview(
+  product: PublicStoreProductDetail,
+  variants: PublicStoreProductVariant[],
+  baseVariant: PublicStoreProductVariant,
+) {
+  const nextSelections: Record<number, number> = {};
+
+  if (product.atributos.length === 0) {
+    return nextSelections;
+  }
+
+  const firstAttribute = product.atributos[0];
+  const firstVariantValue = baseVariant.valores.find(
+    (value) => value.atributoCatalogoId === firstAttribute.atributoCatalogoId,
+  );
+  const firstValue =
+    firstVariantValue?.atributoCatalogoValorId ??
+    firstAttribute.valores[0]?.atributoCatalogoValorId;
+
+  if (firstValue) {
+    nextSelections[firstAttribute.atributoCatalogoId] = firstValue;
+  }
+
+  product.atributos.slice(1).forEach((attribute, index) => {
+    const compatibleVariants = variants.filter((variant) =>
+      variantMatchesSelection(variant, nextSelections),
+    );
+
+    const compatibleValue = attribute.valores.find((attributeValue) =>
+      compatibleVariants.some((variant) =>
+        variant.valores.some(
+          (variantValue) =>
+            variantValue.atributoCatalogoId === attribute.atributoCatalogoId &&
+            variantValue.atributoCatalogoValorId ===
+              attributeValue.atributoCatalogoValorId,
+        ),
+      ),
+    );
+
+    const baseVariantValue = baseVariant.valores.find(
+      (value) => value.atributoCatalogoId === attribute.atributoCatalogoId,
+    );
+
+    const selectedValue =
+      index === 0
+        ? compatibleValue ?? baseVariantValue
+        : compatibleValue ?? baseVariantValue ?? attribute.valores[0];
+
+    if (selectedValue) {
+      nextSelections[attribute.atributoCatalogoId] =
+        selectedValue.atributoCatalogoValorId;
+    }
+  });
+
+  return nextSelections;
+}
+
+function getVariantAttributeValueId(
+  variant: PublicStoreProductVariant | null,
+  attributeId: number,
+) {
+  return (
+    variant?.valores.find(
+      (value) => value.atributoCatalogoId === attributeId,
+    )?.atributoCatalogoValorId ?? null
+  );
+}
+
 function ColorOptionCard({
   value,
   currency,
@@ -180,7 +267,7 @@ function ColorOptionCard({
       onClick={onSelect}
       className={`group min-h-0 overflow-hidden rounded-2xl border bg-[var(--panel)] text-left transition active:scale-[0.98] sm:min-h-[9rem] sm:active:scale-100 ${
         isSelected
-          ? "border-[var(--accent)] shadow-[0_0_0_2px_var(--accent-soft)]"
+          ? "border-[var(--accent)] shadow-[0_0_0_2px_var(--accent-soft)] ring-2 ring-[#2563EB]/15"
           : "border-[var(--line)] hover:border-[var(--line-strong)] hover:shadow-[var(--shadow)]"
       } disabled:cursor-not-allowed disabled:opacity-45`}
     >
@@ -209,13 +296,20 @@ function ColorOptionCard({
       </div>
 
       <div className="space-y-0.5 p-2 sm:space-y-1 sm:p-2.5">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center justify-between gap-1.5">
+          <div className="flex items-center gap-1.5">
           {value.colorHexadecimal ? (
             <ColorSwatch colorHexadecimal={value.colorHexadecimal} />
           ) : null}
           <span className="line-clamp-1 text-xs font-semibold text-[var(--foreground)]">
             {value.valor}
           </span>
+          </div>
+          {isSelected ? (
+            <span className="shrink-0 rounded-full bg-[#EEF4FF] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-[#2563EB]">
+              Activo
+            </span>
+          ) : null}
         </div>
         <p className="hidden text-xs font-bold text-[var(--foreground-strong)] sm:block sm:text-sm">
           {variant ? formatCurrency(variant.precio, currency) : "No disponible"}
@@ -250,6 +344,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
   const [selectedValues, setSelectedValues] = useState<Record<number, number>>(
     {},
   );
+  const [activeVariantId, setActiveVariantId] = useState<number | null>(null);
 
   usePublicStoreLightMode();
 
@@ -284,6 +379,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
       setProduct(productResult);
       setStore(catalogResult.tienda);
       setCurrency(catalogResult.tienda.moneda || "HNL");
+      setActiveVariantId(firstVariant?.id ?? null);
       setSelectedValues(
         firstVariant
           ? firstVariant.valores.reduce<Record<number, number>>(
@@ -335,6 +431,19 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
     );
   }, [product, selectedValues, variants]);
 
+  const activeVariant = useMemo(() => {
+    if (!product) {
+      return null;
+    }
+
+    return (
+      variants.find((variant) => variant.id === activeVariantId) ??
+      previewVariant ??
+      variants[0] ??
+      null
+    );
+  }, [activeVariantId, previewVariant, product, variants]);
+
   const hasCompleteSelection = useMemo(() => {
     if (!product || product.atributos.length === 0) {
       return false;
@@ -345,7 +454,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
     );
   }, [product, selectedValues]);
 
-  const selectedVariant = hasCompleteSelection ? previewVariant : null;
+  const selectedVariant = hasCompleteSelection ? previewVariant : activeVariant;
 
   useEffect(() => {
     if (!selectedVariant) {
@@ -367,8 +476,23 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
   }, [selectedVariant]);
 
   const imageUrls = useMemo(
-    () => buildImageSet(previewVariant, variants),
-    [previewVariant, variants],
+    () => buildImageSet(selectedVariant, variants),
+    [selectedVariant, variants],
+  );
+
+  const handleGalleryImageSelect = useCallback(
+    (imageUrl: string) => {
+      const matchedVariant = findVariantByImageUrl(variants, imageUrl);
+      if (!matchedVariant || !product) {
+        return;
+      }
+
+      setActiveVariantId(matchedVariant.id);
+      setSelectedValues(
+        buildSelectionFromVariantPreview(product, variants, matchedVariant),
+      );
+    },
+    [product, variants],
   );
 
   const attributeInfoByIndex = useMemo(() => {
@@ -469,6 +593,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
         return;
       }
 
+      setActiveVariantId(null);
       setSelectedValues((current) => {
         const nextSelections: Record<number, number> = {};
 
@@ -564,6 +689,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
               key={selectedVariant?.id ?? product.id}
               productName={product.nombre}
               imageUrls={imageUrls}
+              onImageSelect={handleGalleryImageSelect}
             />
 
             <div className="space-y-3 rounded-2xl border border-[#dbe7ff] bg-white p-3 shadow-[0_12px_28px_rgba(15,23,42,0.05)] sm:space-y-5 sm:rounded-[34px] sm:p-5 sm:shadow-[0_18px_40px_rgba(15,23,42,0.06)] lg:sticky lg:top-4 lg:self-start">
@@ -620,16 +746,12 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                   {formatCurrency(selectedVariant?.precio ?? 0, currency)}
                 </p>
 
-                {!selectedVariant ? (
-                  <span className="rounded-full bg-[#FEF2F2] px-2.5 py-1 text-[11px] font-semibold text-[#DC2626] sm:px-3 sm:text-xs">
-                    Selecciona una variante
-                  </span>
-                ) : selectedVariant.cantidad > 0 ? (
-                  <span className="rounded-full bg-[#ECFDF5] px-2.5 py-1 text-[11px] font-semibold text-[#059669] sm:px-3 sm:text-xs">
-                    Disponible ({selectedVariant.cantidad})
-                  </span>
-                ) : (
-                  <span className="rounded-full bg-[#FEF2F2] px-2.5 py-1 text-[11px] font-semibold text-[#DC2626] sm:px-3 sm:text-xs">
+                  {selectedVariant && selectedVariant.cantidad > 0 ? (
+                    <span className="rounded-full bg-[#ECFDF5] px-2.5 py-1 text-[11px] font-semibold text-[#059669] sm:px-3 sm:text-xs">
+                      Disponible ({selectedVariant.cantidad})
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-[#FEF2F2] px-2.5 py-1 text-[11px] font-semibold text-[#DC2626] sm:px-3 sm:text-xs">
                     Agotado
                   </span>
                 )}
@@ -645,9 +767,17 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                       selectedValueId,
                       isLocked,
                     } = attributeInfo;
+                    const forcedSelectedValueId =
+                      index <= 1
+                        ? getVariantAttributeValueId(
+                            activeVariant,
+                            attribute.atributoCatalogoId,
+                          )
+                        : null;
                     const selectedAttributeValue = values.find(
                       (value) =>
-                        value.atributoCatalogoValorId === selectedValueId,
+                        value.atributoCatalogoValorId ===
+                        (forcedSelectedValueId ?? selectedValueId),
                     );
                     const shouldRenderColorCards = isColorAttribute(attribute);
                     const previousAttributeLabel =
@@ -684,7 +814,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                           <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-3 sm:gap-2 xl:grid-cols-4">
                             {values.map((value) => {
                               const isSelected =
-                                selectedValueId ===
+                                (forcedSelectedValueId ?? selectedValueId) ===
                                 value.atributoCatalogoValorId;
                               const optionVariant =
                                 findAnyVariantForAttributeValue(
@@ -722,7 +852,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                           <div className="flex flex-wrap gap-1.5 sm:gap-2">
                             {values.map((value) => {
                               const isSelected =
-                                selectedValueId ===
+                                (forcedSelectedValueId ?? selectedValueId) ===
                                 value.atributoCatalogoValorId;
                               const isAvailable =
                                 hasAnyVariantForAttributeValue(
@@ -738,7 +868,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                                   disabled={!isAvailable}
                                   className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-[11px] font-semibold transition active:scale-[0.98] sm:gap-2 sm:px-3 sm:text-xs sm:active:scale-100 ${
                                     isSelected
-                                      ? "border-[#2563EB] bg-[#EEF4FF] text-[#2563EB]"
+                                      ? "border-[#2563EB] bg-[#EEF4FF] text-[#2563EB] ring-2 ring-[#2563EB]/15 shadow-[0_0_0_1px_rgba(37,99,235,0.12)]"
                                       : "border-[#dbe7ff] bg-white text-[var(--foreground)]"
                                   } disabled:cursor-not-allowed disabled:opacity-45`}
                                   onClick={() =>
@@ -831,7 +961,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
               <div className="grid gap-2 sm:grid-cols-2 sm:gap-3">
                 <button
                   type="button"
-                  disabled={isOutOfStock || !selectedVariant}
+                    disabled={isOutOfStock || !selectedVariant}
                   className="rounded-full border border-[#dbe7ff] bg-white px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] shadow-[0_8px_18px_rgba(15,23,42,0.05)] transition active:scale-[0.985] hover:border-[#9bb8ff] hover:bg-[#F8FBFF] disabled:opacity-50 sm:py-3 sm:shadow-[0_10px_24px_rgba(15,23,42,0.06)] sm:active:scale-100"
                   onClick={() => {
                     if (!selectedVariant) {
@@ -855,7 +985,7 @@ function ProductDetailContent({ slug, productId }: ProductDetailViewProps) {
                 </button>
                 <button
                   type="button"
-                  disabled={isOutOfStock || !selectedVariant}
+                    disabled={isOutOfStock || !selectedVariant}
                   className="rounded-full bg-[#2563EB] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_12px_26px_rgba(37,99,235,0.2)] transition active:scale-[0.985] hover:brightness-105 disabled:opacity-50 sm:py-3 sm:shadow-[0_14px_30px_rgba(37,99,235,0.22)] sm:active:scale-100"
                   onClick={() => {
                     if (!selectedVariant) {
