@@ -3,6 +3,7 @@
 import { formatCurrency } from "@/modules/core/lib/formatters";
 import { DetailModal } from "@/modules/core/components/DetailModal";
 import { ProductImageGallery } from "@/modules/store-catalog/components/ProductImageGallery";
+import { ColorSwatch } from "@/modules/products/components/shared/ProductVisuals";
 import {
   buildProductVariantSummary,
   getProductAttributeValues,
@@ -30,24 +31,14 @@ type ProductDetailModalProps = {
 function StatusChip({ active }: { active: boolean }) {
   return (
     <span
-      className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold ${
+      className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold ${
         active
-          ? "bg-[#ECFDF5] text-[#059669]"
-          : "bg-[#FEF2F2] text-[#DC2626]"
+          ? "border-[color:color-mix(in_srgb,var(--success)_28%,transparent)] bg-[color:color-mix(in_srgb,var(--success-soft)_80%,var(--panel-strong)_20%)] text-[color:color-mix(in_srgb,var(--success)_84%,var(--foreground)_16%)]"
+          : "border-[color:color-mix(in_srgb,var(--danger)_28%,transparent)] bg-[color:color-mix(in_srgb,var(--danger-soft)_80%,var(--panel-strong)_20%)] text-[color:color-mix(in_srgb,var(--danger)_84%,var(--foreground)_16%)]"
       }`}
     >
       {active ? "Activo" : "Inactivo"}
     </span>
-  );
-}
-
-function ColorSwatch({ colorHexadecimal }: { colorHexadecimal: string }) {
-  return (
-    <span
-      aria-hidden="true"
-      className="inline-flex h-4 w-4 rounded-full border border-black/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.35)]"
-      style={{ backgroundColor: colorHexadecimal }}
-    />
   );
 }
 
@@ -65,9 +56,12 @@ function AttributeValuePill({
   value: ProductAttribute["valores"][number];
 }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-[#dbe7ff] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--foreground)] shadow-[0_8px_18px_rgba(15,23,42,0.05)]">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] bg-[var(--panel-strong)] px-3 py-1.5 text-xs font-semibold text-[var(--foreground)] shadow-[0_8px_18px_rgba(15,23,42,0.05)]">
       {value.colorHexadecimal ? (
-        <ColorSwatch colorHexadecimal={value.colorHexadecimal} />
+        <ColorSwatch
+          colorHexadecimal={value.colorHexadecimal}
+          className="h-4 w-4 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25)]"
+        />
       ) : null}
       {value.valor}
     </span>
@@ -98,7 +92,7 @@ function ProductStatsCard({
   );
 }
 
-function ProductVariantCard({
+function ProductVariantRow({
   variant,
   currency,
 }: {
@@ -109,23 +103,21 @@ function ProductVariantCard({
   const summary = buildProductVariantSummary(variant);
 
   return (
-    <article className="overflow-hidden rounded-[24px] border border-[var(--line)] bg-[var(--panel)] shadow-[0_10px_22px_rgba(15,23,42,0.05)]">
-      <div className="border-b border-[var(--line)] bg-[linear-gradient(135deg,rgba(37,99,235,0.08),rgba(29,78,216,0.03))] px-4 py-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
-              Variante #{variant.id}
-            </p>
-            <p className="mt-1 line-clamp-2 text-sm font-semibold text-[var(--foreground-strong)]">
-              {summary}
-            </p>
-          </div>
-          <StatusChip active={variant.estado} />
+    <div className="py-3 first:pt-0 last:pb-0">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
+            Variante #{variant.id}
+          </p>
+          <p className="mt-1 line-clamp-2 text-sm font-semibold text-[var(--foreground-strong)]">
+            {summary}
+          </p>
         </div>
+        <StatusChip active={variant.estado} />
       </div>
 
-      <div className="grid gap-4 p-4 sm:grid-cols-[96px_minmax(0,1fr)]">
-        <div className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)]">
+      <div className="mt-3 grid gap-3 sm:grid-cols-[88px_minmax(0,1fr)]">
+        <div className="overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--panel-muted)]">
           {imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -134,31 +126,20 @@ function ProductVariantCard({
               className="h-full w-full object-cover"
             />
           ) : (
-            <div className="flex h-[96px] items-center justify-center text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+            <div className="flex h-[88px] items-center justify-center px-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
               Sin imagen
             </div>
           )}
         </div>
 
-        <div className="space-y-3">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-[var(--line)] bg-[var(--background-soft)] px-4 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
-                Precio
-              </p>
-              <p className="mt-1 text-sm font-semibold text-[var(--foreground-strong)]">
-                {formatCurrency(variant.precio, currency)}
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-[var(--line)] bg-[var(--background-soft)] px-4 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
-                Stock
-              </p>
-              <p className="mt-1 text-sm font-semibold text-[var(--foreground-strong)]">
-                {variant.cantidad} unidades
-              </p>
-            </div>
+        <div className="space-y-2.5">
+          <div className="flex flex-wrap gap-2">
+            <span className="inline-flex items-center rounded-full border border-[var(--line)] px-2.5 py-1 text-[11px] font-semibold text-[var(--foreground-strong)]">
+              Precio: {formatCurrency(variant.precio, currency)}
+            </span>
+            <span className="inline-flex items-center rounded-full border border-[var(--line)] px-2.5 py-1 text-[11px] font-semibold text-[var(--foreground-strong)]">
+              Stock: {variant.cantidad}
+            </span>
           </div>
 
           {variant.valores.length > 0 ? (
@@ -166,10 +147,13 @@ function ProductVariantCard({
               {variant.valores.map((value) => (
                 <span
                   key={`${variant.id}-${value.productoAtributoId}-${value.atributoCatalogoValorId}`}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--foreground)]"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[var(--line)] px-2.5 py-1 text-[11px] font-semibold text-[var(--foreground)]"
                 >
                   {value.colorHexadecimal ? (
-                    <ColorSwatch colorHexadecimal={value.colorHexadecimal} />
+                    <ColorSwatch
+                      colorHexadecimal={value.colorHexadecimal}
+                      className="h-3.5 w-3.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25)]"
+                    />
                   ) : null}
                   {value.atributoCatalogoNombre}: {value.valor}
                 </span>
@@ -178,7 +162,7 @@ function ProductVariantCard({
           ) : null}
         </div>
       </div>
-    </article>
+    </div>
   );
 }
 
@@ -232,11 +216,11 @@ export function ProductDetailModal({
         ) : null}
 
         {error && !detail ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700">
+          <div className="rounded-2xl border border-[color:color-mix(in_srgb,var(--danger)_28%,transparent)] bg-[color:color-mix(in_srgb,var(--danger-soft)_78%,var(--panel-strong)_22%)] px-4 py-4 text-sm text-[color:color-mix(in_srgb,var(--danger)_84%,var(--foreground)_16%)]">
             <p>{error}</p>
             <button
               type="button"
-              className="mt-3 rounded-xl border border-red-200 px-3 py-2 text-sm font-medium text-red-700"
+              className="mt-3 rounded-xl border border-[color:color-mix(in_srgb,var(--danger)_28%,transparent)] px-3 py-2 text-sm font-medium text-[color:color-mix(in_srgb,var(--danger)_84%,var(--foreground)_16%)]"
               onClick={onRetry}
             >
               Reintentar detalle
@@ -253,7 +237,7 @@ export function ProductDetailModal({
             />
           </div>
 
-          <div className="space-y-4 rounded-[28px] border border-[var(--line)] bg-[linear-gradient(180deg,rgba(248,251,255,0.96),#ffffff)] p-5 shadow-[0_14px_32px_rgba(15,23,42,0.05)]">
+          <div className="space-y-4 rounded-[28px] border border-[var(--line)] bg-[var(--panel-strong)] p-5 shadow-[0_14px_32px_rgba(15,23,42,0.05)]">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="space-y-2">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
@@ -268,7 +252,7 @@ export function ProductDetailModal({
             </div>
 
             {activeProduct.descripcion.trim() ? (
-              <div className="space-y-2 rounded-2xl border border-[var(--line)] bg-white p-4">
+              <div className="space-y-2 rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
                   Descripcion
                 </p>
@@ -325,7 +309,7 @@ export function ProductDetailModal({
         </div>
 
         {attributes.length > 0 ? (
-          <section className="space-y-3 rounded-[28px] border border-[var(--line)] bg-[var(--panel)] p-5 shadow-[0_12px_28px_rgba(15,23,42,0.04)]">
+          <section className="space-y-3 rounded-[28px] border border-[var(--line)] bg-[var(--panel)] px-4 py-4 shadow-[0_12px_28px_rgba(15,23,42,0.04)] sm:px-5 sm:py-5">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
@@ -340,7 +324,7 @@ export function ProductDetailModal({
               </span>
             </div>
 
-            <div className="grid gap-3 lg:grid-cols-2">
+            <div className="mt-4 grid gap-3 lg:grid-cols-2">
               {attributes.map((attribute) => {
                 const values = getProductAttributeValues(attribute);
                 const colorMode = isProductColorAttribute(attribute);
@@ -348,7 +332,7 @@ export function ProductDetailModal({
                 return (
                   <article
                     key={attribute.id}
-                    className="space-y-3 rounded-[22px] border border-[var(--line)] bg-[var(--background-soft)] p-4"
+                    className="space-y-3 rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-3 py-3 sm:px-4"
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div className="min-w-0">
@@ -360,7 +344,7 @@ export function ProductDetailModal({
                         </p>
                       </div>
                       {colorMode ? (
-                        <span className="rounded-full bg-[#EEF4FF] px-2.5 py-1 text-[11px] font-semibold text-[#2563EB]">
+                        <span className="rounded-full border border-[color:color-mix(in_srgb,var(--accent)_28%,transparent)] bg-[var(--accent-soft)] px-2.5 py-1 text-[11px] font-semibold text-[var(--accent)]">
                           Color
                         </span>
                       ) : null}
@@ -379,7 +363,7 @@ export function ProductDetailModal({
         ) : null}
 
         {variants.length > 0 ? (
-          <section className="space-y-3 rounded-[28px] border border-[var(--line)] bg-[var(--panel)] p-5 shadow-[0_12px_28px_rgba(15,23,42,0.04)]">
+          <section className="rounded-[28px] border border-[var(--line)] bg-[var(--panel)] px-4 py-4 shadow-[0_12px_28px_rgba(15,23,42,0.04)] sm:px-5 sm:py-5">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
@@ -394,9 +378,9 @@ export function ProductDetailModal({
               </span>
             </div>
 
-            <div className="grid gap-4 xl:grid-cols-2">
+            <div className="mt-4 border-t border-[var(--line)] pt-3 divide-y divide-[var(--line)]/70">
               {variants.map((variant) => (
-                <ProductVariantCard
+                <ProductVariantRow
                   key={variant.id}
                   variant={variant}
                   currency={currency}

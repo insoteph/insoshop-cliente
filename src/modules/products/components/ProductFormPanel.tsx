@@ -10,15 +10,7 @@ import {
   ProductVariantsPanel,
 } from "@/modules/products/components/ProductVariantsPanel";
 import { type ProductVariantDraft } from "@/modules/products/services/product-service";
-
-export type ProductFormState = {
-  nombre: string;
-  descripcion: string;
-  categoriaId: number;
-  estado: boolean;
-  atributos: ProductAttributeDraft[];
-  variantes: ProductVariantDraft[];
-};
+import type { ProductFormState } from "@/modules/products/types/product-form.types";
 
 type ProductFormPanelProps = {
   storeId: number;
