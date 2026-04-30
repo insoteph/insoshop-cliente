@@ -1,19 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import {
-  DataTable,
-  type DataTableBadgeConfig,
-  type DataTableColumn,
-} from "@/modules/core/components/DataTable";
-import {
-  ToolbarActions,
-  type DataTableToolbarAction,
-} from "@/modules/core/components/DataTableToolbar";
+import { CategoryDetailModal } from "@/modules/categories/components/CategoryDetailModal";
+import { CategoryFormPanel } from "@/modules/categories/components/CategoryFormPanel";
+import { CategoriesTable } from "@/modules/categories/components/CategoriesTable";
+import { CategoriesToolbar } from "@/modules/categories/components/CategoriesToolbar";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
 import { useToast } from "@/modules/core/providers/ToastProvider";
-import { SearchBar } from "@/modules/core/components/SearchBar";
 
 import {
   createCategory,
@@ -58,6 +52,11 @@ export function CategoriesPanel({
   const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null);
   const [form, setForm] = useState(INITIAL_FORM);
   const closeFormTimeoutRef = useRef<number | null>(null);
+  const categoryDetailCloseTimeoutRef = useRef<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null,
+  );
+  const [isCategoryDetailOpen, setIsCategoryDetailOpen] = useState(false);
 
   const loadCategories = useCallback(async () => {
     setIsLoading(true);
@@ -103,6 +102,17 @@ export function CategoriesPanel({
     }
   }, []);
 
+  const clearCategoryDetailCloseTimeout = useCallback(() => {
+    if (categoryDetailCloseTimeoutRef.current) {
+      window.clearTimeout(categoryDetailCloseTimeoutRef.current);
+      categoryDetailCloseTimeoutRef.current = null;
+    }
+  }, []);
+
+  const resetCategoryDetailState = useCallback(() => {
+    setSelectedCategory(null);
+  }, []);
+
   const openFormPanel = useCallback(() => {
     clearCloseFormTimeout();
     setIsFormMounted(true);
@@ -128,8 +138,9 @@ export function CategoriesPanel({
   useEffect(() => {
     return () => {
       clearCloseFormTimeout();
+      clearCategoryDetailCloseTimeout();
     };
-  }, [clearCloseFormTimeout]);
+  }, [clearCloseFormTimeout, clearCategoryDetailCloseTimeout]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -167,6 +178,20 @@ export function CategoriesPanel({
     resetForm();
     openFormPanel();
   }, [openFormPanel, resetForm]);
+
+  const handleOpenCategoryDetail = useCallback((category: Category) => {
+    clearCategoryDetailCloseTimeout();
+    setSelectedCategory(category);
+    setIsCategoryDetailOpen(true);
+  }, [clearCategoryDetailCloseTimeout]);
+
+  const handleCloseCategoryDetail = useCallback(() => {
+    setIsCategoryDetailOpen(false);
+    clearCategoryDetailCloseTimeout();
+    categoryDetailCloseTimeoutRef.current = window.setTimeout(() => {
+      resetCategoryDetailState();
+    }, 240);
+  }, [clearCategoryDetailCloseTimeout, resetCategoryDetailState]);
 
   const handleEditClick = useCallback((category: Category) => {
     setEditingCategoryId(category.id);
@@ -211,203 +236,63 @@ export function CategoriesPanel({
     [confirm, loadCategories, storeId, toast],
   );
 
-  const columns = useMemo<DataTableColumn<Category>[]>(
-    () => [
-      {
-        key: "nombre",
-        header: "Categoria",
-        className: "font-semibold",
-      },
-      {
-        key: "estado",
-        header: "Estado",
-      },
-    ],
-    [],
-  );
-
-  const stateBadges = useMemo<Array<DataTableBadgeConfig<Category>>>(
-    () => [
-      {
-        columnKey: "estado",
-        rules: [
-          {
-            value: true,
-            label: "Activa",
-            iconPath: "/icons/check.svg",
-            textClassName: "app-badge-success",
-            backgroundClassName: "",
-          },
-          {
-            value: false,
-            label: "Inactiva",
-            iconPath: "/icons/cross.svg",
-            textClassName: "app-badge-neutral",
-            backgroundClassName: "",
-          },
-        ],
-      },
-    ],
-    [],
-  );
-
-  const rowActions = canManage
-    ? {
-        primaryButtonLabel: "Editar",
-        onPrimaryAction: handleEditClick,
-        dropdownOptions: [
-          {
-            label: (category: Category) =>
-              category.estado ? "Inactivar" : "Activar",
-            onClick: handleToggleStatus,
-          },
-        ],
-      }
-    : undefined;
-
-  const toolbarActions = useMemo<DataTableToolbarAction[]>(
-    () =>
-      canManage
-        ? [
-            {
-              label: "Nueva categoria",
-              iconPath: "/icons/plus.svg",
-              onClick: handleCreateClick,
-            },
-          ]
-        : [],
-    [canManage, handleCreateClick],
-  );
-
   return (
     <section className="space-y-5">
-      <div className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-md">
-        <div className="flex flex-row items-center gap-2">
-          <div className="min-w-0 flex-1">
-            <SearchBar
-              value={search}
-              onChange={(value) => {
-                setPage(1);
-                setSearch(value);
-              }}
-              placeholder="Buscar por nombre de categoria"
-              ariaLabel="Buscar categorias"
-            />
-          </div>
-          <ToolbarActions actions={toolbarActions} className="shrink-0" />
-        </div>
+      <CategoriesToolbar
+        search={search}
+        statusFilter={statusFilter}
+        canManage={canManage}
+        onSearchChange={(value) => {
+          setPage(1);
+          setSearch(value);
+        }}
+        onStatusFilterChange={(value) => {
+          setPage(1);
+          setStatusFilter(value);
+        }}
+        onCreateClick={handleCreateClick}
+      />
 
-        <div className="grid gap-3 md:grid-cols-[220px] md:justify-end">
-          <select
-            value={statusFilter}
-            onChange={(event) => {
-              setPage(1);
-              setStatusFilter(
-                event.target.value as "activos" | "inactivos" | "todos",
-              );
-            }}
-            className="app-input rounded-2xl px-4 py-3 text-sm"
-          >
-            <option value="todos">Todos los estados</option>
-            <option value="activos">Solo activas</option>
-            <option value="inactivos">Solo inactivas</option>
-          </select>
-        </div>
-
-        {error ? (
-          <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
-            {error}
-          </p>
-        ) : null}
-      </div>
-
-      {isFormMounted ? (
-        <div
-          className={`origin-top overflow-hidden transition-all duration-500 ease-in-out ${
-            isFormVisible
-              ? "max-h-[900px] translate-y-0 opacity-100"
-              : "pointer-events-none max-h-0 -translate-y-2 opacity-0"
-          }`}
-        >
-          <form
-            className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-md"
-            onSubmit={handleSubmit}
-          >
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <h4 className="text-lg font-semibold text-[var(--foreground)]">
-                  {editingCategoryId ? "Editar categoria" : "Crear categoria"}
-                </h4>
-                <p className="text-sm text-[var(--muted)]">
-                  Manten consistencia en nombres y estado de publicacion.
-                </p>
-              </div>
-              <button
-                type="button"
-                className="app-button-secondary rounded-xl px-3 py-2 text-sm"
-                onClick={() => closeFormPanel(true)}
-              >
-                Cerrar
-              </button>
-            </div>
-
-            <input
-              required
-              value={form.nombre}
-              onChange={(event) =>
-                setForm((current) => ({ ...current, nombre: event.target.value }))
-              }
-              placeholder="Nombre de la categoria"
-              className="app-input rounded-2xl px-4 py-3 text-sm"
-            />
-
-            <label className="flex items-center gap-3 text-sm text-[var(--foreground)]">
-              <input
-                type="checkbox"
-                checked={form.estado}
-                onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    estado: event.target.checked,
-                  }))
-                }
-              />
-              Categoria activa
-            </label>
-
-            {formError ? (
-              <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
-                {formError}
-              </p>
-            ) : null}
-
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                disabled={isSaving}
-                className="app-button-primary rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
-              >
-                {isSaving ? "Guardando..." : editingCategoryId ? "Actualizar" : "Crear"}
-              </button>
-            </div>
-          </form>
-        </div>
+      {error ? (
+        <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
+          {error}
+        </p>
       ) : null}
 
-      <DataTable
-        headers={columns}
-        data={categories}
+      <CategoryFormPanel
+        isMounted={isFormMounted}
+        isVisible={isFormVisible}
+        editingCategoryId={editingCategoryId}
+        form={form}
+        isSaving={isSaving}
+        formError={formError}
+        onClose={() => closeFormPanel(true)}
+        onSubmit={handleSubmit}
+        onNombreChange={(value) =>
+          setForm((current) => ({ ...current, nombre: value }))
+        }
+        onEstadoChange={(value) =>
+          setForm((current) => ({ ...current, estado: value }))
+        }
+      />
+
+      <CategoryDetailModal
+        open={isCategoryDetailOpen}
+        category={selectedCategory}
+        onClose={handleCloseCategoryDetail}
+      />
+
+      <CategoriesTable
+        categories={categories}
         isLoading={isLoading}
-        rowKey="id"
-        emptyMessage="No hay categorias registradas para esta tienda."
-        badges={stateBadges}
-        rowActions={rowActions}
-        pagination={{
-          page,
-          totalPages,
-          totalRecords,
-          onPageChange: setPage,
-        }}
+        page={page}
+        totalPages={totalPages}
+        totalRecords={totalRecords}
+        canManage={canManage}
+        onPageChange={setPage}
+        onDetails={handleOpenCategoryDetail}
+        onEdit={handleEditClick}
+        onToggleStatus={handleToggleStatus}
       />
     </section>
   );

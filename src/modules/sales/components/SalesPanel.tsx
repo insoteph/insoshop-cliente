@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { DataTable } from "@/modules/core/components/DataTable";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
 import { useToast } from "@/modules/core/providers/ToastProvider";
 import { formatCurrency, formatDateTime } from "@/modules/core/lib/formatters";
-import { SaleDetailItemsTable } from "@/modules/sales/components/SaleDetailItemsTable";
+import { SaleDetailModal } from "@/modules/sales/components/SaleDetailModal";
 import {
   fetchSaleDetail,
   fetchSales,
@@ -24,6 +24,8 @@ function isPendingSale(estadoVentaNombre: string) {
   return estadoVentaNombre.trim().toLowerCase() === "pendiente";
 }
 
+const SALE_MODAL_CLOSE_MS = 240;
+
 export function SalesPanel({ storeId, currency }: SalesPanelProps) {
   const { confirm } = useConfirmationDialog();
   const toast = useToast();
@@ -38,13 +40,15 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadTick, setReloadTick] = useState(0);
-  const [expandedSaleIds, setExpandedSaleIds] = useState<number[]>([]);
+  const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
+  const [isSaleDetailOpen, setIsSaleDetailOpen] = useState(false);
   const [loadingDetailIds, setLoadingDetailIds] = useState<number[]>([]);
   const [updatingSaleIds, setUpdatingSaleIds] = useState<number[]>([]);
   const [saleDetails, setSaleDetails] = useState<Record<number, SaleDetail>>(
     {},
   );
   const [detailErrors, setDetailErrors] = useState<Record<number, string>>({});
+  const closeSaleDetailTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     async function loadSales() {
@@ -77,6 +81,14 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
 
     void loadSales();
   }, [fechaDesde, fechaHasta, page, pageSize, reloadTick, search, storeId]);
+
+  useEffect(() => {
+    return () => {
+      if (closeSaleDetailTimeoutRef.current) {
+        window.clearTimeout(closeSaleDetailTimeoutRef.current);
+      }
+    };
+  }, []);
 
   async function loadSaleDetail(saleId: number, force = false) {
     if (
@@ -116,18 +128,27 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
     }
   }
 
-  function handleToggleDetail(sale: Sale) {
-    const isExpanded = expandedSaleIds.includes(sale.id);
-
-    if (isExpanded) {
-      setExpandedSaleIds((current) =>
-        current.filter((currentId) => currentId !== sale.id),
-      );
-      return;
+  function handleOpenDetail(sale: Sale) {
+    if (closeSaleDetailTimeoutRef.current) {
+      window.clearTimeout(closeSaleDetailTimeoutRef.current);
+      closeSaleDetailTimeoutRef.current = null;
     }
 
-    setExpandedSaleIds((current) => [...current, sale.id]);
+    setSelectedSale(sale);
+    setIsSaleDetailOpen(true);
     void loadSaleDetail(sale.id);
+  }
+
+  function handleCloseDetail() {
+    setIsSaleDetailOpen(false);
+    if (closeSaleDetailTimeoutRef.current) {
+      window.clearTimeout(closeSaleDetailTimeoutRef.current);
+    }
+
+    closeSaleDetailTimeoutRef.current = window.setTimeout(() => {
+      setSelectedSale(null);
+      closeSaleDetailTimeoutRef.current = null;
+    }, SALE_MODAL_CLOSE_MS);
   }
 
   async function handleStatusChange(
@@ -166,10 +187,9 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
 
     try {
       await updateSaleStatus(sale.id, storeId, estado);
-      setExpandedSaleIds((current) =>
-        current.includes(sale.id) ? current : [...current, sale.id],
-      );
-      await loadSaleDetail(sale.id, true);
+      if (selectedSale?.id === sale.id) {
+        await loadSaleDetail(sale.id, true);
+      }
       setReloadTick((current) => current + 1);
       toast.success(
         estado === "Completado"
@@ -293,9 +313,8 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
         rowKey="id"
         emptyMessage="No hay ventas para los filtros aplicados."
         rowActions={{
-          primaryButtonLabel: (sale) =>
-            expandedSaleIds.includes(sale.id) ? "Ocultar" : "Detalle",
-          onPrimaryAction: handleToggleDetail,
+          primaryButtonLabel: "Ver detalle",
+          onPrimaryAction: handleOpenDetail,
           dropdownOptions: [
             {
               label: "Completar venta",
@@ -313,186 +332,46 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
             },
           ],
         }}
-        expandedRow={{
-          isExpanded: (sale) => expandedSaleIds.includes(sale.id),
-          render: (sale) => {
-            const detail = saleDetails[sale.id];
-            const detailError = detailErrors[sale.id];
-            const isLoadingDetail = loadingDetailIds.includes(sale.id);
-            const isUpdating = updatingSaleIds.includes(sale.id);
-            const itemCount =
-              detail?.detalles.reduce(
-                (total, detailItem) => total + detailItem.cantidad,
-                0,
-              ) ?? sale.cantidadItems;
-
-            if (isLoadingDetail && !detail) {
-              return (
-                <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-4 text-sm text-[var(--muted)]">
-                  Cargando detalle de la venta...
-                </div>
-              );
-            }
-
-            if (detailError && !detail) {
-              return (
-                <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700">
-                  <p>{detailError}</p>
-                  <button
-                    type="button"
-                    className="mt-3 rounded-xl border border-red-200 px-3 py-2 text-sm font-medium text-red-700"
-                    onClick={() => {
-                      void loadSaleDetail(sale.id, true);
-                    }}
-                  >
-                    Reintentar detalle
-                  </button>
-                </div>
-              );
-            }
-
-            if (!detail) {
-              return (
-                <div className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-4 text-sm text-[var(--muted)]">
-                  No hay detalle disponible para esta venta.
-                </div>
-              );
-            }
-
-            return (
-              <div className="space-y-4 rounded-2xl border border-[var(--line)] bg-[var(--background)] p-4">
-                <div className="flex flex-col gap-3 border-b border-[var(--line)] pb-4 lg:flex-row lg:items-start lg:justify-between">
-                  <div className="space-y-1">
-                    <p className="text-base font-semibold text-[var(--foreground)]">
-                      {detail.numeroOrden}
-                    </p>
-                    <p className="text-sm text-[var(--muted)]">
-                      {detail.estadoVentaNombre} · {formatDateTime(detail.createdAt)}
-                    </p>
-                  </div>
-
-                  {isPendingSale(detail.estadoVentaNombre) ? (
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        disabled={isUpdating}
-                        className="app-button-primary rounded-xl px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
-                        onClick={() => {
-                          void handleStatusChange(sale, "Completado");
-                        }}
-                      >
-                        Completar venta
-                      </button>
-                      <button
-                        type="button"
-                        disabled={isUpdating}
-                        className="app-button-danger rounded-xl px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
-                        onClick={() => {
-                          void handleStatusChange(sale, "Cancelado");
-                        }}
-                      >
-                        Cancelar venta
-                      </button>
-                    </div>
-                  ) : null}
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                  <div className="space-y-1 rounded-xl border border-[var(--line)] bg-[var(--background-soft)] p-4">
-                    <p className="text-xs uppercase tracking-wide text-[var(--muted)]">
-                      Cliente
-                    </p>
-                    <p className="font-medium text-[var(--foreground)]">
-                      {detail.clienteNombreCompleto || "Cliente no disponible"}
-                    </p>
-                    <p className="text-sm text-[var(--muted)]">
-                      {detail.clienteTelefono || "Sin teléfono"}
-                    </p>
-                  </div>
-
-                  <div className="space-y-1 rounded-xl border border-[var(--line)] bg-[var(--background-soft)] p-4">
-                    <p className="text-xs uppercase tracking-wide text-[var(--muted)]">
-                      Entrega y pago
-                    </p>
-                    <p className="font-medium text-[var(--foreground)]">
-                      {detail.tipoEntrega}
-                    </p>
-                    <p className="text-sm text-[var(--muted)]">
-                      {detail.metodoPagoNombre}
-                    </p>
-                  </div>
-
-                  <div className="space-y-1 rounded-xl border border-[var(--line)] bg-[var(--background-soft)] p-4">
-                    <p className="text-xs uppercase tracking-wide text-[var(--muted)]">
-                      Dirección
-                    </p>
-                    <p className="text-sm text-[var(--foreground)]">
-                      {detail.direccion || "Recoger en local"}
-                    </p>
-                  </div>
-
-                  <div className="space-y-1 rounded-xl border border-[var(--line)] bg-[var(--background-soft)] p-4">
-                    <p className="text-xs uppercase tracking-wide text-[var(--muted)]">
-                      Resumen
-                    </p>
-                    <p className="font-medium text-[var(--foreground)]">
-                      {itemCount} unidades
-                    </p>
-                    <p className="text-sm text-[var(--muted)]">
-                      Total: {formatCurrency(detail.total, currency)}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-3 rounded-xl border border-[var(--line)] bg-[var(--background-soft)] p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <h4 className="text-sm font-semibold text-[var(--foreground)]">
-                      Productos de la venta
-                    </h4>
-                    <span className="text-xs text-[var(--muted)]">
-                      {detail.detalles.length} lineas
-                    </span>
-                  </div>
-
-                  <SaleDetailItemsTable
-                    items={detail.detalles}
-                    currency={currency}
-                  />
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_220px]">
-                  <div className="space-y-1 rounded-xl border border-[var(--line)] bg-[var(--background-soft)] p-4">
-                    <p className="text-xs uppercase tracking-wide text-[var(--muted)]">
-                      Observación
-                    </p>
-                    <p className="text-sm text-[var(--foreground)]">
-                      {detail.observacion || "Sin observación adicional."}
-                    </p>
-                  </div>
-
-                  <div className="space-y-2 rounded-xl border border-[var(--line)] bg-[var(--background-soft)] p-4 text-sm text-[var(--foreground)]">
-                    <p className="text-xs uppercase tracking-wide text-[var(--muted)]">
-                      Totales
-                    </p>
-                    <div className="flex items-center justify-between gap-3">
-                      <span>Subtotal</span>
-                      <span>{formatCurrency(detail.subTotal, currency)}</span>
-                    </div>
-                    <div className="flex items-center justify-between gap-3 font-semibold">
-                      <span>Total</span>
-                      <span>{formatCurrency(detail.total, currency)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          },
-        }}
         pagination={{
           page,
           totalPages,
           totalRecords,
           onPageChange: setPage,
+        }}
+      />
+
+      <SaleDetailModal
+        open={isSaleDetailOpen}
+        sale={selectedSale}
+        detail={selectedSale ? saleDetails[selectedSale.id] ?? null : null}
+        isLoading={
+          selectedSale ? loadingDetailIds.includes(selectedSale.id) : false
+        }
+        error={
+          selectedSale ? detailErrors[selectedSale.id] ?? null : null
+        }
+        currency={currency}
+        isUpdating={
+          selectedSale ? updatingSaleIds.includes(selectedSale.id) : false
+        }
+        canUpdateStatus={
+          selectedSale ? isPendingSale(selectedSale.estadoVentaNombre) : false
+        }
+        onClose={handleCloseDetail}
+        onRetry={() => {
+          if (selectedSale) {
+            void loadSaleDetail(selectedSale.id, true);
+          }
+        }}
+        onComplete={() => {
+          if (selectedSale) {
+            void handleStatusChange(selectedSale, "Completado");
+          }
+        }}
+        onCancel={() => {
+          if (selectedSale) {
+            void handleStatusChange(selectedSale, "Cancelado");
+          }
         }}
       />
     </section>

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { permissions } from "@/modules/auth/lib/permissions";
 import { useAdminSession } from "@/modules/auth/providers/AdminSessionProvider";
 import { DataTable } from "@/modules/core/components/DataTable";
+import type { DataTableRowActionsConfig } from "@/modules/core/components/DataTable";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
 import { useToast } from "@/modules/core/providers/ToastProvider";
 
@@ -347,44 +348,38 @@ export function RolesManagementView() {
         header: "Rol",
         render: (role: RoleListItem) => (
           <div className="space-y-1">
-            <p className="font-semibold text-[var(--foreground)]">{role.name}</p>
+            <p className="font-semibold text-[var(--foreground)]">
+              {role.name}
+            </p>
             <p className="text-xs text-[var(--muted)]">ID: {role.id}</p>
           </div>
         ),
       },
-      {
-        key: "actions",
-        header: "Acciones",
-        className: "w-[280px]",
-        render: (role: RoleListItem) => (
-          <div className="flex flex-wrap justify-end gap-2">
-            <button
-              type="button"
-              className="rounded-xl border border-[var(--line)] px-3 py-2 text-xs font-medium text-[var(--foreground)]"
-              onClick={() => {
-                setSelectedRoleId(role.id);
-                setSelectedRoleName(role.name);
-              }}
-            >
-              Ver detalle
-            </button>
+    ],
+    [],
+  );
 
-            {canEditRole ? (
-              <button
-                type="button"
-                className="app-button-secondary rounded-xl px-3 py-2 text-xs font-medium"
-                onClick={() => void handleEditRole(role)}
-              >
-                Editar
-              </button>
-            ) : null}
-
-            {canDeleteRole ? (
-              <button
-                type="button"
-                disabled={isDeletingRoleId === role.id}
-                className="app-button-danger rounded-xl px-3 py-2 text-xs font-medium disabled:opacity-60"
-                onClick={async () => {
+  const rowActions = useMemo<DataTableRowActionsConfig<RoleListItem>>(
+    () => ({
+      primaryButtonLabel: "Detalles",
+      onPrimaryAction: (role) => {
+        setSelectedRoleId(role.id);
+        setSelectedRoleName(role.name);
+      },
+      dropdownOptions: [
+        ...(canEditRole
+          ? [
+              {
+                label: "Editar",
+                onClick: (role: RoleListItem) => void handleEditRole(role),
+              },
+            ]
+          : []),
+        ...(canDeleteRole
+          ? [
+              {
+                label: "Eliminar",
+                onClick: async (role: RoleListItem) => {
                   const confirmed = await confirm({
                     title: "Eliminar rol",
                     description: `Se eliminara el rol "${role.name}".`,
@@ -417,21 +412,30 @@ export function RolesManagementView() {
                     setError(
                       deleteError instanceof Error
                         ? deleteError.message
-                        : "No se pudo eliminar el rol."
+                        : "No se pudo eliminar el rol.",
                     );
                   } finally {
                     setIsDeletingRoleId(null);
                   }
-                }}
-              >
-                {isDeletingRoleId === role.id ? "Eliminando..." : "Eliminar"}
-              </button>
-            ) : null}
-          </div>
-        ),
-      },
+                },
+                hidden: (role: RoleListItem) => isDeletingRoleId === role.id,
+              },
+            ]
+          : []),
+      ],
+    }),
+    [
+      canDeleteRole,
+      canEditRole,
+      closeEditFormPanel,
+      confirm,
+      editingRole?.id,
+      handleEditRole,
+      isDeletingRoleId,
+      loadRoles,
+      selectedRoleId,
+      toast,
     ],
-    [canDeleteRole, canEditRole, closeEditFormPanel, confirm, editingRole?.id, handleEditRole, isDeletingRoleId, loadRoles, selectedRoleId, toast]
   );
 
   return (
@@ -589,18 +593,19 @@ export function RolesManagementView() {
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.5fr)_minmax(320px,1fr)]">
         <div className="space-y-4">
           <DataTable
-            headers={columns}
-            data={roles}
-            isLoading={isLoading}
-            rowKey="id"
-            emptyMessage="No hay roles registrados."
-            pagination={{
-              page,
-              totalPages,
-              totalRecords,
-              onPageChange: setPage,
-            }}
-          />
+          headers={columns}
+          data={roles}
+          isLoading={isLoading}
+          rowKey="id"
+          emptyMessage="No hay roles registrados."
+          pagination={{
+            page,
+            totalPages,
+            totalRecords,
+            onPageChange: setPage,
+          }}
+          rowActions={rowActions}
+        />
         </div>
 
         <aside className="panel-card space-y-4">

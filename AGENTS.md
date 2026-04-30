@@ -14,6 +14,19 @@ Prefer `pnpm` because `pnpm-lock.yaml` is committed.
 ## Coding Style & Naming Conventions
 Use TypeScript with strict typing enabled. Follow the existing style: 2-space indentation, double quotes, semicolons, and small functional React components. Name component files in `PascalCase` such as `LoginForm.tsx` and keep route files in Next.js defaults such as `page.tsx` and `layout.tsx`. Group code by feature under `src/modules`, and keep shared primitives in a neutral area like `src/modules/core/components`. Styling is handled with Tailwind CSS v4 in JSX plus global rules in `src/app/globals.css`.
 
+## Frontend Feature Structure
+When adding a new frontend component or refactoring a feature screen, first search for an existing component in the repo and reuse it if it already covers the need. Do not create a new component when a shared or feature-local one can be composed as-is.
+
+When a feature genuinely needs new code, split it by responsibility instead of keeping everything in a single component file:
+
+- `components/` for presentational UI pieces.
+- `hooks/` for state, effects, callbacks, and orchestration.
+- `mappers/` for transforms between API models and UI form state.
+- `types/` for feature-specific contracts.
+- `services/` for API calls only.
+
+Keep the route-facing view thin. It should compose the smaller pieces and avoid holding business logic that can live in a hook, mapper, or child component.
+
 ## Testing Guidelines
 There is currently no automated test runner configured and no `*.test.*` or `*.spec.*` files in the repo. Until one is added, treat `pnpm lint` and `pnpm build` as the minimum validation for every change. When adding non-trivial logic, introduce tests alongside the feature and keep the naming pattern `ComponentName.test.tsx` or `feature-name.spec.ts`.
 

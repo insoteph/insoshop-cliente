@@ -19,6 +19,7 @@ import {
   ProductFormPanel,
   type ProductFormState,
 } from "@/modules/products/components/ProductFormPanel";
+import { ProductDetailModal } from "@/modules/products/components/ProductDetailModal";
 import { type ProductAttributeDraft } from "@/modules/products/components/ProductAttributesPanel";
 import {
   createProduct,
@@ -37,6 +38,7 @@ import {
   type ProductAttribute,
   type ProductAttributeDraftPayload,
   type ProductPayload,
+  type ProductDetail,
   type ProductVariant,
   type ProductVariantDraft,
   type ProductVariantPayload,
@@ -66,6 +68,7 @@ const INITIAL_FORM: ProductFormState = {
 };
 
 const FORM_ANIMATION_MS = 500;
+const PRODUCT_DETAIL_CLOSE_MS = 240;
 
 function extractCreatedProductId(data: unknown): number | null {
   if (typeof data === "number" && Number.isFinite(data)) {
@@ -317,8 +320,17 @@ export function ProductsPanel({
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
   const [form, setForm] = useState<ProductFormState>(INITIAL_FORM);
   const closeFormTimeoutRef = useRef<number | null>(null);
+  const productDetailCloseTimeoutRef = useRef<number | null>(null);
+  const productDetailRequestIdRef = useRef(0);
   const originalAttributeIdsRef = useRef<number[]>([]);
   const originalVariantIdsRef = useRef<number[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isProductDetailOpen, setIsProductDetailOpen] = useState(false);
+  const [productDetail, setProductDetail] = useState<ProductDetail | null>(null);
+  const [isProductDetailLoading, setIsProductDetailLoading] = useState(false);
+  const [productDetailError, setProductDetailError] = useState<string | null>(
+    null,
+  );
 
   const loadProducts = useCallback(async () => {
     setIsLoading(true);
@@ -385,6 +397,20 @@ export function ProductsPanel({
     }
   }, []);
 
+  const clearProductDetailCloseTimeout = useCallback(() => {
+    if (productDetailCloseTimeoutRef.current) {
+      window.clearTimeout(productDetailCloseTimeoutRef.current);
+      productDetailCloseTimeoutRef.current = null;
+    }
+  }, []);
+
+  const resetProductDetailState = useCallback(() => {
+    setSelectedProduct(null);
+    setProductDetail(null);
+    setProductDetailError(null);
+    setIsProductDetailLoading(false);
+  }, []);
+
   const openFormPanel = useCallback(() => {
     clearCloseFormTimeout();
     setIsFormMounted(true);
@@ -410,13 +436,81 @@ export function ProductsPanel({
   useEffect(() => {
     return () => {
       clearCloseFormTimeout();
+      clearProductDetailCloseTimeout();
     };
-  }, [clearCloseFormTimeout]);
+  }, [clearCloseFormTimeout, clearProductDetailCloseTimeout]);
 
   const handleCreateClick = useCallback(() => {
     resetForm();
     openFormPanel();
   }, [openFormPanel, resetForm]);
+
+  const handleOpenProductDetail = useCallback(
+    async (product: Product) => {
+      clearProductDetailCloseTimeout();
+      const requestId = productDetailRequestIdRef.current + 1;
+      productDetailRequestIdRef.current = requestId;
+
+      setSelectedProduct(product);
+      setIsProductDetailOpen(true);
+      setProductDetail(null);
+      setProductDetailError(null);
+      setIsProductDetailLoading(true);
+
+      try {
+        const [productDetailResult, productAttributes] = await Promise.all([
+          fetchProductById(storeId, product.id),
+          fetchProductAttributes(storeId, product.id),
+        ]);
+
+        if (requestId !== productDetailRequestIdRef.current) {
+          return;
+        }
+
+        setProductDetail({
+          ...productDetailResult,
+          atributos:
+            productAttributes.length > 0
+              ? productAttributes
+              : productDetailResult.atributos,
+        });
+      } catch (loadError) {
+        if (requestId !== productDetailRequestIdRef.current) {
+          return;
+        }
+
+        setProductDetailError(
+          loadError instanceof Error
+            ? loadError.message
+            : "No se pudo cargar el detalle del producto.",
+        );
+      } finally {
+        if (requestId === productDetailRequestIdRef.current) {
+          setIsProductDetailLoading(false);
+        }
+      }
+    },
+    [clearProductDetailCloseTimeout, storeId],
+  );
+
+  const handleCloseProductDetail = useCallback(() => {
+    setIsProductDetailOpen(false);
+    setIsProductDetailLoading(false);
+    setProductDetailError(null);
+    productDetailRequestIdRef.current += 1;
+    clearProductDetailCloseTimeout();
+    productDetailCloseTimeoutRef.current = window.setTimeout(() => {
+      resetProductDetailState();
+    }, PRODUCT_DETAIL_CLOSE_MS);
+  }, [clearProductDetailCloseTimeout, resetProductDetailState]);
+
+  const handleRetryProductDetail = useCallback(() => {
+    if (!selectedProduct) {
+      return;
+    }
+
+    void handleOpenProductDetail(selectedProduct);
+  }, [handleOpenProductDetail, selectedProduct]);
 
   const handleEditClick = useCallback(
     async (product: Product) => {
@@ -866,14 +960,18 @@ export function ProductsPanel({
   const rowActions =
     canEditProducts || canDeleteProducts
       ? {
-          primaryButtonLabel: canEditProducts
-            ? "Editar"
-            : (product: Product) => (product.estado ? "Inactivar" : "Activar"),
-          onPrimaryAction: canEditProducts
-            ? handleEditClick
-            : handleToggleStatus,
-          dropdownOptions:
-            canEditProducts && canDeleteProducts
+          primaryButtonLabel: "Detalles",
+          onPrimaryAction: handleOpenProductDetail,
+          dropdownOptions: [
+            ...(canEditProducts
+              ? [
+                  {
+                    label: "Editar",
+                    onClick: handleEditClick,
+                  },
+                ]
+              : []),
+            ...(canDeleteProducts
               ? [
                   {
                     label: (product: Product) =>
@@ -881,9 +979,13 @@ export function ProductsPanel({
                     onClick: handleToggleStatus,
                   },
                 ]
-              : [],
+              : []),
+          ],
         }
-      : undefined;
+      : {
+          primaryButtonLabel: "Detalles",
+          onPrimaryAction: handleOpenProductDetail,
+        };
 
   const toolbarActions = useMemo<DataTableToolbarAction[]>(
     () =>
@@ -974,6 +1076,17 @@ export function ProductsPanel({
           }
         />
       ) : null}
+
+      <ProductDetailModal
+        open={isProductDetailOpen}
+        product={selectedProduct}
+        detail={productDetail}
+        isLoading={isProductDetailLoading}
+        error={productDetailError}
+        currency={currency}
+        onClose={handleCloseProductDetail}
+        onRetry={handleRetryProductDetail}
+      />
 
       <DataTable
         headers={columns}
