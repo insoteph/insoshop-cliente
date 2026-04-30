@@ -1,18 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, type ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { useAdminSession } from "@/modules/auth/providers/AdminSessionProvider";
-import { ensureSession } from "@/modules/auth/services/session-service";
 import { ProcessingModal } from "@/modules/core/components/ProcessingModal";
 
 export function AuthGuard({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { currentUser, isLoading } = useAdminSession();
-  const [isChecking, setIsChecking] = useState(true);
   const didRedirectRef = useRef(false);
+  const isAuthRoute = pathname.startsWith("/auth");
+  const needsRedirect = !isAuthRoute && !isLoading && !currentUser;
 
   const redirectToLogin = useCallback(() => {
     if (didRedirectRef.current) {
@@ -23,65 +23,21 @@ export function AuthGuard({ children }: { children: ReactNode }) {
 
     const nextParam = pathname ? `?next=${encodeURIComponent(pathname)}` : "";
     router.replace(`/auth/login${nextParam}`);
-    setIsChecking(false);
   }, [pathname, router]);
 
   useEffect(() => {
-    let isMounted = true;
-
-    async function validateSession() {
-      if (pathname.startsWith("/auth")) {
-        if (isMounted) {
-          setIsChecking(false);
-        }
-        return;
-      }
-
-      if (isLoading) {
-        return;
-      }
-
-      if (currentUser) {
-        if (isMounted) {
-          setIsChecking(false);
-        }
-        return;
-      }
-
-      try {
-        const hasSession = await ensureSession();
-
-        if (!isMounted) {
-          return;
-        }
-
-        if (!hasSession) {
-          redirectToLogin();
-          return;
-        }
-
-        setIsChecking(false);
-      } catch {
-        if (!isMounted) {
-          return;
-        }
-
-        redirectToLogin();
-      } finally {
-        if (isMounted) {
-          setIsChecking(false);
-        }
-      }
+    if (!needsRedirect) {
+      return;
     }
 
-    void validateSession();
+    redirectToLogin();
+  }, [needsRedirect, redirectToLogin]);
 
-    return () => {
-      isMounted = false;
-    };
-  }, [currentUser, isLoading, pathname, redirectToLogin]);
+  if (isAuthRoute) {
+    return <>{children}</>;
+  }
 
-  if (isChecking || isLoading) {
+  if (isLoading || needsRedirect) {
     return <ProcessingModal isOpen label="Procesando..." />;
   }
 

@@ -31,6 +31,7 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
     totalRecords,
     page,
     totalPages,
+    search,
     handleToggleFavorite,
     handleRemoveFavorite,
     handleSearchChange,
@@ -52,7 +53,7 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
           favoriteItems={favoriteItems}
           isFavoritesOpen={isFavoritesOpen}
           totalItems={totalItems}
-          search={""}
+          search={search}
           onSearchChange={handleSearchChange}
           onToggleFavorites={toggleFavoritesPanel}
           onRemoveFavorite={handleRemoveFavorite}

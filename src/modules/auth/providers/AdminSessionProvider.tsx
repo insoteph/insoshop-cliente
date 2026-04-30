@@ -19,9 +19,7 @@ import {
 } from "@/modules/auth/services/current-user-service";
 import {
   getAccessToken,
-  getSessionCacheStatus,
   clearAccessToken,
-  setSessionCacheStatus,
 } from "@/modules/auth/lib/session";
 import { ensureSession } from "@/modules/auth/services/session-service";
 import { logoutService } from "@/modules/auth/services/logout-service";
@@ -42,6 +40,14 @@ type AdminSessionContextValue = {
 
 const ACTIVE_STORE_STORAGE_KEY = "insoshop.active-store-id";
 const CURRENT_USER_STORAGE_KEY = "insoshop.current-user";
+const ADMIN_ROUTE_PREFIXES = [
+  "/dashboard",
+  "/tiendas",
+  "/roles",
+  "/usuarios",
+  "/ventas",
+  "/atributos-catalogo",
+];
 
 const AdminSessionContext = createContext<AdminSessionContextValue | null>(null);
 
@@ -92,12 +98,20 @@ function resolveActiveStoreId(user: CurrentUser, preferredStoreId: number | null
   return user.tiendas[0]?.id ?? null;
 }
 
+function isAdminRoute(pathname: string) {
+  return ADMIN_ROUTE_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+}
+
 export function AdminSessionProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(() =>
     getStoredCurrentUser()
   );
-  const [isLoading, setIsLoading] = useState(() => getStoredCurrentUser() === null);
+  const [isLoading, setIsLoading] = useState(() =>
+    isAdminRoute(pathname) && getStoredCurrentUser() === null,
+  );
   const [error, setError] = useState<string | null>(null);
   const [activeStoreId, setActiveStoreIdState] = useState<number | null>(null);
   const currentUserRef = useRef<CurrentUser | null>(currentUser);
@@ -107,23 +121,28 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
   }, [currentUser]);
 
   const refreshCurrentUser = useCallback(async () => {
-    if (!currentUserRef.current) {
-      setIsLoading(true);
+    if (!isAdminRoute(pathname)) {
+      setIsLoading(false);
+      return;
     }
 
     setError(null);
+    setIsLoading(true);
 
     try {
-      const hasAuthenticatedSession =
-        getSessionCacheStatus() === "authenticated" && Boolean(getAccessToken())
-          ? true
-          : await ensureSession();
+      const hasAccessToken = Boolean(getAccessToken());
 
-      if (!hasAuthenticatedSession) {
-        clearAccessToken();
-        setSessionCacheStatus("unauthenticated");
-        setCurrentUser(null);
-        setActiveStoreIdState(null);
+      if (!hasAccessToken) {
+        const hasSession = await ensureSession();
+
+        if (!hasSession) {
+          clearAccessToken();
+          setCurrentUser(null);
+          setActiveStoreIdState(null);
+          return;
+        }
+      } else if (currentUserRef.current) {
+        setIsLoading(false);
         return;
       }
 
@@ -134,7 +153,6 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
       );
     } catch (loadError) {
       clearAccessToken();
-      setSessionCacheStatus("unauthenticated");
       setCurrentUser(null);
       setActiveStoreIdState(null);
       setError(
@@ -145,7 +163,7 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [pathname]);
 
   const logout = useCallback(async () => {
     await logoutService();
@@ -156,7 +174,7 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (pathname.startsWith("/auth")) {
+    if (pathname.startsWith("/auth") || !isAdminRoute(pathname)) {
       setIsLoading(false);
       return;
     }
