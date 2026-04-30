@@ -9,6 +9,7 @@ import type {
 
 import { MaterialInput } from "@/modules/core/components/MaterialInput";
 import { formatCurrency } from "@/modules/core/lib/formatters";
+import { ProductVariantsImagePicker } from "@/modules/products/components/ProductVariantsImagePicker";
 import { formatVariantValues } from "@/modules/products/mappers/product-form.mapper";
 import {
   ColorSwatch,
@@ -33,8 +34,6 @@ type ProductManagementVariantsSectionProps = {
   editingVariantId: number | null;
   isVariantEditorOpen: boolean;
   isSavingVariant: boolean;
-  isUploadingVariantImage: boolean;
-  variantImageInputRef: RefObject<HTMLInputElement | null>;
   variantEditorRef: RefObject<HTMLDivElement | null>;
   setVariantForm: Dispatch<SetStateAction<ProductVariantFormState>>;
   resetVariantForm: () => void;
@@ -45,7 +44,6 @@ type ProductManagementVariantsSectionProps = {
     productAttributeId: number,
     productAttributeValueId: number,
   ) => void;
-  handleVariantImageUpload: (file: File | null) => Promise<void>;
   handleSaveVariant: (event: FormEvent<HTMLFormElement>) => void;
   handleToggleVariant: (variant: ProductVariant) => Promise<void>;
 };
@@ -59,8 +57,6 @@ export function ProductManagementVariantsSection({
   editingVariantId,
   isVariantEditorOpen,
   isSavingVariant,
-  isUploadingVariantImage,
-  variantImageInputRef,
   variantEditorRef,
   setVariantForm,
   resetVariantForm,
@@ -68,7 +64,6 @@ export function ProductManagementVariantsSection({
   closeVariantEditor,
   handleEditVariant,
   handleVariantSelectionChange,
-  handleVariantImageUpload,
   handleSaveVariant,
   handleToggleVariant,
 }: ProductManagementVariantsSectionProps) {
@@ -288,26 +283,19 @@ export function ProductManagementVariantsSection({
                         combinación.
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      className="app-button-primary inline-flex h-10 items-center rounded-xl px-3.5 text-sm font-semibold disabled:opacity-60"
-                      onClick={() => variantImageInputRef.current?.click()}
-                      disabled={isUploadingVariantImage}
-                    >
-                      {isUploadingVariantImage ? "Subiendo..." : "Subir imagen"}
-                    </button>
                   </div>
-                  <input
-                    ref={variantImageInputRef}
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp"
-                    className="sr-only"
-                    onChange={(event) =>
-                      void handleVariantImageUpload(
-                        event.target.files?.[0] ?? null,
-                      )
-                    }
-                  />
+                  <div className="mt-3">
+                    <ProductVariantsImagePicker
+                      value={variantForm.urlImagen || null}
+                      onChange={(nextImage) =>
+                        setVariantForm((current) => ({
+                          ...current,
+                          urlImagen: nextImage ?? "",
+                        }))
+                      }
+                      disabled={false}
+                    />
+                  </div>
                 </div>
 
                 <div className="rounded-none border-0 bg-transparent p-0 sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel-muted)] sm:p-3">

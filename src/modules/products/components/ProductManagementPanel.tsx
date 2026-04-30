@@ -36,10 +36,8 @@ export function ProductManagementPanel({
     isVariantEditorOpen,
     isSavingAttribute,
     isSavingVariant,
-    isUploadingVariantImage,
     activeCatalogDetail,
     availableCatalogAttributes,
-    variantImageInputRef,
     attributeEditorRef,
     variantEditorRef,
     resetAttributeForm,
@@ -54,7 +52,6 @@ export function ProductManagementPanel({
     handleSaveAttribute,
     handleEditVariant,
     handleVariantSelectionChange,
-    handleVariantImageUpload,
     handleSaveVariant,
     handleToggleVariant,
   } = useProductManagementPanel({
@@ -116,8 +113,6 @@ export function ProductManagementPanel({
           editingVariantId={editingVariantId}
           isVariantEditorOpen={isVariantEditorOpen}
           isSavingVariant={isSavingVariant}
-          isUploadingVariantImage={isUploadingVariantImage}
-          variantImageInputRef={variantImageInputRef}
           variantEditorRef={variantEditorRef}
           setVariantForm={setVariantForm}
           resetVariantForm={resetVariantForm}
@@ -125,7 +120,6 @@ export function ProductManagementPanel({
           closeVariantEditor={closeVariantEditor}
           handleEditVariant={handleEditVariant}
           handleVariantSelectionChange={handleVariantSelectionChange}
-          handleVariantImageUpload={handleVariantImageUpload}
           handleSaveVariant={handleSaveVariant}
           handleToggleVariant={handleToggleVariant}
         />

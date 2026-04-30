@@ -7,28 +7,12 @@ import { useRouter } from "next/navigation";
 import { permissions } from "@/modules/auth/lib/permissions";
 import { useAdminSession } from "@/modules/auth/providers/AdminSessionProvider";
 import { useToast } from "@/modules/core/providers/ToastProvider";
+import { PermissionGroupsSelector } from "@/modules/roles/components/PermissionGroupsSelector";
 import {
   createRoleWithPermissions,
   fetchPermissionsCatalog,
 } from "@/modules/roles/services/roles-service";
-
-function buildPermissionGroups(items: string[]) {
-  const groups = new Map<string, string[]>();
-
-  for (const permission of items) {
-    const [groupLabel = "General"] = permission.split(".");
-    const groupItems = groups.get(groupLabel) ?? [];
-    groupItems.push(permission);
-    groups.set(groupLabel, groupItems);
-  }
-
-  return Array.from(groups.entries())
-    .sort(([left], [right]) => left.localeCompare(right))
-    .map(([label, groupItems]) => ({
-      label,
-      items: groupItems.sort((left, right) => left.localeCompare(right)),
-    }));
-}
+import { buildPermissionGroups } from "@/modules/roles/mappers/roles-permissions.mapper";
 
 export function RoleCreateView() {
   const router = useRouter();
@@ -168,64 +152,13 @@ export function RoleCreateView() {
             </p>
           ) : (
             <div className="space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-sm font-semibold text-[var(--foreground)]">
-                    Permisos iniciales
-                  </h2>
-                  <p className="text-sm text-[var(--muted)]">
-                    {selectedPermissions.length} permiso
-                    {selectedPermissions.length === 1 ? "" : "s"} seleccionado
-                    {selectedPermissions.length === 1 ? "" : "s"}.
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    className="app-button-secondary rounded-xl px-3 py-2 text-xs font-medium"
-                    onClick={() => setSelectedPermissions(permissionsCatalog)}
-                  >
-                    Seleccionar todo
-                  </button>
-                  <button
-                    type="button"
-                    className="app-button-secondary rounded-xl px-3 py-2 text-xs font-medium"
-                    onClick={() => setSelectedPermissions([])}
-                  >
-                    Limpiar
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid gap-4 xl:grid-cols-2">
-                {groupedPermissions.map((group) => (
-                  <div
-                    key={group.label}
-                    className="app-card-muted rounded-3xl p-4"
-                  >
-                    <p className="mb-3 text-sm font-semibold text-[var(--foreground)]">
-                      {group.label}
-                    </p>
-                    <div className="space-y-3">
-                      {group.items.map((permissionValue) => (
-                        <label
-                          key={permissionValue}
-                          className="flex items-start gap-3 text-sm text-[var(--foreground)]"
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selectedPermissions.includes(permissionValue)}
-                            onChange={() => togglePermission(permissionValue)}
-                            className="mt-1"
-                          />
-                          <span>{permissionValue}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <PermissionGroupsSelector
+                groups={groupedPermissions}
+                selectedPermissions={selectedPermissions}
+                onTogglePermission={togglePermission}
+                onSelectAll={() => setSelectedPermissions(permissionsCatalog)}
+                onClearAll={() => setSelectedPermissions([])}
+              />
             </div>
           )
         ) : (
