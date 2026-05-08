@@ -71,6 +71,48 @@ export function renderImageCell<TData extends Record<string, unknown>>(
   );
 }
 
+export function renderHeroImageCell<TData extends Record<string, unknown>>(
+  row: TData,
+  value: unknown,
+  imageConfig?: DataTableImageConfig<TData>,
+) {
+  const src = typeof value === "string" ? value.trim() : "";
+  const size = imageConfig?.width ?? imageConfig?.height ?? 96;
+  const alt =
+    typeof imageConfig?.alt === "function"
+      ? imageConfig.alt(row)
+      : (imageConfig?.alt ?? "Imagen");
+
+  if (!src) {
+    return (
+      <div
+        className={`aspect-square h-full w-full overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--panel-muted)] p-1 ${
+          imageConfig?.className ?? ""
+        }`}
+        style={{ width: size, maxWidth: size }}
+      >
+        <div className="flex h-full w-full items-center justify-center rounded-lg bg-[var(--panel)]">
+          <ImagePlaceholder size={40} iconPath="/icons/no-image.svg" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`aspect-square h-full w-full overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--panel-muted)] p-1 ${
+        imageConfig?.className ?? ""
+      }`}
+      style={{ width: size, maxWidth: size }}
+    >
+      <div className="h-full w-full overflow-hidden rounded-lg bg-[var(--panel)]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt={alt} className="h-full w-full object-contain" />
+      </div>
+    </div>
+  );
+}
+
 export function renderCompactImagePreview(srcs: string[], title: string) {
   const [firstImage] = srcs;
 

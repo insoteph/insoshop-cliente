@@ -29,12 +29,11 @@ export function DataTable<TData extends Record<string, unknown>>({
   const resolvedRows = rows ?? data ?? [];
   const showSkeleton = isLoading && resolvedRows.length === 0;
   const showRefreshingState = isLoading && resolvedRows.length > 0;
-  const totalColumns = headers.length + (rowActions ? 1 : 0);
   const displayedRecords = resolvedRows.length;
   const totalRecords = pagination.totalRecords ?? displayedRecords;
 
   return (
-    <div className="app-card relative overflow-hidden rounded-2xl">
+    <div className="relative">
       {showRefreshingState ? (
         <div className="data-table-refresh-indicator" aria-live="polite">
           Actualizando resultados...
@@ -45,6 +44,7 @@ export function DataTable<TData extends Record<string, unknown>>({
         headers={headers}
         rows={resolvedRows}
         rowKey={rowKey}
+        badges={badges}
         rowActions={rowActions}
         showSkeleton={showSkeleton}
         skeletonRows={skeletonRows}
@@ -60,7 +60,6 @@ export function DataTable<TData extends Record<string, unknown>>({
         showSkeleton={showSkeleton}
         showRefreshingState={showRefreshingState}
         skeletonRows={skeletonRows}
-        totalColumns={totalColumns}
         emptyMessage={emptyMessage}
       />
 

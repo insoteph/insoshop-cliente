@@ -17,7 +17,7 @@ import { Sidebar } from "@/modules/navigation/components/Sidebar";
 
 type DashboardShellProps = {
   children: ReactNode;
-  pageTitle: string;
+  pageTitle?: string;
 };
 
 export function DashboardShell({ children, pageTitle }: DashboardShellProps) {
@@ -139,9 +139,11 @@ export function DashboardShell({ children, pageTitle }: DashboardShellProps) {
               <span className="sidebar-hamburger-icon" aria-hidden="true" />
             </button>
 
-            <div className="dashboard-heading">
-              <h1 className="dashboard-heading-title">{pageTitle}</h1>
-            </div>
+            {pageTitle ? (
+              <div className="dashboard-heading">
+                <h1 className="dashboard-heading-title">{pageTitle}</h1>
+              </div>
+            ) : null}
           </div>
           <div className="dashboard-topbar-actions">
             {!currentUser?.tieneAccesoGlobal && stores.length > 1 ? (

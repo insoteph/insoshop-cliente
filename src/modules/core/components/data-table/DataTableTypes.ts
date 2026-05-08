@@ -19,6 +19,8 @@ export type DataTableColumn<TData extends Record<string, unknown>> = {
   header: string;
   dataType?: DataTableCellType;
   imageConfig?: DataTableImageConfig<TData>;
+  desktopImageConfig?: DataTableImageConfig<TData>;
+  headerIconPath?: string;
   render?: (row: TData) => ReactNode;
   textFormatter?: (value: unknown, row: TData) => ReactNode;
   className?: string;
@@ -33,6 +35,7 @@ export type DataTableBadgeConfig<TData extends Record<string, unknown>> = {
 export type DataTableRowActionsConfig<TData extends Record<string, unknown>> = {
   headerLabel?: string;
   primaryButtonLabel: string | ((row: TData) => string);
+  primaryButtonIconPath?: string;
   onPrimaryAction: (row: TData) => void;
   dropdownOptions?: Array<{
     label: string | ((row: TData) => string);

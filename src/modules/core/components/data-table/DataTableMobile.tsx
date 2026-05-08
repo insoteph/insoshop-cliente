@@ -1,23 +1,40 @@
 "use client";
 
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
+
 import { DataTableEmptyState } from "./DataTableEmptyState";
+import { DataTableMobileDetailModal } from "@/modules/core/components/DataTableMobileDetailModal";
 import { DataTableSkeleton } from "./DataTableSkeleton";
 import {
   getRowKey,
   getVisibleDropdownOptions,
   resolvePrimaryButtonLabel,
+  resolveColumnValue,
+  summarizeValue,
 } from "./DataTableHelpers";
 import type {
+  DataTableBadgeConfig,
   DataTableColumn,
   DataTableRowActionsConfig,
 } from "./DataTableTypes";
-import { renderMobileSummaryValue } from "./DataTableRenderers";
+import {
+  renderDesktopColumnContent,
+  renderMobileSummaryValue,
+} from "./DataTableRenderers";
 import { TableRowActions } from "@/modules/core/components/TableRowActions";
 
 type DataTableMobileProps<TData extends Record<string, unknown>> = {
   headers: Array<DataTableColumn<TData>>;
   rows: TData[];
   rowKey?: keyof TData | ((row: TData, rowIndex: number) => string | number);
+  badges: Array<DataTableBadgeConfig<TData>>;
   rowActions?: DataTableRowActionsConfig<TData>;
   showSkeleton: boolean;
   skeletonRows: number;
@@ -28,21 +45,90 @@ export function DataTableMobile<TData extends Record<string, unknown>>({
   headers,
   rows,
   rowKey,
+  badges,
   rowActions,
   showSkeleton,
   skeletonRows,
   emptyMessage,
 }: DataTableMobileProps<TData>) {
-  const mobileSummaryColumns = headers.slice(0, Math.min(2, headers.length));
+  const [activeRow, setActiveRow] = useState<TData | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const closeDetailTimeoutRef = useRef<number | null>(null);
+
+  const imageColumnIndex = headers.findIndex(
+    (column) => column.dataType === "image",
+  );
+  const imageColumn =
+    imageColumnIndex >= 0 ? headers[imageColumnIndex] : undefined;
+  const summaryColumns = headers
+    .filter((_, index) => index !== imageColumnIndex)
+    .slice(0, imageColumn ? 1 : 2);
+
+  const clearCloseTimeout = useCallback(() => {
+    if (closeDetailTimeoutRef.current) {
+      window.clearTimeout(closeDetailTimeoutRef.current);
+      closeDetailTimeoutRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      clearCloseTimeout();
+    };
+  }, [clearCloseTimeout]);
+
+  function openDetail(row: TData) {
+    clearCloseTimeout();
+    setActiveRow(row);
+    setIsDetailOpen(true);
+  }
+
+  function closeDetail() {
+    setIsDetailOpen(false);
+    clearCloseTimeout();
+    closeDetailTimeoutRef.current = window.setTimeout(() => {
+      setActiveRow(null);
+    }, 240);
+  }
+
+  const detailTitle = useMemo(() => {
+    if (!activeRow) {
+      return "Detalle del registro";
+    }
+
+    const titleColumn = summaryColumns[0] ?? imageColumn ?? headers[0];
+    if (!titleColumn) {
+      return "Detalle del registro";
+    }
+
+    if (titleColumn.dataType === "image") {
+      return titleColumn.header;
+    }
+
+    const rawValue = resolveColumnValue(activeRow, titleColumn.key);
+    const summary = summarizeValue(rawValue);
+    return summary !== "-" ? summary : titleColumn.header;
+  }, [activeRow, headers, imageColumn, summaryColumns]);
+
+  const detailItems = useMemo(() => {
+    if (!activeRow) {
+      return [];
+    }
+
+    return headers.map((column) => ({
+      label: column.header,
+      value: renderDesktopColumnContent(activeRow, column, badges),
+    }));
+  }, [activeRow, badges, headers]);
 
   return (
-    <div className="space-y-3 px-4 py-4 md:hidden">
+    <div className="space-y-2 px-2.5 py-2 md:hidden">
       {showSkeleton ? (
         <DataTableSkeleton
           variant="mobile"
           rows={skeletonRows}
-          columns={mobileSummaryColumns.length}
-          summaryColumns={mobileSummaryColumns.length}
+          columns={summaryColumns.length + (imageColumn ? 1 : 0)}
+          summaryColumns={summaryColumns.length}
         />
       ) : rows.length > 0 ? (
         rows.map((row, rowIndex) => {
@@ -56,71 +142,61 @@ export function DataTableMobile<TData extends Record<string, unknown>>({
           return (
             <article
               key={`mobile-${mobileRowKey}`}
-              className={`overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--panel)] shadow-sm md:rounded-2xl ${
+              className={`overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--panel)] shadow-[0_16px_38px_rgba(15,23,42,0.11)] md:rounded-2xl ${
                 rowActions
-                  ? "transition hover:border-[var(--line-strong)] hover:shadow-md"
+                  ? "transition hover:border-[var(--line-strong)] hover:shadow-[0_20px_46px_rgba(15,23,42,0.14)]"
                   : ""
               }`}
             >
               <div
-                role={rowActions ? "button" : undefined}
-                tabIndex={rowActions ? 0 : undefined}
-                onClick={() => {
-                  if (!rowActions) {
-                    return;
-                  }
-
-                  rowActions.onPrimaryAction(row);
-                }}
-                onKeyDown={(event) => {
-                  if (!rowActions) {
-                    return;
-                  }
-
+                role="button"
+                tabIndex={0}
+                onClick={() => openDetail(row)}
+                onKeyDown={(event: KeyboardEvent<HTMLDivElement>) => {
                   if (event.key === "Enter" || event.key === " ") {
                     event.preventDefault();
-                    rowActions.onPrimaryAction(row);
+                    openDetail(row);
                   }
                 }}
-                className={`block w-full text-left ${
-                  rowActions ? "cursor-pointer" : ""
-                }`}
+                className="flex w-full items-center gap-2 px-2 py-1.5 text-left"
               >
-              <div className="space-y-2.5 px-3.5 py-3.5 md:px-4 md:py-4">
-                  {mobileSummaryColumns.map((column, columnIndex) => (
-                    <div
-                      key={`${mobileRowKey}-${String(column.key)}`}
-                      className={`flex gap-3 ${columnIndex === 0 ? "items-start" : "items-center"}`}
-                    >
-                      <span className="min-w-0 flex-1 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
-                        {column.header}
-                      </span>
-                      <span
-                        className={`min-w-0 text-right text-sm text-[var(--foreground)] ${
-                          columnIndex === 0 ? "font-semibold" : ""
-                        }`}
-                      >
-                        {renderMobileSummaryValue(row, column)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex min-w-0 items-center gap-2">
+                    {imageColumn ? (
+                        <div className="shrink-0 scale-[0.92]">
+                          {renderMobileSummaryValue(row, imageColumn)}
+                        </div>
+                    ) : null}
 
-              <div className="border-t border-[var(--line)] px-3.5 py-2.5 md:px-4 md:py-3">
-                <div className="flex items-center justify-between gap-3">
-                  {rowActions ? (
-                    <TableRowActions
-                      primaryButtonLabel={resolvePrimaryButtonLabel(row, rowActions)}
-                      onPrimaryAction={() => rowActions.onPrimaryAction(row)}
-                      dropdownOptions={visibleDropdownOptions}
-                    />
-                  ) : (
-                    <span className="text-xs text-[var(--muted)]">
-                      Sin acciones disponibles.
-                    </span>
-                  )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex min-w-0 items-center gap-1.5 overflow-hidden">
+                        {summaryColumns.map((column, columnIndex) => (
+                          <span
+                            key={`${mobileRowKey}-${String(column.key)}`}
+                            className={`min-w-0 truncate text-[0.8rem] ${
+                              columnIndex === 0
+                                ? "font-semibold text-[var(--foreground-strong)]"
+                                : "text-[var(--muted)]"
+                            }`}
+                          >
+                            {renderMobileSummaryValue(row, column)}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
+                {rowActions ? (
+                <div className="shrink-0" onClick={(event) => event.stopPropagation()}>
+                  <TableRowActions
+                    primaryButtonLabel={resolvePrimaryButtonLabel(row, rowActions)}
+                    primaryButtonIconPath={rowActions.primaryButtonIconPath}
+                    onPrimaryAction={() => rowActions.onPrimaryAction(row)}
+                    dropdownOptions={visibleDropdownOptions}
+                  />
+                </div>
+                ) : null}
               </div>
             </article>
           );
@@ -128,6 +204,15 @@ export function DataTableMobile<TData extends Record<string, unknown>>({
       ) : (
         <DataTableEmptyState message={emptyMessage} />
       )}
+
+      {activeRow ? (
+        <DataTableMobileDetailModal
+          open={isDetailOpen}
+          title={detailTitle}
+          items={detailItems}
+          onClose={closeDetail}
+        />
+      ) : null}
     </div>
   );
 }

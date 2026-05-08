@@ -10,7 +10,7 @@ export default function TiendasLayout({
 }) {
   return (
     <AuthGuard>
-      <DashboardShell pageTitle="Tiendas">{children}</DashboardShell>
+      <DashboardShell>{children}</DashboardShell>
     </AuthGuard>
   );
 }

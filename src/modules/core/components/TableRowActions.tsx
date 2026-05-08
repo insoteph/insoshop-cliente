@@ -10,12 +10,14 @@ export type DataTableRowActionOption = {
 
 type TableRowActionsProps = {
   primaryButtonLabel: string;
+  primaryButtonIconPath?: string;
   onPrimaryAction: () => void;
   dropdownOptions?: DataTableRowActionOption[];
 };
 
 export function TableRowActions({
   primaryButtonLabel,
+  primaryButtonIconPath,
   onPrimaryAction,
   dropdownOptions = [],
 }: TableRowActionsProps) {
@@ -85,8 +87,24 @@ export function TableRowActions({
       <button
         type="button"
         onClick={onPrimaryAction}
-        className="app-button-primary cursor-pointer rounded-l-xl px-3 py-1.5 text-sm"
+        className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-[var(--accent)] px-3 py-1.5 text-sm font-medium text-white shadow-sm transition hover:bg-[var(--accent-strong)]"
       >
+        {primaryButtonIconPath ? (
+          <span
+            aria-hidden="true"
+            className="h-4 w-4 shrink-0 bg-current"
+            style={{
+              WebkitMaskImage: `url(${primaryButtonIconPath})`,
+              maskImage: `url(${primaryButtonIconPath})`,
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+              maskPosition: "center",
+              WebkitMaskSize: "contain",
+              maskSize: "contain",
+            }}
+          />
+        ) : null}
         {primaryButtonLabel}
       </button>
 
@@ -99,7 +117,7 @@ export function TableRowActions({
             aria-haspopup="menu"
             aria-expanded={isOpen}
             aria-label="Abrir mas acciones"
-            className="app-button-primary cursor-pointer inline-flex items-center justify-center rounded-r-xl px-2 py-1.5"
+            className="ml-1 inline-flex cursor-pointer items-center justify-center rounded-lg bg-[var(--panel)] px-2 py-1.5 text-[var(--accent-strong)] shadow-sm transition hover:bg-[var(--panel-muted)]"
           >
             <span
               aria-hidden="true"

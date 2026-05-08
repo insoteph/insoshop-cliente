@@ -9,14 +9,8 @@ import {
   type DataTableColumn,
   type DataTableRowActionsConfig,
 } from "@/modules/core/components/DataTable";
-import {
-  ToolbarActions,
-  type DataTableToolbarAction,
-} from "@/modules/core/components/DataTableToolbar";
-import { SearchBar } from "@/modules/core/components/SearchBar";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
 import { useToast } from "@/modules/core/providers/ToastProvider";
-import { formatDate } from "@/modules/core/lib/formatters";
 import {
   fetchTiendas,
   createTienda,
@@ -26,6 +20,7 @@ import {
   StoreCreateFormPanel,
   type StoreCreateFormState,
 } from "@/modules/tiendas/components/StoreCreateFormPanel";
+import { StoreDirectoryHeader } from "@/modules/tiendas/components/StoreDirectoryHeader";
 import type { Tienda } from "@/modules/tiendas/types/tiendas-types";
 
 const INITIAL_CREATE_FORM: StoreCreateFormState = {
@@ -189,6 +184,13 @@ export function StoreDirectoryView() {
           className: "rounded-2xl",
           fallbackText: "Sin logo",
         },
+        desktopImageConfig: {
+          alt: (store) => `Logo de ${store.nombre}`,
+          width: 72,
+          height: 72,
+          className: "rounded-2xl",
+          fallbackText: "Sin logo",
+        },
       },
       {
         key: "nombre",
@@ -198,16 +200,13 @@ export function StoreDirectoryView() {
       {
         key: "slug",
         header: "Slug",
+        headerIconPath: "/icons/link.svg",
         textFormatter: (value) => `/${String(value ?? "")}`,
       },
       {
         key: "telefono",
         header: "Telefono",
-      },
-      {
-        key: "createdAt",
-        header: "Creacion",
-        textFormatter: (value) => formatDate(String(value ?? "")),
+        headerIconPath: "/icons/whatsapp.svg",
       },
       {
         key: "estado",
@@ -246,6 +245,7 @@ export function StoreDirectoryView() {
     () => ({
       headerLabel: "Acciones",
       primaryButtonLabel: "Administrar",
+      primaryButtonIconPath: "/icons/shop.svg",
       onPrimaryAction: (store) => {
         router.push(`/tiendas/${store.id}`);
       },
@@ -311,39 +311,20 @@ export function StoreDirectoryView() {
     [closeCreateFormPanel, createForm, loadStores, toast],
   );
 
-  const toolbarActions = useMemo<DataTableToolbarAction[]>(
-    () => [
-      {
-        label: "Nueva Tienda",
-        iconPath: "/icons/plus.svg",
-        onClick: () => {
-          resetCreateForm();
-          openCreateFormPanel();
-        },
-      },
-    ],
-    [openCreateFormPanel, resetCreateForm],
-  );
-
   return (
     <section className="space-y-5">
       <div className="space-y-4 rounded-2xl">
-          <div className="app-card rounded-2xl px-3 py-5">
-          <div className="flex flex-row items-center gap-2">
-            <div className="min-w-0 flex-1">
-              <SearchBar
-                value={searchTerm}
-                onChange={(value) => {
-                  setPage(1);
-                  setSearchTerm(value);
-                }}
-                placeholder="Buscar por nombre, slug, telefono o moneda"
-              />
-            </div>
-
-            <ToolbarActions actions={toolbarActions} className="shrink-0" />
-          </div>
-        </div>
+        <StoreDirectoryHeader
+          onNewStore={() => {
+            resetCreateForm();
+            openCreateFormPanel();
+          }}
+          searchTerm={searchTerm}
+          onSearchTermChange={(value) => {
+            setPage(1);
+            setSearchTerm(value);
+          }}
+        />
 
         {error ? (
           <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">

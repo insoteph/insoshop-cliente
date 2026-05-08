@@ -5,6 +5,7 @@ type DataTableSkeletonProps = {
   rows: number;
   columns: number;
   summaryColumns?: number;
+  hasImage?: boolean;
 };
 
 export function DataTableSkeleton({
@@ -12,6 +13,7 @@ export function DataTableSkeleton({
   rows,
   columns,
   summaryColumns = 2,
+  hasImage = false,
 }: DataTableSkeletonProps) {
   if (variant === "mobile") {
     return (
@@ -43,16 +45,30 @@ export function DataTableSkeleton({
   return (
     <>
       {Array.from({ length: rows }).map((_, rowIndex) => (
-        <tr key={`skeleton-${rowIndex}`}>
-          {Array.from({ length: columns }).map((__, cellIndex) => (
-            <td key={`skeleton-${rowIndex}-${cellIndex}`} className="px-4 py-3">
-              <span
-                className="data-table-skeleton block h-4 w-full max-w-[12rem] animate-pulse rounded"
-                aria-hidden="true"
-              />
-            </td>
-          ))}
-        </tr>
+        <article
+          key={`desktop-skeleton-${rowIndex}`}
+          className="rounded-xl border border-[var(--line)] bg-[var(--panel)] p-4 shadow-[0_16px_38px_rgba(15,23,42,0.11)]"
+        >
+          <div className="flex items-center gap-3">
+            {hasImage ? (
+              <span className="data-table-skeleton block h-12 w-12 animate-pulse rounded-xl" />
+            ) : null}
+
+            <div className="min-w-0 flex-1 space-y-2">
+              {Array.from({ length: Math.max(summaryColumns, 2) }).map(
+                (_, lineIndex) => (
+                  <span
+                    key={`desktop-skeleton-${rowIndex}-${lineIndex}`}
+                    className={`data-table-skeleton block h-4 animate-pulse rounded ${
+                      lineIndex === 0 ? "w-3/5 max-w-[14rem]" : "w-2/5 max-w-[10rem]"
+                    }`}
+                    aria-hidden="true"
+                  />
+                ),
+              )}
+            </div>
+          </div>
+        </article>
       ))}
     </>
   );
