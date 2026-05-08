@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import Script from "next/script";
 import "./globals.css";
 import { AppProviders } from "@/modules/core/providers/AppProviders";
 
@@ -16,25 +17,23 @@ export default function RootLayout({
   return (
     <html lang="es" className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full" suppressHydrationWarning>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (() => {
-                const storageKey = "insoshop.theme";
-                const storedTheme = window.localStorage.getItem(storageKey);
-                const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-                const resolvedTheme =
-                  storedTheme === "dark" || storedTheme === "light"
-                    ? storedTheme
-                    : systemPrefersDark
-                      ? "dark"
-                      : "light";
+        <Script id="theme-init" strategy="beforeInteractive">
+          {`
+            (() => {
+              const storageKey = "insoshop.theme";
+              const storedTheme = window.localStorage.getItem(storageKey);
+              const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+              const resolvedTheme =
+                storedTheme === "dark" || storedTheme === "light"
+                  ? storedTheme
+                  : systemPrefersDark
+                    ? "dark"
+                    : "light";
 
-                document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
-              })();
-            `,
-          }}
-        />
+              document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
+            })();
+          `}
+        </Script>
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

@@ -19,7 +19,7 @@ export function DataTableSkeleton({
         {Array.from({ length: rows }).map((_, rowIndex) => (
           <article
             key={`mobile-skeleton-${rowIndex}`}
-            className="rounded-[22px] border border-[var(--line)] bg-[var(--panel)] p-4 shadow-sm"
+            className="rounded-xl border border-[var(--line)] bg-[var(--panel)] p-3.5 shadow-sm md:rounded-2xl md:p-4"
           >
             <div className="space-y-3">
               {Array.from({ length: Math.max(summaryColumns, 2) }).map(

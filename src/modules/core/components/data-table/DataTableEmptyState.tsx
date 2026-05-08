@@ -11,7 +11,7 @@ export function DataTableEmptyState({
 }: DataTableEmptyStateProps) {
   return (
     <div
-      className={`rounded-2xl border border-dashed border-[var(--line)] bg-[var(--panel)] px-4 py-8 text-center text-sm text-[var(--muted)] ${className}`}
+      className={`rounded-xl border border-dashed border-[var(--line)] bg-[var(--panel)] px-4 py-8 text-center text-sm text-[var(--muted)] md:rounded-2xl ${className}`}
     >
       {message}
     </div>

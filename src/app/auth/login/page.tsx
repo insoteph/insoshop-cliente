@@ -17,7 +17,7 @@ export default function LoginPage() {
         <span className="login-dots login-dots-right" />
       </div>
 
-      <div className="relative z-10 grid w-full max-w-6xl overflow-hidden rounded-[2rem] border border-white/50 bg-[color:var(--panel-strong)] shadow-[var(--shadow)] backdrop-blur-xl lg:min-h-[680px] lg:grid-cols-[1.04fr_0.96fr]">
+      <div className="relative z-10 mx-auto grid w-[min(100%,28rem)] overflow-hidden rounded-[1.75rem] border border-white/50 bg-[color:var(--panel-strong)] shadow-[var(--shadow)] backdrop-blur-xl sm:w-[min(100%,32rem)] sm:rounded-[2rem] lg:w-full lg:max-w-6xl lg:min-h-[680px] lg:grid-cols-[1.04fr_0.96fr]">
         <section
           aria-label="Resumen visual de InsoShop"
           className={`relative hidden overflow-hidden bg-[#1d4ed8] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] lg:block ${
@@ -67,11 +67,11 @@ export default function LoginPage() {
         </section>
 
         <div
-          className={`relative flex min-h-[640px] flex-col items-center justify-center px-5 py-8 transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-8 lg:min-h-0 lg:px-14 ${
+          className={`relative flex min-h-0 flex-col items-center justify-center px-4 py-4 transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-8 sm:py-8 lg:min-h-0 lg:px-14 ${
             isPasswordStep ? "lg:-translate-x-[108%]" : "lg:translate-x-0"
           }`}
         >
-          <section className="mb-8 w-24 overflow-hidden lg:hidden">
+          <section className="mb-4 w-20 overflow-hidden lg:hidden">
             <Image
               src="/assets/logo.png"
               alt="Logo Insoshop"
@@ -82,7 +82,7 @@ export default function LoginPage() {
             />
           </section>
 
-          <section className="flex w-full max-w-[29rem] translate-y-4 flex-col mt-12">
+          <section className="mt-0 flex w-full max-w-[24rem] flex-col sm:max-w-[29rem] lg:translate-y-4 lg:mt-12">
             <span className="mb-3 inline-flex w-fit items-center rounded-full border border-[var(--line)] bg-[color:var(--panel-muted)] px-3 py-1 text-xs font-semibold text-[var(--accent)]">
               Acceso seguro
             </span>
@@ -94,7 +94,7 @@ export default function LoginPage() {
                 ? "Define una nueva contraseña para finalizar el acceso"
                 : "Ingresa tus credenciales para continuar"}
             </p>
-            <div className="app-divider my-7 w-full border-t" />
+            <div className="app-divider my-5 w-full border-t sm:my-7" />
             <Suspense fallback={null}>
               <LoginForm onStepChange={setAuthStep} />
             </Suspense>

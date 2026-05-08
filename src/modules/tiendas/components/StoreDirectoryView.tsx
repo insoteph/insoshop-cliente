@@ -10,7 +10,6 @@ import {
   type DataTableRowActionsConfig,
 } from "@/modules/core/components/DataTable";
 import {
-  DataTableToolbar,
   ToolbarActions,
   type DataTableToolbarAction,
 } from "@/modules/core/components/DataTableToolbar";
@@ -45,7 +44,7 @@ export function StoreDirectoryView() {
   const toast = useToast();
   const [stores, setStores] = useState<Tienda[]>([]);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const pageSize = 10;
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
@@ -382,33 +381,21 @@ export function StoreDirectoryView() {
         />
       ) : null}
 
-      <div className="app-card rounded-2xl py-5">
-        <DataTableToolbar
-          pageSize={pageSize}
-          onPageSizeChange={(value) => {
-            setPage(1);
-            setPageSize(value);
-          }}
-        />
-        <div className="app-divider mb-2 mt-1 border-b" />
-        <div className="px-3">
-          <DataTable
-            headers={columns}
-            rows={stores}
-            isLoading={isLoading}
-            rowKey="id"
-            emptyMessage="No hay tiendas que coincidan con los filtros aplicados."
-            badges={badges}
-            rowActions={rowActions}
-            pagination={{
-              page,
-              totalPages,
-              totalRecords,
-              onPageChange: setPage,
-            }}
-          />
-        </div>
-      </div>
+      <DataTable
+        headers={columns}
+        rows={stores}
+        isLoading={isLoading}
+        rowKey="id"
+        emptyMessage="No hay tiendas que coincidan con los filtros aplicados."
+        badges={badges}
+        rowActions={rowActions}
+        pagination={{
+          page,
+          totalPages,
+          totalRecords,
+          onPageChange: setPage,
+        }}
+      />
     </section>
   );
 }

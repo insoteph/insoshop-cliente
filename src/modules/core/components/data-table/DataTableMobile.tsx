@@ -56,7 +56,7 @@ export function DataTableMobile<TData extends Record<string, unknown>>({
           return (
             <article
               key={`mobile-${mobileRowKey}`}
-              className={`overflow-hidden rounded-[22px] border border-[var(--line)] bg-[var(--panel)] shadow-sm ${
+              className={`overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--panel)] shadow-sm md:rounded-2xl ${
                 rowActions
                   ? "transition hover:border-[var(--line-strong)] hover:shadow-md"
                   : ""
@@ -86,7 +86,7 @@ export function DataTableMobile<TData extends Record<string, unknown>>({
                   rowActions ? "cursor-pointer" : ""
                 }`}
               >
-                <div className="space-y-3 px-4 py-4">
+              <div className="space-y-2.5 px-3.5 py-3.5 md:px-4 md:py-4">
                   {mobileSummaryColumns.map((column, columnIndex) => (
                     <div
                       key={`${mobileRowKey}-${String(column.key)}`}
@@ -107,20 +107,19 @@ export function DataTableMobile<TData extends Record<string, unknown>>({
                 </div>
               </div>
 
-              <div className="border-t border-[var(--line)] px-4 py-3">
+              <div className="border-t border-[var(--line)] px-3.5 py-2.5 md:px-4 md:py-3">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs text-[var(--muted)]">
-                    {rowActions
-                      ? "Toca la tarjeta para ejecutar la acción principal."
-                      : "Sin acciones disponibles."}
-                  </p>
                   {rowActions ? (
                     <TableRowActions
                       primaryButtonLabel={resolvePrimaryButtonLabel(row, rowActions)}
                       onPrimaryAction={() => rowActions.onPrimaryAction(row)}
                       dropdownOptions={visibleDropdownOptions}
                     />
-                  ) : null}
+                  ) : (
+                    <span className="text-xs text-[var(--muted)]">
+                      Sin acciones disponibles.
+                    </span>
+                  )}
                 </div>
               </div>
             </article>

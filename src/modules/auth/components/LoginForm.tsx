@@ -154,9 +154,9 @@ export function LoginForm({ onStepChange }: LoginFormProps) {
   }
 
   return (
-    <div className="relative min-h-[28rem] w-full max-w-md overflow-hidden">
+    <div className="relative min-h-[22rem] w-full max-w-sm overflow-hidden sm:min-h-[28rem] sm:max-w-md">
       <form
-        className={`absolute inset-0 space-y-5 pt-2 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        className={`absolute inset-0 space-y-4 pt-1 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:space-y-5 sm:pt-2 ${
           step === "credentials"
             ? "translate-x-0 opacity-100"
             : "-translate-x-[14%] opacity-0 pointer-events-none"
@@ -197,14 +197,14 @@ export function LoginForm({ onStepChange }: LoginFormProps) {
         <button
           type="submit"
           disabled={isSubmittingLogin}
-          className="app-button-primary h-12 w-full rounded-xl text-sm font-bold active:scale-[0.98] disabled:opacity-60 mt-6"
+          className="app-button-primary mt-4 h-12 w-full rounded-xl text-sm font-bold active:scale-[0.98] disabled:opacity-60 sm:mt-6"
         >
           {isSubmittingLogin ? "Verificando..." : "Iniciar sesión"}
         </button>
       </form>
 
       <form
-        className={`absolute inset-0 space-y-5 pt-2 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        className={`absolute inset-0 space-y-4 pt-1 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:space-y-5 sm:pt-2 ${
           step === "new-password"
             ? "translate-x-0 opacity-100"
             : "translate-x-[14%] opacity-0 pointer-events-none"

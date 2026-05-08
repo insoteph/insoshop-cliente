@@ -65,24 +65,6 @@ function getStoredActiveStoreId() {
   return Number.isInteger(parsedValue) && parsedValue > 0 ? parsedValue : null;
 }
 
-function getStoredCurrentUser() {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  const storedValue = window.localStorage.getItem(CURRENT_USER_STORAGE_KEY);
-  if (!storedValue) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(storedValue) as CurrentUser;
-  } catch {
-    window.localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
-    return null;
-  }
-}
-
 function resolveActiveStoreId(user: CurrentUser, preferredStoreId: number | null) {
   const preferredIds = [preferredStoreId, getStoredActiveStoreId(), user.tiendaPrincipalId];
 
@@ -106,12 +88,8 @@ function isAdminRoute(pathname: string) {
 
 export function AdminSessionProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(() =>
-    getStoredCurrentUser()
-  );
-  const [isLoading, setIsLoading] = useState(() =>
-    isAdminRoute(pathname) && getStoredCurrentUser() === null,
-  );
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+  const [isLoading, setIsLoading] = useState(() => isAdminRoute(pathname));
   const [error, setError] = useState<string | null>(null);
   const [activeStoreId, setActiveStoreIdState] = useState<number | null>(null);
   const currentUserRef = useRef<CurrentUser | null>(currentUser);
