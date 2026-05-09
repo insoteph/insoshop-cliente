@@ -14,6 +14,7 @@ import { useAdminSession } from "@/modules/auth/providers/AdminSessionProvider";
 import { ProcessingModal } from "@/modules/core/components/ProcessingModal";
 import { useTheme } from "@/modules/core/providers/ThemeProvider";
 import { Sidebar } from "@/modules/navigation/components/Sidebar";
+import { buildStoreAdminUrl } from "@/modules/tiendas/lib/store-routing";
 
 type DashboardShellProps = {
   children: ReactNode;
@@ -67,12 +68,17 @@ export function DashboardShell({ children, pageTitle }: DashboardShellProps) {
       return;
     }
 
+    const nextStore = stores.find((store) => store.id === nextStoreId);
+    if (!nextStore) {
+      return;
+    }
+
     setActiveStoreId(nextStoreId);
-    router.push(`/tiendas/${nextStoreId}`);
+    window.location.assign(buildStoreAdminUrl(nextStore.subdominio));
   }
 
   const canReturnToDirectory =
-    currentUser?.tieneAccesoGlobal && pathname !== "/tiendas";
+    currentUser?.tieneAccesoGlobal && pathname !== "/admin";
 
   useEffect(() => {
     if (!isUserMenuOpen) {
@@ -165,7 +171,7 @@ export function DashboardShell({ children, pageTitle }: DashboardShellProps) {
               <button
                 type="button"
                 className="topbar-ghost-button"
-                onClick={() => router.push("/tiendas")}
+                onClick={() => router.push("/admin")}
               >
                 Ver listado
               </button>

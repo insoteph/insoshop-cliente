@@ -9,7 +9,7 @@ export default function LoginPage() {
   const isPasswordStep = authStep === "new-password";
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-8 sm:px-6 lg:px-8">
+    <main className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden px-4 py-3 sm:min-h-screen sm:px-6 sm:py-6 lg:px-8 lg:py-8">
       <div className="login-background" aria-hidden="true">
         <span className="login-ring login-ring-primary" />
         <span className="login-ring login-ring-secondary" />
@@ -17,7 +17,7 @@ export default function LoginPage() {
         <span className="login-dots login-dots-right" />
       </div>
 
-      <div className="relative z-10 mx-auto grid w-[min(100%,28rem)] overflow-hidden rounded-[1.75rem] border border-white/50 bg-[color:var(--panel-strong)] shadow-[var(--shadow)] backdrop-blur-xl sm:w-[min(100%,32rem)] sm:rounded-[2rem] lg:w-full lg:max-w-6xl lg:min-h-[680px] lg:grid-cols-[1.04fr_0.96fr]">
+      <div className="absolute left-1/2 top-1/2 z-10 grid max-h-[calc(100dvh-1rem)] w-[min(100%,24rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[1.75rem] border border-white/50 bg-[color:var(--panel-strong)] shadow-[var(--shadow)] backdrop-blur-xl sm:static sm:max-h-none sm:w-[min(100%,30rem)] sm:translate-x-0 sm:translate-y-0 sm:rounded-[2rem] lg:h-[36rem] lg:w-full lg:max-w-[56rem] lg:grid-cols-2 lg:overflow-hidden">
         <section
           aria-label="Resumen visual de InsoShop"
           className={`relative hidden overflow-hidden bg-[#1d4ed8] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] lg:block ${
@@ -67,34 +67,23 @@ export default function LoginPage() {
         </section>
 
         <div
-          className={`relative flex min-h-0 flex-col items-center justify-center px-4 py-4 transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-8 sm:py-8 lg:min-h-0 lg:px-14 ${
+          className={`relative flex min-h-0 flex-col items-center justify-center px-4 py-2 transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-8 sm:py-8 lg:min-h-0 lg:px-10 lg:py-0 ${
             isPasswordStep ? "lg:-translate-x-[108%]" : "lg:translate-x-0"
           }`}
         >
-          <section className="mb-4 w-20 overflow-hidden lg:hidden">
-            <Image
-              src="/assets/logo.png"
-              alt="Logo Insoshop"
-              width={128}
-              height={128}
-              className="h-auto w-full object-contain"
-              priority
-            />
-          </section>
-
-          <section className="mt-0 flex w-full max-w-[24rem] flex-col sm:max-w-[29rem] lg:translate-y-4 lg:mt-12">
-            <span className="mb-3 inline-flex w-fit items-center rounded-full border border-[var(--line)] bg-[color:var(--panel-muted)] px-3 py-1 text-xs font-semibold text-[var(--accent)]">
+          <section className="mt-0 flex w-full max-w-[24rem] flex-col sm:max-w-[29rem] lg:mt-0 lg:justify-center">
+            <span className="mb-1 inline-flex w-fit items-center rounded-full border border-[var(--line)] bg-[color:var(--panel-muted)] px-3 py-1 text-xs font-semibold text-[var(--accent)]">
               Acceso seguro
             </span>
-            <h1 className="text-3xl font-black tracking-normal text-[var(--foreground-strong)] sm:text-4xl">
+            <h1 className="text-[1.7rem] font-black tracking-normal text-[var(--foreground-strong)] sm:text-4xl lg:text-[2.35rem]">
               {isPasswordStep ? "Cambiar contraseña" : "Iniciar Sesión"}
             </h1>
-            <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
+            <p className="mt-1 text-sm leading-6 text-[var(--muted)] lg:max-w-[24rem]">
               {isPasswordStep
                 ? "Define una nueva contraseña para finalizar el acceso"
                 : "Ingresa tus credenciales para continuar"}
             </p>
-            <div className="app-divider my-5 w-full border-t sm:my-7" />
+            <div className="app-divider my-2 w-full border-t sm:my-7" />
             <Suspense fallback={null}>
               <LoginForm onStepChange={setAuthStep} />
             </Suspense>

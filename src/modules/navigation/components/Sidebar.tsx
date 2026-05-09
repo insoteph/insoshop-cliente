@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { permissions } from "@/modules/auth/lib/permissions";
 import { useAdminSession } from "@/modules/auth/providers/AdminSessionProvider";
 import { SidebarItem } from "@/modules/navigation/components/SidebarItem";
+import { buildStoreAdminUrl } from "@/modules/tiendas/lib/store-routing";
 
 type SidebarProps = {
   isOpen: boolean;
@@ -30,9 +31,9 @@ export function Sidebar({ isOpen, isCollapsed, onClose }: SidebarProps) {
     hasPermission(permissions.atributosCatalogo.ver);
 
   const dashboardHref = currentUser?.tieneAccesoGlobal
-    ? "/tiendas"
+    ? "/admin"
     : activeStore
-      ? `/tiendas/${activeStore.id}`
+      ? buildStoreAdminUrl(activeStore.subdominio)
       : "/dashboard";
 
   return (
@@ -75,8 +76,8 @@ export function Sidebar({ isOpen, isCollapsed, onClose }: SidebarProps) {
             icon="/icons/dashboard.svg"
             active={
               pathname === "/dashboard" ||
-              pathname === dashboardHref ||
-              pathname.startsWith("/tiendas/")
+              pathname === "/admin" ||
+              pathname.startsWith("/admin/")
             }
             collapsed={isCollapsed}
             onClick={onClose}
@@ -96,7 +97,7 @@ export function Sidebar({ isOpen, isCollapsed, onClose }: SidebarProps) {
                 label={currentUser?.tieneAccesoGlobal ? "Tiendas" : "Mi tienda"}
                 icon="/icons/Cart.svg"
                 active={
-                  pathname === "/tiendas" || pathname.startsWith("/tiendas/")
+                  pathname === "/admin" || pathname.startsWith("/admin/")
                 }
                 collapsed={isCollapsed}
                 onClick={onClose}

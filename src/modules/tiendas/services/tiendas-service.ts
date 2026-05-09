@@ -24,6 +24,7 @@ export async function fetchTiendaById(tiendaId: number) {
 
 export async function createTienda(payload: {
   nombre: string;
+  subdominio?: string;
   telefono: string;
   moneda: string;
   logoUrl: string;
@@ -36,6 +37,7 @@ export async function updateTienda(
   tiendaId: number,
   payload: {
     nombre: string;
+    subdominio?: string;
     telefono: string;
     moneda: string;
     logoUrl: string;
@@ -49,6 +51,7 @@ export async function toggleTiendaStatus(
   tiendaId: number,
   payload: {
     nombre: string;
+    subdominio?: string;
     telefono: string;
     moneda: string;
     logoUrl: string;

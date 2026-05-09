@@ -4,6 +4,7 @@ import { MaterialInput } from "@/modules/core/components/MaterialInput";
 
 export type StoreCreateFormState = {
   nombre: string;
+  subdominio: string;
   codigoPais: string;
   numeroTelefono: string;
   moneda: string;
@@ -19,6 +20,7 @@ type StoreCreateFormPanelProps = {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   onClose: () => void;
   onNombreChange: (value: string) => void;
+  onSubdominioChange: (value: string) => void;
   onCodigoPaisChange: (value: string) => void;
   onNumeroTelefonoChange: (value: string) => void;
   onMonedaChange: (value: string) => void;
@@ -45,6 +47,7 @@ export function StoreCreateFormPanel({
   onSubmit,
   onClose,
   onNombreChange,
+  onSubdominioChange,
   onCodigoPaisChange,
   onNumeroTelefonoChange,
   onMonedaChange,
@@ -88,6 +91,17 @@ export function StoreCreateFormPanel({
           onChange={(event) => onNombreChange(event.target.value)}
           required
         />
+
+        <MaterialInput
+          id="store-create-subdominio"
+          label="Subdominio"
+          value={form.subdominio}
+          onChange={(event) => onSubdominioChange(event.target.value)}
+          placeholder="mitienda"
+        />
+        <p className="text-xs text-[var(--muted)]">
+          Se usará para la administración por subdominio.
+        </p>
 
         <div className="grid gap-4 md:grid-cols-[170px_minmax(0,1fr)]">
           <div className="relative">

@@ -3,6 +3,7 @@
 import {
   createContext,
   useContext,
+  useLayoutEffect,
   useEffect,
   useMemo,
   useRef,
@@ -24,12 +25,15 @@ import {
 import { ensureSession } from "@/modules/auth/services/session-service";
 import { logoutService } from "@/modules/auth/services/logout-service";
 import type { TiendaDisponible } from "@/modules/tiendas/types/tiendas-types";
+import { getCurrentHostStoreSubdomain } from "@/modules/tiendas/lib/store-routing";
 
 type AdminSessionContextValue = {
   currentUser: CurrentUser | null;
   isLoading: boolean;
   error: string | null;
   stores: TiendaDisponible[];
+  hostSubdomain: string | null;
+  hostStoreId: number | null;
   activeStoreId: number | null;
   activeStore: TiendaDisponible | null;
   setActiveStoreId: (storeId: number | null) => void;
@@ -42,6 +46,7 @@ const ACTIVE_STORE_STORAGE_KEY = "insoshop.active-store-id";
 const CURRENT_USER_STORAGE_KEY = "insoshop.current-user";
 const ADMIN_ROUTE_PREFIXES = [
   "/dashboard",
+  "/admin",
   "/tiendas",
   "/roles",
   "/usuarios",
@@ -65,8 +70,31 @@ function getStoredActiveStoreId() {
   return Number.isInteger(parsedValue) && parsedValue > 0 ? parsedValue : null;
 }
 
-function resolveActiveStoreId(user: CurrentUser, preferredStoreId: number | null) {
-  const preferredIds = [preferredStoreId, getStoredActiveStoreId(), user.tiendaPrincipalId];
+function resolveHostStoreId(user: CurrentUser) {
+  const hostStoreSubdomain = getCurrentHostStoreSubdomain();
+
+  if (!hostStoreSubdomain) {
+    return null;
+  }
+
+  return (
+    user.tiendas.find(
+      (store) => store.subdominio.toLowerCase() === hostStoreSubdomain,
+    )?.id ?? null
+  );
+}
+
+function resolveActiveStoreId(
+  user: CurrentUser,
+  preferredStoreId: number | null,
+  hostStoreId: number | null,
+) {
+  const preferredIds = [
+    hostStoreId,
+    preferredStoreId,
+    getStoredActiveStoreId(),
+    user.tiendaPrincipalId,
+  ];
 
   for (const preferredId of preferredIds) {
     if (
@@ -91,12 +119,23 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [isLoading, setIsLoading] = useState(() => isAdminRoute(pathname));
   const [error, setError] = useState<string | null>(null);
+  const [hostSubdomain, setHostSubdomain] = useState<string | null>(null);
+  const [hostStoreId, setHostStoreId] = useState<number | null>(null);
   const [activeStoreId, setActiveStoreIdState] = useState<number | null>(null);
   const currentUserRef = useRef<CurrentUser | null>(currentUser);
 
   useEffect(() => {
     currentUserRef.current = currentUser;
   }, [currentUser]);
+
+  useLayoutEffect(() => {
+    if (isAdminRoute(pathname)) {
+      setIsLoading(true);
+      return;
+    }
+
+    setIsLoading(false);
+  }, [pathname]);
 
   const refreshCurrentUser = useCallback(async () => {
     if (!isAdminRoute(pathname)) {
@@ -126,12 +165,17 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
 
       const user = await fetchCurrentUser();
       setCurrentUser(user);
+      setHostSubdomain(getCurrentHostStoreSubdomain());
+      const resolvedHostStoreId = resolveHostStoreId(user);
+      setHostStoreId(resolvedHostStoreId);
       setActiveStoreIdState((currentStoreId) =>
-        resolveActiveStoreId(user, currentStoreId)
+        resolveActiveStoreId(user, currentStoreId, resolvedHostStoreId)
       );
     } catch (loadError) {
       clearAccessToken();
       setCurrentUser(null);
+      setHostSubdomain(null);
+      setHostStoreId(null);
       setActiveStoreIdState(null);
       setError(
         loadError instanceof Error
@@ -147,8 +191,10 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
     await logoutService();
     clearAccessToken();
     setCurrentUser(null);
+    setHostSubdomain(null);
+    setHostStoreId(null);
     setActiveStoreIdState(null);
-    setError(null);
+      setError(null);
   }, []);
 
   useEffect(() => {
@@ -202,6 +248,8 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
       isLoading,
       error,
       stores,
+      hostSubdomain,
+      hostStoreId,
       activeStoreId,
       activeStore,
       setActiveStoreId: (storeId) => {
@@ -227,6 +275,8 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
       error,
       isLoading,
       logout,
+      hostSubdomain,
+      hostStoreId,
       refreshCurrentUser,
       stores,
     ]

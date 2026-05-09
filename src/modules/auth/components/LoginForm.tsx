@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 import { MaterialInput } from "@/modules/core/components/MaterialInput";
 import { changePasswordService } from "@/modules/auth/services/change-password-service";
@@ -57,7 +57,6 @@ function LockIcon() {
 }
 
 export function LoginForm({ onStepChange }: LoginFormProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const newPasswordInputRef = useRef<HTMLInputElement | null>(null);
   const [step, setStep] = useState<AuthStep>("credentials");
@@ -81,7 +80,7 @@ export function LoginForm({ onStepChange }: LoginFormProps) {
   }, [onStepChange, step]);
 
   function resolveNextPath() {
-    return searchParams.get("next") || "/dashboard";
+    return searchParams.get("next") || "/admin";
   }
 
   async function handleLoginSubmit(event: FormEvent<HTMLFormElement>) {
@@ -101,7 +100,7 @@ export function LoginForm({ onStepChange }: LoginFormProps) {
         return;
       }
 
-      router.replace(resolveNextPath());
+      window.location.replace(resolveNextPath());
     } catch (error) {
       setLoginFeedback(
         error instanceof Error
@@ -141,7 +140,7 @@ export function LoginForm({ onStepChange }: LoginFormProps) {
         currentPassword: password,
         newPassword,
       });
-      router.replace(resolveNextPath());
+      window.location.replace(resolveNextPath());
     } catch (error) {
       setPasswordFeedback(
         error instanceof Error
@@ -154,9 +153,9 @@ export function LoginForm({ onStepChange }: LoginFormProps) {
   }
 
   return (
-    <div className="relative min-h-[22rem] w-full max-w-sm overflow-hidden sm:min-h-[28rem] sm:max-w-md">
+    <div className="relative min-h-[10.8rem] w-full max-w-sm overflow-hidden sm:min-h-[22rem] sm:max-w-md">
       <form
-        className={`absolute inset-0 space-y-4 pt-1 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:space-y-5 sm:pt-2 ${
+        className={`absolute inset-0 space-y-2 pt-0 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:space-y-5 sm:pt-2 ${
           step === "credentials"
             ? "translate-x-0 opacity-100"
             : "-translate-x-[14%] opacity-0 pointer-events-none"
@@ -197,21 +196,21 @@ export function LoginForm({ onStepChange }: LoginFormProps) {
         <button
           type="submit"
           disabled={isSubmittingLogin}
-          className="app-button-primary mt-4 h-12 w-full rounded-xl text-sm font-bold active:scale-[0.98] disabled:opacity-60 sm:mt-6"
+          className="app-button-primary mt-2 h-12 w-full rounded-xl text-sm font-bold active:scale-[0.98] disabled:opacity-60 sm:mt-6"
         >
           {isSubmittingLogin ? "Verificando..." : "Iniciar sesión"}
         </button>
       </form>
 
       <form
-        className={`absolute inset-0 space-y-4 pt-1 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:space-y-5 sm:pt-2 ${
+        className={`absolute inset-0 space-y-2 pt-0 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:space-y-5 sm:pt-2 ${
           step === "new-password"
             ? "translate-x-0 opacity-100"
             : "translate-x-[14%] opacity-0 pointer-events-none"
         }`}
         onSubmit={handleChangePasswordSubmit}
       >
-        <div className="app-card-muted rounded-2xl px-4 py-3 text-sm leading-6 text-[var(--foreground)]">
+        <div className="app-card-muted rounded-2xl px-4 py-2 text-sm leading-6 text-[var(--foreground)]">
           Debes actualizar la contraseña del usuario{" "}
           <span className="font-semibold">{username}</span> para continuar.
         </div>
@@ -239,7 +238,7 @@ export function LoginForm({ onStepChange }: LoginFormProps) {
           required
         />
 
-        <p className="rounded-xl border border-[var(--line)] bg-[color:var(--panel-muted)] px-3 py-2 text-xs leading-5 text-[var(--muted)]">
+        <p className="rounded-xl border border-[var(--line)] bg-[color:var(--panel-muted)] px-3 py-1 text-xs leading-5 text-[var(--muted)]">
           {PASSWORD_HELPER_TEXT}
         </p>
 

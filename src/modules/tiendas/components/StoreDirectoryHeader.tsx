@@ -14,13 +14,13 @@ export function StoreDirectoryHeader({
   onSearchTermChange,
 }: StoreDirectoryHeaderProps) {
   return (
-    <div className="space-y-4 rounded-2xl border border-[var(--line)] bg-white px-4 py-4 shadow-[0_12px_30px_rgba(15,23,42,0.07)] md:px-5 md:py-5">
+    <div className="space-y-4 rounded-2xl border border-[var(--line)] bg-[color:var(--panel-strong)] px-4 py-4 shadow-[0_12px_30px_rgba(15,23,42,0.07)] md:px-5 md:py-5">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="space-y-1.5">
-          <h1 className="text-2xl font-semibold tracking-tight text-[var(--foreground)] md:text-[2rem]">
+          <h1 className="text-2xl font-semibold tracking-tight text-[var(--foreground-strong)] md:text-[2rem]">
             Tiendas
           </h1>
-          <p className="max-w-2xl text-sm font-semibold leading-6 text-black/55 md:text-[0.95rem]">
+          <p className="max-w-2xl text-sm font-semibold leading-6 text-[var(--muted)] md:text-[0.95rem]">
             Gestiona y administra las tiendas de Insoshop.
           </p>
         </div>

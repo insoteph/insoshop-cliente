@@ -23,6 +23,7 @@ async function refreshSessionOnce() {
   try {
     const response = await sessionApi(controller.signal);
     setAccessToken(response.data.token);
+    setSessionCacheStatus("authenticated");
     return true;
   } catch {
     return false;

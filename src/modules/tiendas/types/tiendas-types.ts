@@ -4,6 +4,7 @@ export type Tienda = {
   id: number;
   nombre: string;
   slug: string;
+  subdominio: string;
   telefono: string;
   moneda: string;
   logoUrl: string;
@@ -23,6 +24,7 @@ export type TiendaDisponible = {
   id: number;
   nombre: string;
   slug: string;
+  subdominio: string;
   logoUrl: string;
   esPrincipal: boolean;
 };

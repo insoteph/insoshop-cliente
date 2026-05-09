@@ -59,6 +59,7 @@ export async function updateTiendaApi(
   tiendaId: number,
   payload: {
     nombre: string;
+    subdominio?: string;
     telefono: string;
     moneda: string;
     logoUrl: string;
@@ -73,6 +74,7 @@ export async function updateTiendaApi(
 
 export async function createTiendaApi(payload: {
   nombre: string;
+  subdominio?: string;
   telefono: string;
   moneda: string;
   logoUrl: string;

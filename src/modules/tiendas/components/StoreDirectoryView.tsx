@@ -21,10 +21,12 @@ import {
   type StoreCreateFormState,
 } from "@/modules/tiendas/components/StoreCreateFormPanel";
 import { StoreDirectoryHeader } from "@/modules/tiendas/components/StoreDirectoryHeader";
+import { buildStoreAdminUrl } from "@/modules/tiendas/lib/store-routing";
 import type { Tienda } from "@/modules/tiendas/types/tiendas-types";
 
 const INITIAL_CREATE_FORM: StoreCreateFormState = {
   nombre: "",
+  subdominio: "",
   codigoPais: "+504",
   numeroTelefono: "",
   moneda: "L",
@@ -247,7 +249,7 @@ export function StoreDirectoryView() {
       primaryButtonLabel: "Administrar",
       primaryButtonIconPath: "/icons/shop.svg",
       onPrimaryAction: (store) => {
-        router.push(`/tiendas/${store.id}`);
+        window.location.assign(buildStoreAdminUrl(store.subdominio));
       },
       dropdownOptions: [
         {
@@ -288,6 +290,7 @@ export function StoreDirectoryView() {
       try {
         await createTienda({
           nombre: createForm.nombre.trim(),
+          subdominio: createForm.subdominio.trim(),
           telefono: `${countryCode}${phoneNumber}`,
           moneda: createForm.moneda.trim(),
           logoUrl: createForm.logoUrl.trim(),
@@ -343,6 +346,9 @@ export function StoreDirectoryView() {
           onClose={() => closeCreateFormPanel(true)}
           onNombreChange={(value) =>
             setCreateForm((current) => ({ ...current, nombre: value }))
+          }
+          onSubdominioChange={(value) =>
+            setCreateForm((current) => ({ ...current, subdominio: value }))
           }
           onCodigoPaisChange={(value) =>
             setCreateForm((current) => ({ ...current, codigoPais: value }))

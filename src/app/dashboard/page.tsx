@@ -4,10 +4,11 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import { useAdminSession } from "@/modules/auth/providers/AdminSessionProvider";
+import { buildStoreAdminUrl } from "@/modules/tiendas/lib/store-routing";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { currentUser, activeStoreId, isLoading } = useAdminSession();
+  const { currentUser, activeStore, isLoading } = useAdminSession();
 
   useEffect(() => {
     if (isLoading || !currentUser) {
@@ -15,14 +16,14 @@ export default function DashboardPage() {
     }
 
     if (currentUser.tieneAccesoGlobal) {
-      router.replace("/tiendas");
+      router.replace("/admin");
       return;
     }
 
-    if (activeStoreId) {
-      router.replace(`/tiendas/${activeStoreId}`);
+    if (activeStore?.subdominio) {
+      window.location.replace(buildStoreAdminUrl(activeStore.subdominio));
     }
-  }, [activeStoreId, currentUser, isLoading, router]);
+  }, [activeStore, currentUser, isLoading, router]);
 
   return (
     <section className="panel-card">

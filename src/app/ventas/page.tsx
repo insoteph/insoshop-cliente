@@ -58,10 +58,10 @@ export default function VentasPage() {
           Selecciona una tienda desde el listado para consultar sus ventas.
         </p>
         <Link
-          href="/tiendas"
+          href="/admin"
           className="inline-flex rounded-2xl bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white"
         >
-          Ir a tiendas
+          Ir a administracion
         </Link>
       </section>
     );

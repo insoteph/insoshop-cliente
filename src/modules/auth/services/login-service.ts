@@ -4,7 +4,10 @@ import type {
   LoginResponse,
   LoginSession,
 } from "@/modules/auth/types/auth-types";
-import { setAccessToken } from "@/modules/auth/lib/session";
+import {
+  setAccessToken,
+  setSessionCacheStatus,
+} from "@/modules/auth/lib/session";
 
 function buildLoginSession(data: LoginResponse): LoginSession {
   if (!data.token) {
@@ -24,6 +27,7 @@ export async function loginService(payload: LoginRequest) {
   const session = buildLoginSession(response.data);
 
   setAccessToken(session.token);
+  setSessionCacheStatus("authenticated");
 
   return session;
 }
