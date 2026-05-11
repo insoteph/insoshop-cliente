@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 export type StoreModuleTabId =
   | "informacion"
+  | "apariencia"
   | "productos"
   | "categorias"
   | "ventas"
@@ -12,6 +13,7 @@ export type StoreModuleTabId =
 
 const TAB_LABELS: Record<StoreModuleTabId, string> = {
   informacion: "Informacion",
+  apariencia: "Apariencia",
   productos: "Productos",
   categorias: "Categorias",
   ventas: "Ventas",

@@ -87,7 +87,7 @@ export function TableRowActions({
       <button
         type="button"
         onClick={onPrimaryAction}
-        className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-[var(--accent)] px-3 py-1.5 text-sm font-medium text-white shadow-sm transition hover:bg-[var(--accent-strong)]"
+        className="app-button-action cursor-pointer"
       >
         {primaryButtonIconPath ? (
           <span

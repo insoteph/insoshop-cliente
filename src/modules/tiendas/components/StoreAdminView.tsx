@@ -13,6 +13,7 @@ import { TitleBar } from "@/modules/core/components/TitleBar";
 import { ProductsPanel } from "@/modules/products/components/ProductsPanel";
 import { SalesPanel } from "@/modules/sales/components/SalesPanel";
 import { StoreSettingsPanel } from "@/modules/settings/components/StoreSettingsPanel";
+import { StoreAppearancePanel } from "@/modules/tiendas/components/StoreAppearancePanel";
 import { StoreInfoPanel } from "@/modules/tiendas/components/StoreInfoPanel";
 import { StoreUsersTabPanel } from "@/modules/tiendas/components/StoreUsersTabPanel";
 import { fetchTiendaById } from "@/modules/tiendas/services/tiendas-service";
@@ -65,6 +66,10 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
     }> = [
       {
         id: "informacion",
+        visible: hasPermission(permissions.tiendas.ver),
+      },
+      {
+        id: "apariencia",
         visible: hasPermission(permissions.tiendas.ver),
       },
       {
@@ -156,7 +161,7 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
           store.slug ? (
             <button
               type="button"
-              className="app-button-secondary rounded-xl px-4 py-2.5 text-sm font-semibold"
+              className="app-button-action cursor-pointer whitespace-nowrap"
               onClick={handleOpenPublicStore}
               title={`Ir a la tienda publica ${store.nombre}`}
             >
@@ -177,6 +182,10 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
         <div className="app-card flex-1 rounded-b-2xl border p-4">
           {activeTab === "informacion" ? (
             <StoreInfoPanel storeId={storeId} canEdit={canEditStore} />
+          ) : null}
+
+          {activeTab === "apariencia" ? (
+            <StoreAppearancePanel storeId={storeId} canEdit={canEditStore} />
           ) : null}
 
           {activeTab === "productos" ? (

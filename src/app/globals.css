@@ -180,6 +180,34 @@ textarea {
   box-shadow: 0 22px 36px color-mix(in srgb, var(--accent) 26%, transparent);
 }
 
+.app-button-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid transparent;
+  background: var(--accent);
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  color: white;
+  box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.06);
+}
+
+.app-button-action:hover {
+  background: var(--accent-strong);
+}
+
+.app-button-action-danger {
+  background: var(--danger);
+}
+
+.app-button-action-danger:hover {
+  background: color-mix(in srgb, var(--danger) 88%, black 12%);
+}
+
 .app-button-secondary {
   border: 1px solid var(--line);
   background: color-mix(in srgb, var(--panel-strong) 78%, transparent);

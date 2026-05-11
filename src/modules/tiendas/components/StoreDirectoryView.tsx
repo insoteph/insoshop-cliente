@@ -33,7 +33,6 @@ const INITIAL_CREATE_FORM: StoreCreateFormState = {
   subdominio: "",
   codigoPais: "",
   numeroTelefono: "",
-  logoUrl: "",
   estado: true,
 };
 const FORM_ANIMATION_MS = 500;
@@ -201,7 +200,6 @@ export function StoreDirectoryView() {
           nombre: store.nombre,
           telefono: store.telefono,
           codigoPais: store.codigoPais,
-          logoUrl: store.logoUrl,
           estado: store.estado,
         });
         await loadStores();
@@ -343,7 +341,6 @@ export function StoreDirectoryView() {
           subdominio: createForm.subdominio.trim(),
           telefono: phoneNumber,
           codigoPais: createForm.codigoPais.trim(),
-          logoUrl: createForm.logoUrl.trim(),
           estado: createForm.estado,
         });
 
@@ -405,9 +402,6 @@ export function StoreDirectoryView() {
           }
           onNumeroTelefonoChange={(value) =>
             setCreateForm((current) => ({ ...current, numeroTelefono: value }))
-          }
-          onLogoUrlChange={(value) =>
-            setCreateForm((current) => ({ ...current, logoUrl: value }))
           }
           onEstadoChange={(value) =>
             setCreateForm((current) => ({ ...current, estado: value }))

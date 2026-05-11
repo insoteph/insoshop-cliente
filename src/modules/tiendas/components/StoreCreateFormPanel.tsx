@@ -8,7 +8,6 @@ export type StoreCreateFormState = {
   subdominio: string;
   codigoPais: string;
   numeroTelefono: string;
-  logoUrl: string;
   estado: boolean;
 };
 
@@ -23,7 +22,6 @@ type StoreCreateFormPanelProps = {
   onSubdominioChange: (value: string) => void;
   onCodigoPaisChange: (value: string) => void;
   onNumeroTelefonoChange: (value: string) => void;
-  onLogoUrlChange: (value: string) => void;
   onEstadoChange: (value: boolean) => void;
   availablePaises: PaisTelefono[];
 };
@@ -39,7 +37,6 @@ export function StoreCreateFormPanel({
   onSubdominioChange,
   onCodigoPaisChange,
   onNumeroTelefonoChange,
-  onLogoUrlChange,
   onEstadoChange,
   availablePaises,
 }: StoreCreateFormPanelProps) {
@@ -166,14 +163,6 @@ export function StoreCreateFormPanel({
           />
           Tienda activa
         </label>
-
-        <MaterialInput
-          id="store-create-logo-url"
-          label="URL del logo"
-          value={form.logoUrl}
-          onChange={(event) => onLogoUrlChange(event.target.value)}
-          required
-        />
 
         {formError ? (
           <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">

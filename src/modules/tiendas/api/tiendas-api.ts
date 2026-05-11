@@ -63,7 +63,6 @@ export async function updateTiendaApi(
     subdominio?: string;
     telefono: string;
     codigoPais: string;
-    logoUrl: string;
     estado: boolean;
   }
 ) {
@@ -78,12 +77,32 @@ export async function createTiendaApi(payload: {
   subdominio?: string;
   telefono: string;
   codigoPais: string;
-  logoUrl: string;
   estado: boolean;
 }) {
   return apiFetch("/tiendas", {
     method: "POST",
     body: payload,
+  });
+}
+
+export async function updateTiendaLogoApi(tiendaId: number, file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  return apiFetch<{ id: number; logoUrl: string }>(
+    `/tiendas/${tiendaId}/logo`,
+    {
+      method: "PUT",
+      body: formData,
+      storeId: tiendaId,
+    },
+  );
+}
+
+export async function deleteTiendaLogoApi(tiendaId: number) {
+  return apiFetch(`/tiendas/${tiendaId}/logo`, {
+    method: "DELETE",
+    storeId: tiendaId,
   });
 }
 

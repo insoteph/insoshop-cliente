@@ -6,6 +6,8 @@ import {
   fetchTiendaUsuariosApi,
   fetchTiendasApi,
   unassignUsuarioTiendaApi,
+  deleteTiendaLogoApi,
+  updateTiendaLogoApi,
   updateTiendaApi,
 } from "@/modules/tiendas/api/tiendas-api";
 import type {
@@ -29,7 +31,6 @@ export async function createTienda(payload: {
   subdominio?: string;
   telefono: string;
   codigoPais: string;
-  logoUrl: string;
   estado: boolean;
 }) {
   return createTiendaApi(payload);
@@ -42,7 +43,6 @@ export async function updateTienda(
     subdominio?: string;
     telefono: string;
     codigoPais: string;
-    logoUrl: string;
     estado: boolean;
   }
 ) {
@@ -56,7 +56,6 @@ export async function toggleTiendaStatus(
     subdominio?: string;
     telefono: string;
     codigoPais: string;
-    logoUrl: string;
     estado: boolean;
   }
 ) {
@@ -64,6 +63,14 @@ export async function toggleTiendaStatus(
     ...payload,
     estado: !payload.estado,
   });
+}
+
+export async function uploadTiendaLogo(tiendaId: number, file: File) {
+  return updateTiendaLogoApi(tiendaId, file);
+}
+
+export async function deleteTiendaLogo(tiendaId: number) {
+  return deleteTiendaLogoApi(tiendaId);
 }
 
 export async function fetchTiendaUsuarios(
