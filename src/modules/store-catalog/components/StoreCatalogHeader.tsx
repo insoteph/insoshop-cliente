@@ -64,7 +64,7 @@ export function StoreCatalogHeader({
             <div className="flex shrink-0 items-center gap-2">
               <StoreFavoritesPanel
                 slug={slug}
-                currency={store?.moneda ?? "HNL"}
+                currency={store?.monedaCodigo ?? "HNL"}
                 items={favoriteItems}
                 isOpen={isFavoritesOpen}
                 onToggle={onToggleFavorites}

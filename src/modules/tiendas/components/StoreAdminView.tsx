@@ -187,7 +187,7 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
               canDeleteProducts={canDeleteProducts}
               canEditAttributes={canEditProducts}
               canDeleteAttributes={canDeleteProducts}
-              currency={store.moneda}
+              currency={store.monedaCodigo}
             />
           ) : null}
 
@@ -199,7 +199,7 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
           ) : null}
 
           {activeTab === "ventas" ? (
-            <SalesPanel storeId={storeId} currency={store.moneda} />
+            <SalesPanel storeId={storeId} currency={store.monedaCodigo} />
           ) : null}
 
           {activeTab === "usuarios" ? (

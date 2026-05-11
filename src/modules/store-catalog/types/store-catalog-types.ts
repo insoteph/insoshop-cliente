@@ -5,7 +5,7 @@ export type PublicStoreSummary = {
   nombre: string;
   slug: string;
   telefono: string;
-  moneda: string;
+  monedaCodigo: string;
   logoUrl: string;
 };
 

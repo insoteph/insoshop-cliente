@@ -1,5 +1,6 @@
 import { apiFetch } from "@/modules/core/lib/api-client";
 import type {
+  PaisTelefono,
   TiendaDetalle,
   TiendasPageResult,
   TiendasQueryParams,
@@ -61,7 +62,7 @@ export async function updateTiendaApi(
     nombre: string;
     subdominio?: string;
     telefono: string;
-    moneda: string;
+    codigoPais: string;
     logoUrl: string;
     estado: boolean;
   }
@@ -76,7 +77,7 @@ export async function createTiendaApi(payload: {
   nombre: string;
   subdominio?: string;
   telefono: string;
-  moneda: string;
+  codigoPais: string;
   logoUrl: string;
   estado: boolean;
 }) {
@@ -84,6 +85,10 @@ export async function createTiendaApi(payload: {
     method: "POST",
     body: payload,
   });
+}
+
+export async function fetchPaisesApi() {
+  return apiFetch<PaisTelefono[]>("/paises/activos");
 }
 
 export async function fetchTiendaUsuariosApi(

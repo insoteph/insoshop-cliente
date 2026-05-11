@@ -75,7 +75,7 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
               <StoreCartItemsList
                 items={items}
-                currency={store?.moneda ?? "HNL"}
+                currency={store?.monedaCodigo ?? "HNL"}
                 onRemove={removeItem}
                 onDecrease={(productoVarianteId, currentQuantity) =>
                   setItemQuantity(productoVarianteId, currentQuantity - 1)
@@ -86,7 +86,7 @@ function StoreCartContent({ slug }: StoreCartViewProps) {
               />
 
               <StoreCartSummaryPanel
-                currency={store?.moneda ?? "HNL"}
+                currency={store?.monedaCodigo ?? "HNL"}
                 subtotal={subtotal}
                 total={total}
                 isCheckoutOpen={isCheckoutOpen}

@@ -153,111 +153,119 @@ export function LoginForm({ onStepChange }: LoginFormProps) {
   }
 
   return (
-    <div className="relative min-h-[10.8rem] w-full max-w-sm overflow-hidden sm:min-h-[22rem] sm:max-w-md">
+    <div className="relative min-h-[15rem] w-full max-w-sm overflow-hidden sm:min-h-[22rem] sm:max-w-md">
       <form
-        className={`absolute inset-0 space-y-2 pt-0 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:space-y-5 sm:pt-2 ${
+        className={`absolute inset-0 flex flex-col justify-between gap-4 pt-0 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:gap-5 sm:pt-2 ${
           step === "credentials"
             ? "translate-x-0 opacity-100"
             : "-translate-x-[14%] opacity-0 pointer-events-none"
         }`}
         onSubmit={handleLoginSubmit}
       >
-        <MaterialInput
-          id="username"
-          type="text"
-          label="Usuario"
-          value={username}
-          onChange={(event) => setUsername(event.target.value)}
-          autoComplete="username"
-          icon={<UserIcon />}
-          required
-        />
+        <div className="grid gap-4">
+          <MaterialInput
+            id="username"
+            type="text"
+            label="Usuario"
+            value={username}
+            onChange={(event) => setUsername(event.target.value)}
+            autoComplete="username"
+            icon={<UserIcon />}
+            required
+          />
 
-        <MaterialInput
-          id="password"
-          type="password"
-          label="Contraseña"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          autoComplete="current-password"
-          icon={<LockIcon />}
-          required
-        />
+          <MaterialInput
+            id="password"
+            type="password"
+            label="Contraseña"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            autoComplete="current-password"
+            icon={<LockIcon />}
+            required
+          />
+        </div>
 
-        {loginFeedback ? (
-          <p
-            className="app-alert-error rounded-xl px-3 py-2 text-sm"
-            role="alert"
+        <div className="space-y-3">
+          {loginFeedback ? (
+            <p
+              className="app-alert-error rounded-xl px-3 py-2 text-sm"
+              role="alert"
+            >
+              {loginFeedback}
+            </p>
+          ) : null}
+
+          <button
+            type="submit"
+            disabled={isSubmittingLogin}
+            className="app-button-primary h-12 w-full rounded-xl text-sm font-bold active:scale-[0.98] disabled:opacity-60"
           >
-            {loginFeedback}
-          </p>
-        ) : null}
-
-        <button
-          type="submit"
-          disabled={isSubmittingLogin}
-          className="app-button-primary mt-2 h-12 w-full rounded-xl text-sm font-bold active:scale-[0.98] disabled:opacity-60 sm:mt-6"
-        >
-          {isSubmittingLogin ? "Verificando..." : "Iniciar sesión"}
-        </button>
+            {isSubmittingLogin ? "Verificando..." : "Iniciar sesión"}
+          </button>
+        </div>
       </form>
 
       <form
-        className={`absolute inset-0 space-y-2 pt-0 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:space-y-5 sm:pt-2 ${
+        className={`absolute inset-0 flex flex-col justify-between gap-4 pt-0 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:gap-5 sm:pt-2 ${
           step === "new-password"
             ? "translate-x-0 opacity-100"
             : "translate-x-[14%] opacity-0 pointer-events-none"
         }`}
         onSubmit={handleChangePasswordSubmit}
       >
-        <div className="app-card-muted rounded-2xl px-4 py-2 text-sm leading-6 text-[var(--foreground)]">
-          Debes actualizar la contraseña del usuario{" "}
-          <span className="font-semibold">{username}</span> para continuar.
+        <div className="space-y-4">
+          <div className="app-card-muted rounded-2xl px-4 py-3 text-sm leading-6 text-[var(--foreground)]">
+            Debes actualizar la contraseña del usuario{" "}
+            <span className="font-semibold">{username}</span> para continuar.
+          </div>
+
+          <MaterialInput
+            ref={newPasswordInputRef}
+            id="new-password"
+            type="password"
+            label="Nueva contraseña"
+            value={newPassword}
+            onChange={(event) => setNewPassword(event.target.value)}
+            autoComplete="new-password"
+            icon={<LockIcon />}
+            required
+          />
+
+          <MaterialInput
+            id="confirm-password"
+            type="password"
+            label="Confirmar contraseña"
+            value={confirmPassword}
+            onChange={(event) => setConfirmPassword(event.target.value)}
+            autoComplete="new-password"
+            icon={<LockIcon />}
+            required
+          />
         </div>
 
-        <MaterialInput
-          ref={newPasswordInputRef}
-          id="new-password"
-          type="password"
-          label="Nueva contraseña"
-          value={newPassword}
-          onChange={(event) => setNewPassword(event.target.value)}
-          autoComplete="new-password"
-          icon={<LockIcon />}
-          required
-        />
-
-        <MaterialInput
-          id="confirm-password"
-          type="password"
-          label="Confirmar contraseña"
-          value={confirmPassword}
-          onChange={(event) => setConfirmPassword(event.target.value)}
-          autoComplete="new-password"
-          icon={<LockIcon />}
-          required
-        />
-
-        <p className="rounded-xl border border-[var(--line)] bg-[color:var(--panel-muted)] px-3 py-1 text-xs leading-5 text-[var(--muted)]">
-          {PASSWORD_HELPER_TEXT}
-        </p>
-
-        {passwordFeedback ? (
-          <p
-            className="app-alert-error rounded-xl px-3 py-2 text-sm"
-            role="alert"
-          >
-            {passwordFeedback}
+        <div className="space-y-3">
+          <p className="rounded-xl border border-[var(--line)] bg-[color:var(--panel-muted)] px-3 py-2 text-xs leading-5 text-[var(--muted)]">
+            {PASSWORD_HELPER_TEXT}
           </p>
-        ) : null}
 
-        <button
-          type="submit"
-          disabled={isSubmittingPassword}
-          className="app-button-primary h-12 w-full rounded-xl text-sm font-bold active:scale-[0.98] disabled:opacity-60"
-        >
-          {isSubmittingPassword ? "Actualizando..." : "Actualizar contraseña"}
-        </button>
+          {passwordFeedback ? (
+            <p
+              className="app-alert-error rounded-xl px-3 py-2 text-sm"
+              role="alert"
+            >
+              {passwordFeedback}
+            </p>
+          ) : null}
+
+          <button
+            type="submit"
+            disabled={isSubmittingPassword}
+            className="app-button-primary h-12 w-full rounded-xl text-sm font-bold active:scale-[0.98] disabled:opacity-60"
+          >
+            {isSubmittingPassword ? "Actualizando..." : "Actualizar contraseña"}
+          </button>
+        </div>
       </form>
     </div>
   );

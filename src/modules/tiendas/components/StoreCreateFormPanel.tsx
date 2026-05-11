@@ -1,13 +1,13 @@
 "use client";
 
 import { MaterialInput } from "@/modules/core/components/MaterialInput";
+import type { PaisTelefono } from "@/modules/tiendas/types/tiendas-types";
 
 export type StoreCreateFormState = {
   nombre: string;
   subdominio: string;
   codigoPais: string;
   numeroTelefono: string;
-  moneda: string;
   logoUrl: string;
   estado: boolean;
 };
@@ -23,21 +23,10 @@ type StoreCreateFormPanelProps = {
   onSubdominioChange: (value: string) => void;
   onCodigoPaisChange: (value: string) => void;
   onNumeroTelefonoChange: (value: string) => void;
-  onMonedaChange: (value: string) => void;
   onLogoUrlChange: (value: string) => void;
   onEstadoChange: (value: boolean) => void;
+  availablePaises: PaisTelefono[];
 };
-
-const COUNTRY_CODE_OPTIONS = [
-  "+504",
-  "+503",
-  "+502",
-  "+52",
-  "+57",
-  "+58",
-  "+1",
-  "+34",
-];
 
 export function StoreCreateFormPanel({
   isVisible,
@@ -50,10 +39,15 @@ export function StoreCreateFormPanel({
   onSubdominioChange,
   onCodigoPaisChange,
   onNumeroTelefonoChange,
-  onMonedaChange,
   onLogoUrlChange,
   onEstadoChange,
+  availablePaises,
 }: StoreCreateFormPanelProps) {
+  const activeCountries = availablePaises.filter((country) => country.estado);
+  const selectedCountry =
+    activeCountries.find((country) => country.codigoPais === form.codigoPais) ??
+    null;
+
   return (
     <div
       className={`origin-top overflow-hidden transition-all duration-500 ease-in-out ${
@@ -103,53 +97,75 @@ export function StoreCreateFormPanel({
           Se usará para la administración por subdominio.
         </p>
 
-        <div className="grid gap-4 md:grid-cols-[170px_minmax(0,1fr)]">
+        <div className="space-y-3">
           <div className="relative">
             <select
               value={form.codigoPais}
               onChange={(event) => onCodigoPaisChange(event.target.value)}
               className="app-input h-11 w-full rounded-xl px-3 pt-3 text-sm"
-              aria-label="Codigo de pais"
+              aria-label="Pais"
             >
-              {COUNTRY_CODE_OPTIONS.map((countryCode) => (
-                <option key={countryCode} value={countryCode}>
-                  {countryCode}
+              <option value="" disabled>
+                Selecciona un pais
+              </option>
+              {activeCountries.map((country) => (
+                <option key={country.id} value={country.codigoPais}>
+                  {country.nombrePais}
                 </option>
               ))}
             </select>
             <span className="pointer-events-none absolute left-2 top-0 -translate-y-1/2 bg-[var(--panel-strong)] px-1 text-[11px] font-medium text-[var(--accent)]">
-              Codigo de pais
+              Pais
             </span>
           </div>
 
-          <MaterialInput
-            id="store-create-numero-telefono"
-            label="Numero telefonico"
-            type="tel"
-            value={form.numeroTelefono}
-            onChange={(event) => onNumeroTelefonoChange(event.target.value)}
-            required
-          />
+          <div className="grid gap-3 md:grid-cols-3">
+            <div className="rounded-xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+                Codigo de telefono
+              </p>
+              <p className="mt-2 text-sm font-semibold text-[var(--foreground-strong)]">
+                {selectedCountry?.codigoTelefono || "-"}
+              </p>
+            </div>
+            <div className="rounded-xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+                Mascara
+              </p>
+              <p className="mt-2 text-sm font-semibold text-[var(--foreground-strong)]">
+                {selectedCountry?.mascaraTelefono || "-"}
+              </p>
+            </div>
+            <div className="rounded-xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+                Codigo de moneda
+              </p>
+              <p className="mt-2 text-sm font-semibold text-[var(--foreground-strong)]">
+                {selectedCountry
+                  ? `${selectedCountry.monedaNombre} · ${selectedCountry.simboloMoneda} · ${selectedCountry.monedaCodigo}`
+                  : "-"}
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <MaterialInput
-            id="store-create-moneda"
-            label="Moneda"
-            value={form.moneda}
-            onChange={(event) => onMonedaChange(event.target.value)}
-            required
-          />
+        <MaterialInput
+          id="store-create-numero-telefono"
+          label="Numero telefonico"
+          type="tel"
+          value={form.numeroTelefono}
+          onChange={(event) => onNumeroTelefonoChange(event.target.value)}
+          required
+        />
 
-          <label className="app-card-muted flex items-center gap-3 rounded-2xl px-4 py-3 text-sm text-[var(--foreground)]">
-            <input
-              type="checkbox"
-              checked={form.estado}
-              onChange={(event) => onEstadoChange(event.target.checked)}
-            />
-            Tienda activa
-          </label>
-        </div>
+        <label className="app-card-muted flex items-center gap-3 rounded-2xl px-4 py-3 text-sm text-[var(--foreground)]">
+          <input
+            type="checkbox"
+            checked={form.estado}
+            onChange={(event) => onEstadoChange(event.target.checked)}
+          />
+          Tienda activa
+        </label>
 
         <MaterialInput
           id="store-create-logo-url"

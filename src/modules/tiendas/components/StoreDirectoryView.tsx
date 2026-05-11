@@ -14,6 +14,7 @@ import { useToast } from "@/modules/core/providers/ToastProvider";
 import {
   fetchTiendas,
   createTienda,
+  fetchPaises,
   toggleTiendaStatus,
 } from "@/modules/tiendas/services/tiendas-service";
 import {
@@ -22,14 +23,16 @@ import {
 } from "@/modules/tiendas/components/StoreCreateFormPanel";
 import { StoreDirectoryHeader } from "@/modules/tiendas/components/StoreDirectoryHeader";
 import { buildStoreAdminUrl } from "@/modules/tiendas/lib/store-routing";
-import type { Tienda } from "@/modules/tiendas/types/tiendas-types";
+import type {
+  PaisTelefono,
+  Tienda,
+} from "@/modules/tiendas/types/tiendas-types";
 
 const INITIAL_CREATE_FORM: StoreCreateFormState = {
   nombre: "",
   subdominio: "",
-  codigoPais: "+504",
+  codigoPais: "",
   numeroTelefono: "",
-  moneda: "L",
   logoUrl: "",
   estado: true,
 };
@@ -52,6 +55,7 @@ export function StoreDirectoryView() {
   const [createFormError, setCreateFormError] = useState<string | null>(null);
   const [createForm, setCreateForm] =
     useState<StoreCreateFormState>(INITIAL_CREATE_FORM);
+  const [availablePaises, setAvailablePaises] = useState<PaisTelefono[]>([]);
   const [isCreateFormMounted, setIsCreateFormMounted] = useState(false);
   const [isCreateFormVisible, setIsCreateFormVisible] = useState(false);
   const closeCreateFormTimeoutRef = useRef<number | null>(null);
@@ -94,10 +98,55 @@ export function StoreDirectoryView() {
     void loadStores();
   }, [loadStores]);
 
-  const resetCreateForm = useCallback(() => {
-    setCreateForm(INITIAL_CREATE_FORM);
-    setCreateFormError(null);
+  const resolveDefaultCreateForm = useCallback(() => {
+    const defaultCountry =
+      availablePaises.find((country) => country.estado) ??
+      availablePaises[0];
+
+    if (!defaultCountry) {
+      return INITIAL_CREATE_FORM;
+    }
+
+    return {
+      ...INITIAL_CREATE_FORM,
+      codigoPais: defaultCountry.codigoPais,
+    };
+  }, [availablePaises]);
+
+  useEffect(() => {
+    async function loadPaises() {
+      try {
+        const result = await fetchPaises();
+        setAvailablePaises(result);
+        setCreateForm((current) => {
+          if (current.codigoPais || result.length === 0) {
+            return current;
+          }
+
+          const defaultCountry =
+            result.find((country) => country.estado) ?? result[0];
+
+          if (!defaultCountry) {
+            return current;
+          }
+
+          return {
+            ...current,
+            codigoPais: defaultCountry.codigoPais,
+          };
+        });
+      } catch {
+        setAvailablePaises([]);
+      }
+    }
+
+    void loadPaises();
   }, []);
+
+  const resetCreateForm = useCallback(() => {
+    setCreateForm(resolveDefaultCreateForm());
+    setCreateFormError(null);
+  }, [resolveDefaultCreateForm]);
 
   const clearCloseCreateFormTimeout = useCallback(() => {
     if (closeCreateFormTimeoutRef.current) {
@@ -151,7 +200,7 @@ export function StoreDirectoryView() {
         await toggleTiendaStatus(store.id, {
           nombre: store.nombre,
           telefono: store.telefono,
-          moneda: store.moneda,
+          codigoPais: store.codigoPais,
           logoUrl: store.logoUrl,
           estado: store.estado,
         });
@@ -209,6 +258,8 @@ export function StoreDirectoryView() {
         key: "telefono",
         header: "Telefono",
         headerIconPath: "/icons/whatsapp.svg",
+        textFormatter: (_, row) =>
+          `${row.telefonoCodigoPais} ${row.telefono}`.trim(),
       },
       {
         key: "estado",
@@ -273,15 +324,14 @@ export function StoreDirectoryView() {
       setCreateFormError(null);
 
       const phoneNumber = createForm.numeroTelefono.replace(/\s+/g, "").trim();
-      const countryCode = createForm.codigoPais.trim();
 
       if (!phoneNumber) {
         setCreateFormError("Debes ingresar un numero telefonico.");
         return;
       }
 
-      if (!countryCode.startsWith("+")) {
-        setCreateFormError("El codigo de pais debe incluir el prefijo +.");
+      if (!createForm.codigoPais.trim()) {
+        setCreateFormError("Debes seleccionar un pais.");
         return;
       }
 
@@ -291,8 +341,8 @@ export function StoreDirectoryView() {
         await createTienda({
           nombre: createForm.nombre.trim(),
           subdominio: createForm.subdominio.trim(),
-          telefono: `${countryCode}${phoneNumber}`,
-          moneda: createForm.moneda.trim(),
+          telefono: phoneNumber,
+          codigoPais: createForm.codigoPais.trim(),
           logoUrl: createForm.logoUrl.trim(),
           estado: createForm.estado,
         });
@@ -356,15 +406,13 @@ export function StoreDirectoryView() {
           onNumeroTelefonoChange={(value) =>
             setCreateForm((current) => ({ ...current, numeroTelefono: value }))
           }
-          onMonedaChange={(value) =>
-            setCreateForm((current) => ({ ...current, moneda: value }))
-          }
           onLogoUrlChange={(value) =>
             setCreateForm((current) => ({ ...current, logoUrl: value }))
           }
           onEstadoChange={(value) =>
             setCreateForm((current) => ({ ...current, estado: value }))
           }
+          availablePaises={availablePaises}
         />
       ) : null}
 

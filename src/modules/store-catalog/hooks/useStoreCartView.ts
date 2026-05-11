@@ -201,7 +201,7 @@ export function useStoreCartView({ slug }: UseStoreCartViewProps) {
         const whatsapp = buildCheckoutWhatsAppMessage({
           storeName: store?.nombre ?? "",
           storePhone: store?.telefono ?? "",
-          currency: store?.moneda ?? "HNL",
+          currency: store?.monedaCodigo ?? "HNL",
           orderNumber: numeroOrden,
           form: checkoutForm,
           items,

@@ -2,12 +2,14 @@ import {
   assignUsuarioTiendaApi,
   createTiendaApi,
   fetchTiendaByIdApi,
+  fetchPaisesApi,
   fetchTiendaUsuariosApi,
   fetchTiendasApi,
   unassignUsuarioTiendaApi,
   updateTiendaApi,
 } from "@/modules/tiendas/api/tiendas-api";
 import type {
+  PaisTelefono,
   TiendasQueryParams,
   TiendaUsuariosQueryParams,
 } from "@/modules/tiendas/types/tiendas-types";
@@ -26,7 +28,7 @@ export async function createTienda(payload: {
   nombre: string;
   subdominio?: string;
   telefono: string;
-  moneda: string;
+  codigoPais: string;
   logoUrl: string;
   estado: boolean;
 }) {
@@ -39,7 +41,7 @@ export async function updateTienda(
     nombre: string;
     subdominio?: string;
     telefono: string;
-    moneda: string;
+    codigoPais: string;
     logoUrl: string;
     estado: boolean;
   }
@@ -53,7 +55,7 @@ export async function toggleTiendaStatus(
     nombre: string;
     subdominio?: string;
     telefono: string;
-    moneda: string;
+    codigoPais: string;
     logoUrl: string;
     estado: boolean;
   }
@@ -81,4 +83,9 @@ export async function unassignUsuarioTienda(
   usuarioId: string
 ) {
   return unassignUsuarioTiendaApi(tiendaId, usuarioId);
+}
+
+export async function fetchPaises(): Promise<PaisTelefono[]> {
+  const response = await fetchPaisesApi();
+  return response.data;
 }

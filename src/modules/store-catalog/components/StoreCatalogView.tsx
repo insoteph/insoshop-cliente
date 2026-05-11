@@ -99,7 +99,7 @@ function StoreCatalogContent({ slug }: StoreCatalogViewProps) {
                         key={product.id}
                         slug={slug}
                         product={product}
-                        currency={store?.moneda ?? "HNL"}
+                        currency={store?.monedaCodigo ?? "HNL"}
                         isFavorite={favoriteIds.has(product.id)}
                         onToggleFavorite={handleToggleFavorite}
                       />

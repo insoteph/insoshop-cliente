@@ -6,7 +6,13 @@ export type Tienda = {
   slug: string;
   subdominio: string;
   telefono: string;
-  moneda: string;
+  pais: string;
+  codigoPais: string;
+  telefonoCodigoPais: string;
+  mascaraTelefono: string;
+  monedaNombre: string;
+  simboloMoneda: string;
+  monedaCodigo: string;
   logoUrl: string;
   estado: boolean;
   createdAt: string;
@@ -27,6 +33,18 @@ export type TiendaDisponible = {
   subdominio: string;
   logoUrl: string;
   esPrincipal: boolean;
+};
+
+export type PaisTelefono = {
+  id: number;
+  nombrePais: string;
+  codigoPais: string;
+  codigoTelefono: string;
+  mascaraTelefono: string;
+  monedaNombre: string;
+  simboloMoneda: string;
+  monedaCodigo: string;
+  estado: boolean;
 };
 
 export type TiendasQueryParams = {

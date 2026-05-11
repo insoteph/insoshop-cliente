@@ -77,5 +77,5 @@ export default function VentasPage() {
     );
   }
 
-  return <SalesPanel storeId={activeStoreId} currency={store.moneda} />;
+  return <SalesPanel storeId={activeStoreId} currency={store.monedaCodigo} />;
 }

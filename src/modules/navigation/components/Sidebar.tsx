@@ -29,6 +29,7 @@ export function Sidebar({ isOpen, isCollapsed, onClose }: SidebarProps) {
   const canSeeCatalogAttributes =
     Boolean(currentUser?.tieneAccesoGlobal) &&
     hasPermission(permissions.atributosCatalogo.ver);
+  const canSeeCountries = Boolean(currentUser?.tieneAccesoGlobal);
 
   const dashboardHref = currentUser?.tieneAccesoGlobal
     ? "/admin"
@@ -132,6 +133,17 @@ export function Sidebar({ isOpen, isCollapsed, onClose }: SidebarProps) {
                 label="Atributos"
                 icon="/icons/shield.svg"
                 active={pathname === "/atributos-catalogo"}
+                collapsed={isCollapsed}
+                onClick={onClose}
+              />
+            ) : null}
+
+            {canSeeCountries ? (
+              <SidebarItem
+                href="/paises"
+                label="Paises"
+                icon="/icons/shield.svg"
+                active={pathname === "/paises"}
                 collapsed={isCollapsed}
                 onClick={onClose}
               />

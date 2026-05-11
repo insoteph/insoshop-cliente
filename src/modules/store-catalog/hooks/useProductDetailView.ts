@@ -130,7 +130,7 @@ export function useProductDetailView({
 
       setProduct(productResult);
       setStore(catalogResult.tienda);
-      setCurrency(catalogResult.tienda.moneda || "HNL");
+      setCurrency(catalogResult.tienda.monedaCodigo || "HNL");
       setActiveVariantId(firstVariant?.id ?? null);
       setSelectedValues(
         firstVariant

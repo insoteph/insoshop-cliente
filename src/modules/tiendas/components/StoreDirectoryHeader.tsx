@@ -52,7 +52,7 @@ export function StoreDirectoryHeader({
       <SearchBar
         value={searchTerm}
         onChange={onSearchTermChange}
-        placeholder="Buscar por nombre, slug, telefono o moneda"
+        placeholder="Buscar por nombre, slug, telefono o codigo de moneda"
       />
     </div>
   );
