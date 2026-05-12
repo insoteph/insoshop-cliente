@@ -1,5 +1,7 @@
 "use client";
 
+import { AppButton } from "@/modules/core/components/AppButton";
+
 type RolesManagementHeaderProps = {
   search: string;
   canCreateRole: boolean;
@@ -37,13 +39,9 @@ export function RolesManagementHeader({
           />
 
           {canCreateRole ? (
-            <button
-              type="button"
-              className="app-button-primary rounded-2xl px-4 py-3 text-sm font-semibold"
-              onClick={onCreateRole}
-            >
+            <AppButton iconPath="/icons/plus-circle.svg" onClick={onCreateRole}>
               Crear nuevo rol
-            </button>
+            </AppButton>
           ) : null}
         </div>
       </div>

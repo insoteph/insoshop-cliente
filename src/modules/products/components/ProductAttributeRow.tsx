@@ -1,6 +1,6 @@
 "use client";
 
-import { ResponsiveIconButton } from "@/modules/products/components/ResponsiveIconButton";
+import { AppButton } from "@/modules/core/components/AppButton";
 import { getAttributeValueLabel } from "@/modules/products/mappers/product-attributes.mapper";
 import type { ProductAttributeRowState } from "@/modules/products/hooks/useProductAttributesPanel";
 
@@ -146,14 +146,14 @@ export function ProductAttributeRow({
                 : null}
 
               {row.canAddAnotherValue ? (
-                <ResponsiveIconButton
-                  type="button"
+                <AppButton
+                  iconPath="/icons/plus-circle.svg"
                   disabled={disabled}
                   onClick={() => onAddPickerToRow(row.draft.key)}
-                  className="inline-flex h-8 shrink-0 items-center gap-2 rounded-full border border-dashed border-[var(--line-strong)] px-3 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent-soft)] disabled:opacity-60"
-                  icon={<PlusIcon />}
-                  label="Agregar valor"
-                />
+                  className="rounded-full border border-dashed border-[var(--line-strong)] bg-transparent px-3 text-[var(--accent)] shadow-none hover:bg-[var(--accent-soft)]"
+                >
+                  Agregar valor
+                </AppButton>
               ) : null}
             </div>
           </div>

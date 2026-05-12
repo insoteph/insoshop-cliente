@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
 
+import { AppButton } from "@/modules/core/components/AppButton";
 import { MaterialInput } from "@/modules/core/components/MaterialInput";
 import { changePasswordService } from "@/modules/auth/services/change-password-service";
 import { loginService } from "@/modules/auth/services/login-service";
@@ -196,13 +197,9 @@ export function LoginForm({ onStepChange }: LoginFormProps) {
             </p>
           ) : null}
 
-          <button
-            type="submit"
-            disabled={isSubmittingLogin}
-            className="app-button-primary h-12 w-full rounded-xl text-sm font-bold active:scale-[0.98] disabled:opacity-60"
-          >
+          <AppButton type="submit" disabled={isSubmittingLogin} className="w-full font-bold">
             {isSubmittingLogin ? "Verificando..." : "Iniciar sesión"}
-          </button>
+          </AppButton>
         </div>
       </form>
 
@@ -258,13 +255,13 @@ export function LoginForm({ onStepChange }: LoginFormProps) {
             </p>
           ) : null}
 
-          <button
+          <AppButton
             type="submit"
             disabled={isSubmittingPassword}
-            className="app-button-primary h-12 w-full rounded-xl text-sm font-bold active:scale-[0.98] disabled:opacity-60"
+            className="w-full font-bold"
           >
             {isSubmittingPassword ? "Actualizando..." : "Actualizar contraseña"}
-          </button>
+          </AppButton>
         </div>
       </form>
     </div>

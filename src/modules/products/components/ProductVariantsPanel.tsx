@@ -2,6 +2,7 @@
 
 import { ProductVariantsList } from "@/modules/products/components/ProductVariantsList";
 import { useProductVariantsPanel } from "@/modules/products/hooks/useProductVariantsPanel";
+import { AppButton } from "@/modules/core/components/AppButton";
 import type { ProductAttributeDraft } from "@/modules/products/components/ProductAttributesPanel";
 import type { ProductVariantDraft } from "@/modules/products/services/product-service";
 
@@ -14,23 +15,6 @@ type ProductVariantsPanelProps = {
   canEdit: boolean;
   canDelete: boolean;
 };
-
-function PlusIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      className="h-4 w-4"
-      aria-hidden="true"
-    >
-      <path d="M12 5v14" />
-      <path d="M5 12h14" />
-    </svg>
-  );
-}
 
 export function ProductVariantsPanel({
   storeId,
@@ -102,15 +86,13 @@ export function ProductVariantsPanel({
 
       {canEdit ? (
         <div className="flex justify-end pt-1">
-          <button
-            type="button"
+          <AppButton
+            iconPath="/icons/plus-circle.svg"
             disabled={disabled || isCatalogLoading || !canBuildVariants}
             onClick={addVariant}
-            className="app-button-primary inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-semibold disabled:opacity-60 sm:h-10 sm:px-3.5"
           >
-            <PlusIcon />
-            <span className="hidden sm:inline">Agregar variante</span>
-          </button>
+            Agregar variante
+          </AppButton>
         </div>
       ) : null}
     </section>

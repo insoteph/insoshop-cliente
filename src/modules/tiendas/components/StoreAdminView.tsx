@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { permissions } from "@/modules/auth/lib/permissions";
 import { useAdminSession } from "@/modules/auth/providers/AdminSessionProvider";
+import { AppButton } from "@/modules/core/components/AppButton";
 import { CategoriesPanel } from "@/modules/categories/components/CategoriesPanel";
 import {
   StoreModuleTabs,
@@ -159,14 +160,12 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
         status={store.estado}
         actions={
           store.slug ? (
-            <button
-              type="button"
-              className="app-button-action cursor-pointer whitespace-nowrap"
+            <AppButton
               onClick={handleOpenPublicStore}
               title={`Ir a la tienda publica ${store.nombre}`}
             >
               Ver tienda
-            </button>
+            </AppButton>
           ) : null
         }
       />

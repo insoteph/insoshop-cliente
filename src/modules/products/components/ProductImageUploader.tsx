@@ -2,6 +2,7 @@
 
 import { useRef, useState, type ChangeEvent } from "react";
 
+import { AppButton } from "@/modules/core/components/AppButton";
 import {
   uploadProductImage,
   type ProductImagePayload,
@@ -92,14 +93,13 @@ export function ProductImageUploader({
           Agrega imágenes claras y atractivas para mostrar mejor tu producto.
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
+          <AppButton
+            iconPath="/icons/uploadimg.svg"
             onClick={() => inputRef.current?.click()}
             disabled={isUploading}
-            className="app-button-primary inline-flex h-10 items-center gap-2 rounded-xl px-3.5 text-sm font-semibold disabled:opacity-60"
           >
             {isUploading ? "Subiendo imágenes..." : "Subir imagen"}
-          </button>
+          </AppButton>
           <p className="text-sm text-[var(--muted)]">
             Formatos permitidos: JPG, PNG y WEBP.
           </p>
@@ -128,20 +128,20 @@ export function ProductImageUploader({
               className="h-44 w-full rounded-2xl object-cover"
             />
             <div className="mt-4 flex gap-2">
-            <button
-              type="button"
-              className="inline-flex h-9 items-center rounded-xl border border-[var(--line)] px-3 text-xs font-semibold text-[var(--foreground)] transition hover:bg-[var(--panel-muted)]"
-              onClick={() => setPrimary(index)}
-            >
-              {image.esPrincipal ? "Principal" : "Marcar principal"}
-            </button>
-            <button
-              type="button"
-              className="inline-flex h-9 items-center rounded-xl border border-red-200/80 bg-red-50/70 px-3 text-xs font-semibold text-red-600 transition hover:bg-red-100"
-              onClick={() => removeImage(index)}
-            >
-              Eliminar
-            </button>
+              <AppButton
+                variant="secondary"
+                iconPath="/icons/check.svg"
+                onClick={() => setPrimary(index)}
+              >
+                {image.esPrincipal ? "Principal" : "Marcar principal"}
+              </AppButton>
+              <AppButton
+                variant="danger"
+                iconPath="/icons/trash.svg"
+                onClick={() => removeImage(index)}
+              >
+                Eliminar
+              </AppButton>
             </div>
           </div>
         ))}

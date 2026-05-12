@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { AppButton } from "@/modules/core/components/AppButton";
 import { useToast } from "@/modules/core/providers/ToastProvider";
 import {
   fetchTiendaById,
@@ -140,139 +141,153 @@ export function StoreInfoPanel({ storeId, canEdit }: StoreInfoPanelProps) {
 
   return (
     <section className="space-y-5">
-      <div className="space-y-4">
-        <form className="space-y-5" onSubmit={handleSubmit}>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="relative">
-              <select
-                id="store-pais"
-                value={form.codigoPais}
-                onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    codigoPais: event.target.value,
-                    telefono: "",
-                  }))
-                }
-                disabled={!canEdit || !isEditing}
-                className="app-input h-12 w-full rounded-xl px-3 pt-3 text-sm disabled:opacity-70"
-              >
-                <option value="" disabled>
-                  Selecciona un pais
-                </option>
-                {availablePaises
-                  .filter((country) => country.estado)
-                  .map((country) => (
-                    <option key={country.id} value={country.codigoPais}>
-                      {country.nombrePais}
-                    </option>
-                  ))}
-              </select>
-              <label
-                htmlFor="store-pais"
-                className="pointer-events-none absolute left-2 top-0 -translate-y-1/2 bg-[var(--panel)] px-1 text-[11px] font-medium text-[var(--accent)]"
-              >
-                Pais
-              </label>
-            </div>
+      <div className="app-card overflow-hidden rounded-2xl shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
+        <div className="px-5 py-4 sm:px-6 sm:py-5">
+          <h2 className="text-[15px] font-semibold text-[var(--foreground-strong)] sm:text-base">
+            Informacion de la tienda
+          </h2>
+          <p className="mt-1 text-[13px] text-[var(--muted)] sm:text-sm">
+            Actualiza los datos principales de tu tienda
+          </p>
+        </div>
 
-            <div className="relative">
-              <input
-                id="store-moneda"
-                type="text"
-                value={
-                  selectedCountry
-                    ? `${selectedCountry.monedaNombre} (${selectedCountry.simboloMoneda})`
-                    : "-"
-                }
-                readOnly
-                className="app-input h-12 w-full rounded-xl px-3 pt-3 text-sm text-[var(--foreground-strong)] opacity-90"
-              />
-              <label
-                htmlFor="store-moneda"
-                className="pointer-events-none absolute left-2 top-0 -translate-y-1/2 bg-[var(--panel)] px-1 text-[11px] font-medium text-[var(--accent)]"
-              >
-                Moneda
-              </label>
-            </div>
+        <div className="border-t border-[var(--line)]" />
 
-            <div className="col-span-2 grid grid-cols-2 gap-3 items-end">
+        <div className="p-5 sm:p-6">
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="relative">
+                <select
+                  id="store-pais"
+                  value={form.codigoPais}
+                  onChange={(event) =>
+                    setForm((current) => ({
+                      ...current,
+                      codigoPais: event.target.value,
+                      telefono: "",
+                    }))
+                  }
+                  disabled={!canEdit || !isEditing}
+                  className="app-input h-12 w-full rounded-xl px-3 pt-3 text-sm disabled:opacity-70"
+                >
+                  <option value="" disabled>
+                    Selecciona un pais
+                  </option>
+                  {availablePaises
+                    .filter((country) => country.estado)
+                    .map((country) => (
+                      <option key={country.id} value={country.codigoPais}>
+                        {country.nombrePais}
+                      </option>
+                    ))}
+                </select>
+                <label
+                  htmlFor="store-pais"
+                  className="pointer-events-none absolute left-2 top-0 -translate-y-1/2 bg-[var(--panel)] px-1 text-[11px] font-medium text-[var(--accent)]"
+                >
+                  Pais
+                </label>
+              </div>
+
               <div className="relative">
                 <input
-                  id="store-codigo-telefono"
+                  id="store-moneda"
                   type="text"
-                  value={phoneCode}
+                  value={
+                    selectedCountry
+                      ? `${selectedCountry.monedaNombre} (${selectedCountry.simboloMoneda})`
+                      : "-"
+                  }
                   readOnly
                   className="app-input h-12 w-full rounded-xl px-3 pt-3 text-sm text-[var(--foreground-strong)] opacity-90"
                 />
                 <label
-                  htmlFor="store-codigo-telefono"
+                  htmlFor="store-moneda"
                   className="pointer-events-none absolute left-2 top-0 -translate-y-1/2 bg-[var(--panel)] px-1 text-[11px] font-medium text-[var(--accent)]"
                 >
-                  Codigo de telefono
+                  Moneda
                 </label>
               </div>
 
-              <div className="relative">
-                <input
-                  id="store-telefono"
-                  type="tel"
-                  value={form.telefono}
-                  onChange={(event) =>
-                    setForm((current) => ({
-                      ...current,
-                      telefono: event.target.value,
-                    }))
-                  }
-                  disabled={!canEdit || !isEditing}
-                  placeholder={phoneMask || "Numero telefonico"}
-                  className="app-input h-12 w-full rounded-xl px-3 pt-3 text-sm disabled:opacity-70"
-                />
-                <label
-                  htmlFor="store-telefono"
-                  className="pointer-events-none absolute left-2 top-0 -translate-y-1/2 bg-[var(--panel)] px-1 text-[11px] font-medium text-[var(--accent)]"
-                >
-                  Numero telefonico
-                </label>
+              <div className="col-span-2 grid grid-cols-2 gap-3 items-end">
+                <div className="relative">
+                  <input
+                    id="store-codigo-telefono"
+                    type="text"
+                    value={phoneCode}
+                    readOnly
+                    className="app-input h-12 w-full rounded-xl px-3 pt-3 text-sm text-[var(--foreground-strong)] opacity-90"
+                  />
+                  <label
+                    htmlFor="store-codigo-telefono"
+                    className="pointer-events-none absolute left-2 top-0 -translate-y-1/2 bg-[var(--panel)] px-1 text-[11px] font-medium text-[var(--accent)]"
+                  >
+                    Codigo de telefono
+                  </label>
+                </div>
+
+                <div className="relative">
+                  <input
+                    id="store-telefono"
+                    type="tel"
+                    value={form.telefono}
+                    onChange={(event) =>
+                      setForm((current) => ({
+                        ...current,
+                        telefono: event.target.value,
+                      }))
+                    }
+                    disabled={!canEdit || !isEditing}
+                    placeholder={phoneMask || "Numero telefonico"}
+                    className="app-input h-12 w-full rounded-xl px-3 pt-3 text-sm disabled:opacity-70"
+                  />
+                  <label
+                    htmlFor="store-telefono"
+                    className="pointer-events-none absolute left-2 top-0 -translate-y-1/2 bg-[var(--panel)] px-1 text-[11px] font-medium text-[var(--accent)]"
+                  >
+                    Numero telefonico
+                  </label>
+                </div>
               </div>
             </div>
-          </div>
 
-          {error ? (
-            <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
-              {error}
-            </p>
-          ) : null}
+            {error ? (
+              <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
+                {error}
+              </p>
+            ) : null}
 
-          <div className="flex flex-col gap-3 pt-4 sm:flex-row sm:items-center sm:justify-between">
-            <div />
+            <div className="flex flex-col gap-3 pt-4 sm:flex-row sm:items-center sm:justify-between">
+              <div />
 
-            <div className="flex flex-wrap items-center gap-3">
-              {canEdit ? (
-                <button
-                  type="button"
-                  onClick={() => setIsEditing((currentValue) => !currentValue)}
-                  disabled={isSaving}
-                  className={`app-button-action cursor-pointer whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-60 ${
-                    isEditing ? "app-button-action-danger" : ""
-                  }`}
-                >
-                  {isEditing ? "Cancelar" : "Editar Informacion"}
-                </button>
-              ) : null}
+              <div className="flex flex-wrap items-center gap-3">
+                {canEdit ? (
+                  <AppButton
+                    variant={isEditing ? "danger" : "primary"}
+                    iconPath={isEditing ? "/icons/cross.svg" : "/icons/edit.svg"}
+                    onClick={() =>
+                      setIsEditing((currentValue) => !currentValue)
+                    }
+                    disabled={isSaving}
+                  >
+                    {isEditing ? "Cancelar" : "Editar Informacion"}
+                  </AppButton>
+                ) : null}
 
-              {canEdit ? (
-                <button
-                  type="submit"
-                  disabled={isSaving || !isEditing}
-                  className="app-button-action cursor-pointer whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {isSaving ? "Guardando..." : "Guardar cambios"}
-                </button>
-              ) : null}
+                {canEdit ? (
+                  <AppButton
+                    iconPath="/icons/save.svg"
+                    type="submit"
+                    variant="primary"
+                    disabled={isSaving || !isEditing}
+                  >
+                    {isSaving ? "Guardando..." : "Guardar cambios"}
+                  </AppButton>
+                ) : null}
+              </div>
             </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </section>
   );

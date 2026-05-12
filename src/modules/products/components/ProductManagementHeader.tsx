@@ -18,10 +18,10 @@ export function ProductManagementHeader({
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
           Configuración de venta
         </p>
-        <h3 className="text-xl font-semibold text-[var(--foreground-strong)]">
+        <h3 className="text-[15px] font-semibold text-[var(--foreground-strong)] sm:text-base">
           {product.nombre}
         </h3>
-        <p className="max-w-3xl text-sm text-[var(--muted)]">
+        <p className="max-w-3xl text-[13px] text-[var(--muted)] sm:text-sm">
           Primero define las opciones que verá tu cliente, como color o talla.
           Después crea las combinaciones reales que vas a vender con su precio,
           existencias e imagen.
@@ -33,7 +33,7 @@ export function ProductManagementHeader({
           <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted)]">
             Combinaciones
           </p>
-          <p className="mt-1 text-lg font-semibold text-[var(--foreground-strong)]">
+          <p className="mt-1 text-base font-semibold text-[var(--foreground-strong)]">
             {product.variantes.length}
           </p>
         </div>
@@ -41,7 +41,7 @@ export function ProductManagementHeader({
           <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted)]">
             Stock total
           </p>
-          <p className="mt-1 text-lg font-semibold text-[var(--foreground-strong)]">
+          <p className="mt-1 text-base font-semibold text-[var(--foreground-strong)]">
             {product.cantidad}
           </p>
         </div>
@@ -49,7 +49,7 @@ export function ProductManagementHeader({
           <p className="text-xs uppercase tracking-[0.18em] text-[var(--muted)]">
             Precio desde
           </p>
-          <p className="mt-1 text-lg font-semibold text-[var(--foreground-strong)]">
+          <p className="mt-1 text-base font-semibold text-[var(--foreground-strong)]">
             {formatCurrency(product.precio, currency)}
           </p>
         </div>

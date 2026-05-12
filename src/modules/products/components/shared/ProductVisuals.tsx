@@ -1,5 +1,7 @@
 "use client";
 
+import { ImagePlaceholder } from "@/modules/core/components/ImagePlaceholder";
+
 export function ColorSwatch({
   colorHexadecimal,
   className = "h-3.5 w-3.5",
@@ -25,25 +27,5 @@ export function NoImageThumbnail({
   className?: string;
   iconClassName?: string;
 }) {
-  return (
-    <div
-      aria-hidden="true"
-      className={className}
-      style={{ width: size, height: size }}
-    >
-      <span
-        className={`inline-block bg-[var(--muted)] ${iconClassName}`}
-        style={{
-          WebkitMaskImage: "url(/icons/no-image.svg)",
-          maskImage: "url(/icons/no-image.svg)",
-          WebkitMaskRepeat: "no-repeat",
-          maskRepeat: "no-repeat",
-          WebkitMaskPosition: "center",
-          maskPosition: "center",
-          WebkitMaskSize: "contain",
-          maskSize: "contain",
-        }}
-      />
-    </div>
-  );
+  return <ImagePlaceholder size={size} className={className} iconClassName={iconClassName} />;
 }

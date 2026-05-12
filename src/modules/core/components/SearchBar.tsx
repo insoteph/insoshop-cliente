@@ -43,7 +43,7 @@ export function SearchBar({
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         aria-label={ariaLabel}
-        className={`app-input w-full rounded-xl py-3 pl-10 pr-4 text-sm ${inputClassName ?? ""}`}
+        className={`app-input h-10 w-full rounded-xl px-3.5 pl-10 text-sm ${inputClassName ?? ""}`}
       />
     </div>
   );

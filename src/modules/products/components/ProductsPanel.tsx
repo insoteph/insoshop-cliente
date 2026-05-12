@@ -33,7 +33,6 @@ export function ProductsPanel({
     totalPages,
     totalRecords,
     search,
-    statusFilter,
     isLoading,
     isSaving,
     error,
@@ -56,22 +55,42 @@ export function ProductsPanel({
     handleSaveProduct,
     handleToggleStatus,
     handleSearchChange,
-    handleStatusFilterChange,
     handlePageChange,
     closeFormPanel,
   } = useProductsPanel({ storeId });
 
   return (
     <section className="space-y-5">
-      <ProductsToolbar
-        search={search}
-        onSearchChange={handleSearchChange}
-        statusFilter={statusFilter}
-        onStatusFilterChange={handleStatusFilterChange}
-        error={error}
-        canCreateProducts={canCreateProducts}
-        onCreateClick={handleCreateClick}
-      />
+      <div className="app-card overflow-hidden rounded-2xl shadow-[0_12px_30px_rgba(15,23,42,0.07)]">
+        <div className="space-y-4 px-4 py-4 md:px-5 md:py-5">
+          <ProductsToolbar
+            search={search}
+            onSearchChange={handleSearchChange}
+            error={error}
+            canCreateProducts={canCreateProducts}
+            onCreateClick={handleCreateClick}
+          />
+        </div>
+
+        <div className="border-t border-[var(--line)]" />
+
+        <div className="px-0 pt-4">
+          <ProductsTable
+            products={products}
+            currency={currency}
+            isLoading={isLoading}
+            page={page}
+            totalPages={totalPages}
+            totalRecords={totalRecords}
+            canEditProducts={canEditProducts}
+            canDeleteProducts={canDeleteProducts}
+            onPageChange={handlePageChange}
+            onOpenProductDetail={handleOpenProductDetail}
+            onEditClick={handleEditClick}
+            onToggleStatus={handleToggleStatus}
+          />
+        </div>
+      </div>
 
       {isFormMounted ? (
         <ProductFormPanel
@@ -131,21 +150,6 @@ export function ProductsPanel({
         currency={currency}
         onClose={handleCloseProductDetail}
         onRetry={handleRetryProductDetail}
-      />
-
-      <ProductsTable
-        products={products}
-        currency={currency}
-        isLoading={isLoading}
-        page={page}
-        totalPages={totalPages}
-        totalRecords={totalRecords}
-        canEditProducts={canEditProducts}
-        canDeleteProducts={canDeleteProducts}
-        onPageChange={handlePageChange}
-        onOpenProductDetail={handleOpenProductDetail}
-        onEditClick={handleEditClick}
-        onToggleStatus={handleToggleStatus}
       />
     </section>
   );

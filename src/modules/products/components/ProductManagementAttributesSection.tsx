@@ -2,6 +2,7 @@
 
 import type { Dispatch, FormEvent, RefObject, SetStateAction } from "react";
 
+import { AppButton } from "@/modules/core/components/AppButton";
 import { ColorSwatch } from "@/modules/products/components/shared/ProductVisuals";
 import type {
   CatalogAttribute,
@@ -68,16 +69,17 @@ export function ProductManagementAttributesSection({
           </p>
         </div>
         {canManage ? (
-          <button
-            type="button"
-            className="app-button-secondary inline-flex h-10 w-full items-center justify-center rounded-xl px-3.5 text-sm font-semibold sm:w-auto"
+          <AppButton
+            variant="secondary"
+            iconPath="/icons/plus-circle.svg"
+            className="w-full sm:w-auto"
             onClick={() => {
               resetAttributeForm();
               openAttributeEditor();
             }}
           >
             Agregar opción
-          </button>
+          </AppButton>
         ) : null}
       </div>
 
@@ -110,20 +112,20 @@ export function ProductManagementAttributesSection({
 
                 {canManage ? (
                   <div className="flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      className="app-button-secondary inline-flex h-9 items-center rounded-xl px-3 text-xs font-semibold"
+                    <AppButton
+                      variant="secondary"
+                      iconPath="/icons/edit.svg"
                       onClick={() => void handleEditAttribute(attribute)}
                     >
                       Editar
-                    </button>
-                    <button
-                      type="button"
-                      className="app-button-danger inline-flex h-9 items-center rounded-xl px-3 text-xs font-semibold"
+                    </AppButton>
+                    <AppButton
+                      variant="danger"
+                      iconPath="/icons/trash.svg"
                       onClick={() => void handleDeleteAttribute(attribute)}
                     >
                       Quitar
-                    </button>
+                    </AppButton>
                   </div>
                 ) : null}
               </div>
@@ -154,13 +156,13 @@ export function ProductManagementAttributesSection({
                     estarán disponibles en este producto.
                   </p>
                 </div>
-                <button
-                  type="button"
-                  className="app-button-secondary inline-flex h-10 items-center rounded-xl px-3.5 text-sm font-semibold"
+                <AppButton
+                  variant="secondary"
+                  iconPath="/icons/cross.svg"
                   onClick={closeAttributeEditor}
                 >
                   Cerrar
-                </button>
+                </AppButton>
               </div>
 
               <select
@@ -228,20 +230,21 @@ export function ProductManagementAttributesSection({
               ) : null}
 
               <div className="flex flex-wrap justify-end gap-2">
-                <button
-                  type="button"
-                  className="app-button-secondary inline-flex h-10 w-full items-center justify-center rounded-xl px-3.5 text-sm font-semibold sm:w-auto"
+                <AppButton
+                  variant="secondary"
+                  iconPath="/icons/refresh.svg"
+                  className="w-full sm:w-auto"
                   onClick={resetAttributeForm}
                 >
                   Limpiar
-                </button>
-                <button
+                </AppButton>
+                <AppButton
+                  iconPath="/icons/save.svg"
                   type="submit"
                   disabled={isSavingAttribute}
-                  className="app-button-primary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold disabled:opacity-60"
                 >
                   {isSavingAttribute ? "Guardando..." : "Guardar opción"}
-                </button>
+                </AppButton>
               </div>
             </form>
           </div>

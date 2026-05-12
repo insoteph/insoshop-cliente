@@ -3,6 +3,7 @@
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 
+import { AppButton } from "@/modules/core/components/AppButton";
 import { formatCurrency, formatDateTime } from "@/modules/core/lib/formatters";
 import { SaleDetailItemsTable } from "@/modules/sales/components/SaleDetailItemsTable";
 import type { Sale, SaleDetail } from "@/modules/sales/services/sales-service";
@@ -188,13 +189,14 @@ export function SaleDetailModal({
           {!isLoading && error && !detail ? (
             <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700">
               <p>{error}</p>
-              <button
-                type="button"
-                className="mt-3 rounded-xl border border-red-200 px-3 py-2 text-sm font-medium text-red-700"
-                onClick={onRetry}
-              >
-                Reintentar detalle
-              </button>
+            <AppButton
+              variant="secondary"
+              iconPath="/icons/refresh.svg"
+              className="mt-3"
+              onClick={onRetry}
+            >
+              Reintentar detalle
+            </AppButton>
             </div>
           ) : null}
 
@@ -212,22 +214,23 @@ export function SaleDetailModal({
 
                 {showStatusActions ? (
                   <div className="flex flex-wrap gap-2">
-                    <button
+                    <AppButton
+                      iconPath="/icons/check-cart.svg"
                       type="button"
                       disabled={isUpdating}
-                      className="app-button-primary rounded-xl px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
                       onClick={onComplete}
                     >
                       Completar venta
-                    </button>
-                    <button
+                    </AppButton>
+                    <AppButton
+                      variant="danger"
+                      iconPath="/icons/cancel-cart.svg"
                       type="button"
                       disabled={isUpdating}
-                      className="app-button-danger rounded-xl px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
                       onClick={onCancel}
                     >
                       Cancelar venta
-                    </button>
+                    </AppButton>
                   </div>
                 ) : null}
               </div>

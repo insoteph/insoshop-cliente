@@ -103,10 +103,10 @@ export function StoreUsersPanel({ storeId }: StoreUsersPanelProps) {
     <section className="space-y-5">
       <div className="panel-card space-y-4">
         <div>
-          <h3 className="text-lg font-semibold text-[var(--foreground)]">
+          <h3 className="text-[15px] font-semibold text-[var(--foreground)] sm:text-base">
             Usuarios asociados
           </h3>
-          <p className="text-sm text-[var(--muted)]">
+          <p className="text-[13px] text-[var(--muted)] sm:text-sm">
             Consulta el equipo con acceso a la tienda seleccionada.
           </p>
         </div>

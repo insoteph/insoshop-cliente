@@ -5,15 +5,12 @@ import { useRouter } from "next/navigation";
 
 import { permissions } from "@/modules/auth/lib/permissions";
 import { useAdminSession } from "@/modules/auth/providers/AdminSessionProvider";
+import { AppButton } from "@/modules/core/components/AppButton";
 import {
   DataTable,
   type DataTableBadgeConfig,
   type DataTableColumn,
 } from "@/modules/core/components/DataTable";
-import {
-  ToolbarActions,
-  type DataTableToolbarAction,
-} from "@/modules/core/components/DataTableToolbar";
 import { SearchBar } from "@/modules/core/components/SearchBar";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
 import { useToast } from "@/modules/core/providers/ToastProvider";
@@ -507,20 +504,6 @@ export function UsersManagementView() {
         }
       : undefined;
 
-  const toolbarActions = useMemo<DataTableToolbarAction[]>(
-    () =>
-      canCreateUser
-        ? [
-            {
-              label: "Nuevo usuario",
-              iconPath: "/icons/plus.svg",
-              onClick: () => router.push("/usuarios/nuevo"),
-            },
-          ]
-        : [],
-    [canCreateUser, router],
-  );
-
   if (!canSeeUsers) {
     return (
       <section className="panel-card">
@@ -546,7 +529,14 @@ export function UsersManagementView() {
               ariaLabel="Buscar usuarios"
             />
           </div>
-          <ToolbarActions actions={toolbarActions} className="shrink-0" />
+          {canCreateUser ? (
+            <AppButton
+              iconPath="/icons/plus-circle.svg"
+              onClick={() => router.push("/usuarios/nuevo")}
+            >
+              Nuevo usuario
+            </AppButton>
+          ) : null}
         </div>
 
         <div className="grid gap-3 lg:grid-cols-[220px_220px] lg:justify-end">
@@ -626,13 +616,9 @@ export function UsersManagementView() {
                 </p>
               </div>
 
-              <button
-                type="button"
-                className="app-button-secondary rounded-xl px-3 py-2 text-sm"
-                onClick={() => closeRolesFormPanel(true)}
-              >
+              <AppButton variant="secondary" onClick={() => closeRolesFormPanel(true)}>
                 Cerrar
-              </button>
+              </AppButton>
             </div>
 
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -673,13 +659,9 @@ export function UsersManagementView() {
             ) : null}
 
             <div className="flex justify-end">
-              <button
-                type="submit"
-                disabled={isSavingRoles}
-                className="app-button-primary rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
-              >
+              <AppButton type="submit" disabled={isSavingRoles}>
                 {isSavingRoles ? "Guardando..." : "Guardar roles"}
-              </button>
+              </AppButton>
             </div>
           </form>
         </div>
@@ -710,14 +692,13 @@ export function UsersManagementView() {
                 </p>
               </div>
 
-              <button
-                type="button"
-                className="app-button-secondary rounded-xl px-3 py-2 text-sm"
+              <AppButton
+                variant="secondary"
                 onClick={handleClosePasswordModal}
                 disabled={isSavingPassword}
               >
                 Cerrar
-              </button>
+              </AppButton>
             </div>
 
             <form className="mt-5 space-y-4" onSubmit={handleSavePassword}>
@@ -774,21 +755,16 @@ export function UsersManagementView() {
               ) : null}
 
               <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  className="app-button-secondary rounded-2xl px-4 py-3 text-sm font-medium"
+                <AppButton
+                  variant="secondary"
                   onClick={handleClosePasswordModal}
                   disabled={isSavingPassword}
                 >
                   Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSavingPassword}
-                  className="app-button-primary rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
-                >
+                </AppButton>
+                <AppButton type="submit" disabled={isSavingPassword}>
                   {isSavingPassword ? "Guardando..." : "Guardar contraseña"}
-                </button>
+                </AppButton>
               </div>
             </form>
           </div>

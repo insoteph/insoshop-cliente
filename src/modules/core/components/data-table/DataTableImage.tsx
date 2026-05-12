@@ -2,39 +2,8 @@
 
 import type { ReactNode } from "react";
 
+import { ImagePlaceholder } from "@/modules/core/components/ImagePlaceholder";
 import type { DataTableImageConfig } from "./DataTableTypes";
-
-function ImagePlaceholder({
-  size = 48,
-  className = "",
-  iconPath = "/icons/no-image.svg",
-}: {
-  size?: number;
-  className?: string;
-  iconPath?: string;
-}) {
-  return (
-    <div
-      aria-hidden="true"
-      className={`inline-flex items-center justify-center rounded-xl border border-[var(--line)] bg-[var(--panel-muted)] ${className}`}
-      style={{ width: size, height: size }}
-    >
-      <span
-        className="inline-block h-5 w-5 bg-[var(--muted)]"
-        style={{
-          WebkitMaskImage: `url(${iconPath})`,
-          maskImage: `url(${iconPath})`,
-          WebkitMaskRepeat: "no-repeat",
-          maskRepeat: "no-repeat",
-          WebkitMaskPosition: "center",
-          maskPosition: "center",
-          WebkitMaskSize: "contain",
-          maskSize: "contain",
-        }}
-      />
-    </div>
-  );
-}
 
 export function renderImageCell<TData extends Record<string, unknown>>(
   row: TData,

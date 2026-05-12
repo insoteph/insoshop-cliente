@@ -62,29 +62,36 @@ export function StoreAppearancePanel({
   }
 
   return (
-    <section className="space-y-4">
-      <div className="space-y-1">
-        <h3 className="text-lg font-semibold text-[var(--foreground-strong)]">
+    <section className="app-card overflow-hidden rounded-2xl shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
+      <div className="px-5 py-4 sm:px-6 sm:py-5">
+        <h2 className="text-[15px] font-semibold text-[var(--foreground-strong)] sm:text-base">
           Apariencia
-        </h3>
-        <p className="text-sm text-[var(--muted)]">
+        </h2>
+        <p className="mt-1 text-[13px] text-[var(--muted)] sm:text-sm">
           Administra aquí el logotipo de la tienda.
         </p>
       </div>
 
-      <StoreLogoUploader
-        storeId={storeId}
-        currentLogoUrl={store?.logoUrl ?? ""}
-        disabled={!canEdit}
-        onUploaded={() => {
-          void loadStore();
-          toast.success("Logo de tienda actualizado correctamente.", "Tienda");
-        }}
-        onDeleted={() => {
-          void loadStore();
-          toast.success("Logo de tienda eliminado correctamente.", "Tienda");
-        }}
-      />
+      <div className="border-t border-[var(--line)]" />
+
+      <div className="p-5 sm:p-6">
+        <StoreLogoUploader
+          storeId={storeId}
+          currentLogoUrl={store?.logoUrl ?? ""}
+          disabled={!canEdit}
+          onUploaded={() => {
+            void loadStore();
+            toast.success(
+              "Logo de tienda actualizado correctamente.",
+              "Tienda",
+            );
+          }}
+          onDeleted={() => {
+            void loadStore();
+            toast.success("Logo de tienda eliminado correctamente.", "Tienda");
+          }}
+        />
+      </div>
     </section>
   );
 }

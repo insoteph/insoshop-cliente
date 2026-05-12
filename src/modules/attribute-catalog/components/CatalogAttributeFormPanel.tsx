@@ -4,6 +4,7 @@ import type { FormEvent } from "react";
 
 import { CatalogAttributeValuesEditor } from "@/modules/attribute-catalog/components/CatalogAttributeValuesEditor";
 import type { CatalogAttributeFormState } from "@/modules/attribute-catalog/types/catalog-attribute-form.types";
+import { AppButton } from "@/modules/core/components/AppButton";
 import { MaterialInput } from "@/modules/core/components/MaterialInput";
 
 type CatalogAttributeFormPanelProps = {
@@ -65,13 +66,9 @@ export function CatalogAttributeFormPanel({
               {editingAttributeId ? "Editar atributo" : "Crear atributo"}
             </h4>
           </div>
-          <button
-            type="button"
-            className="app-button-secondary rounded-xl px-3 py-2 text-sm"
-            onClick={onClose}
-          >
+          <AppButton variant="secondary" iconPath="/icons/cross.svg" onClick={onClose}>
             Cerrar
-          </button>
+          </AppButton>
         </div>
 
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-stretch gap-4">
@@ -111,16 +108,11 @@ export function CatalogAttributeFormPanel({
         ) : null}
 
         <div className="flex justify-end">
-          <button
-            type="submit"
-            disabled={isSaving}
-            className="app-button-primary rounded-xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
-          >
+          <AppButton iconPath="/icons/save.svg" type="submit" disabled={isSaving}>
             {isSaving ? "Guardando..." : "Guardar atributo"}
-          </button>
+          </AppButton>
         </div>
       </form>
     </div>
   );
 }
-

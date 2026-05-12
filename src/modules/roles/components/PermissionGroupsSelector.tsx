@@ -1,5 +1,6 @@
 "use client";
 
+import { AppButton } from "@/modules/core/components/AppButton";
 import type { PermissionGroup } from "@/modules/roles/mappers/roles-permissions.mapper";
 
 type PermissionGroupsSelectorProps = {
@@ -34,22 +35,22 @@ export function PermissionGroupsSelector({
 
           <div className="flex flex-wrap gap-2">
             {onSelectAll ? (
-              <button
-                type="button"
-                className="app-button-secondary rounded-xl px-3 py-2 text-xs font-medium"
+              <AppButton
+                variant="secondary"
+                iconPath="/icons/check.svg"
                 onClick={onSelectAll}
               >
                 Seleccionar todo
-              </button>
+              </AppButton>
             ) : null}
             {onClearAll ? (
-              <button
-                type="button"
-                className="app-button-secondary rounded-xl px-3 py-2 text-xs font-medium"
+              <AppButton
+                variant="secondary"
+                iconPath="/icons/cross.svg"
                 onClick={onClearAll}
               >
                 Limpiar
-              </button>
+              </AppButton>
             ) : null}
           </div>
         </div>

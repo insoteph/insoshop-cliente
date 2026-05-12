@@ -10,6 +10,8 @@ import {
   type ReactNode,
 } from "react";
 
+import { AppButton } from "@/modules/core/components/AppButton";
+
 type ConfirmationVariant = "primary" | "danger";
 
 type ConfirmationOptions = {
@@ -174,25 +176,18 @@ export function ConfirmationDialogProvider({
             </p>
 
             <div className="mt-5 flex justify-end gap-2">
-              <button
-                type="button"
-                className="app-button-secondary rounded-xl px-4 py-2 text-sm font-medium"
-                onClick={() => closeDialog(false)}
-              >
+              <AppButton variant="secondary" onClick={() => closeDialog(false)}>
                 {dialogState.options.cancelLabel ?? "Cancelar"}
-              </button>
+              </AppButton>
 
-              <button
-                type="button"
-                className={`${
-                  dialogState.options.variant === "danger"
-                    ? "app-button-danger"
-                    : "app-button-primary"
-                } rounded-xl px-4 py-2 text-sm font-semibold`}
+              <AppButton
+                variant={
+                  dialogState.options.variant === "danger" ? "danger" : "primary"
+                }
                 onClick={() => closeDialog(true)}
               >
                 {dialogState.options.confirmLabel ?? "Confirmar"}
-              </button>
+              </AppButton>
             </div>
           </div>
         </div>

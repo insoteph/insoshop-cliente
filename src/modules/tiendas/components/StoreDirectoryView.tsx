@@ -363,24 +363,46 @@ export function StoreDirectoryView() {
 
   return (
     <section className="space-y-5">
-      <div className="space-y-4 rounded-2xl">
-        <StoreDirectoryHeader
-          onNewStore={() => {
-            resetCreateForm();
-            openCreateFormPanel();
-          }}
-          searchTerm={searchTerm}
-          onSearchTermChange={(value) => {
-            setPage(1);
-            setSearchTerm(value);
-          }}
-        />
+      <div className="app-card overflow-hidden rounded-2xl shadow-[0_12px_30px_rgba(15,23,42,0.07)]">
+        <div className="space-y-4 px-4 py-4 md:px-5 md:py-5">
+          <StoreDirectoryHeader
+            onNewStore={() => {
+              resetCreateForm();
+              openCreateFormPanel();
+            }}
+            searchTerm={searchTerm}
+            onSearchTermChange={(value) => {
+              setPage(1);
+              setSearchTerm(value);
+            }}
+          />
 
-        {error ? (
-          <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
-            {error}
-          </p>
-        ) : null}
+          {error ? (
+            <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
+              {error}
+            </p>
+          ) : null}
+        </div>
+
+        <div className="border-t border-[var(--line)]" />
+
+        <div className="px-0 pb-0">
+          <DataTable
+            headers={columns}
+            rows={stores}
+            isLoading={isLoading}
+            rowKey="id"
+            emptyMessage="No hay tiendas que coincidan con los filtros aplicados."
+            badges={badges}
+            rowActions={rowActions}
+            pagination={{
+              page,
+              totalPages,
+              totalRecords,
+              onPageChange: setPage,
+            }}
+          />
+        </div>
       </div>
 
       {isCreateFormMounted ? (
@@ -409,22 +431,6 @@ export function StoreDirectoryView() {
           availablePaises={availablePaises}
         />
       ) : null}
-
-      <DataTable
-        headers={columns}
-        rows={stores}
-        isLoading={isLoading}
-        rowKey="id"
-        emptyMessage="No hay tiendas que coincidan con los filtros aplicados."
-        badges={badges}
-        rowActions={rowActions}
-        pagination={{
-          page,
-          totalPages,
-          totalRecords,
-          onPageChange: setPage,
-        }}
-      />
     </section>
   );
 }

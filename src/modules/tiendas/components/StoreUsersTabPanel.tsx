@@ -2,15 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { AppButton } from "@/modules/core/components/AppButton";
 import {
   DataTable,
   type DataTableBadgeConfig,
   type DataTableColumn,
 } from "@/modules/core/components/DataTable";
-import {
-  ToolbarActions,
-  type DataTableToolbarAction,
-} from "@/modules/core/components/DataTableToolbar";
 import { SearchBar } from "@/modules/core/components/SearchBar";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
 import { fetchUsers } from "@/modules/users/services/user-service";
@@ -425,23 +422,6 @@ export function StoreUsersTabPanel({ storeId }: StoreUsersTabPanelProps) {
     },
   };
 
-  const toolbarActions = useMemo<DataTableToolbarAction[]>(
-    () => [
-      {
-        label: isAssignPanelMounted ? "Cerrar formulario" : "Agregar usuario",
-        iconPath: isAssignPanelMounted ? "/icons/cross.svg" : "/icons/plus.svg",
-        onClick: () => {
-          if (isAssignPanelMounted) {
-            closeAssignPanel();
-            return;
-          }
-          openAssignPanel();
-        },
-      },
-    ],
-    [closeAssignPanel, isAssignPanelMounted, openAssignPanel],
-  );
-
   return (
     <section className="space-y-5">
       <div className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-md">
@@ -457,7 +437,18 @@ export function StoreUsersTabPanel({ storeId }: StoreUsersTabPanelProps) {
               ariaLabel="Buscar usuarios de tienda"
             />
           </div>
-          <ToolbarActions actions={toolbarActions} className="shrink-0" />
+          <AppButton
+            iconPath={isAssignPanelMounted ? "/icons/cross.svg" : "/icons/plus-circle.svg"}
+            onClick={() => {
+              if (isAssignPanelMounted) {
+                closeAssignPanel();
+                return;
+              }
+              openAssignPanel();
+            }}
+          >
+            {isAssignPanelMounted ? "Cerrar formulario" : "Agregar usuario"}
+          </AppButton>
         </div>
 
         <div className="grid gap-3 md:grid-cols-[220px] md:justify-end">

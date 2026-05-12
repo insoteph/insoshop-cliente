@@ -1,8 +1,8 @@
 "use client";
 
-import { ResponsiveIconButton } from "@/modules/products/components/ResponsiveIconButton";
 import { ProductAttributeRow } from "@/modules/products/components/ProductAttributeRow";
 import { useProductAttributesPanel } from "@/modules/products/hooks/useProductAttributesPanel";
+import { AppButton } from "@/modules/core/components/AppButton";
 
 export type ProductAttributeDraft = {
   key: string;
@@ -19,23 +19,6 @@ type ProductAttributesPanelProps = {
   canEdit: boolean;
   canDelete: boolean;
 };
-
-function PlusIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      className="h-4 w-4"
-      aria-hidden="true"
-    >
-      <path d="M12 5v14" />
-      <path d="M5 12h14" />
-    </svg>
-  );
-}
 
 export function ProductAttributesPanel({
   storeId,
@@ -109,14 +92,13 @@ export function ProductAttributesPanel({
 
       {canAddAttribute ? (
         <div className="flex justify-end pt-1">
-          <ResponsiveIconButton
-            type="button"
+          <AppButton
+            iconPath="/icons/plus-circle.svg"
             disabled={disabled || isCatalogLoading}
             onClick={addAttribute}
-            className="app-button-primary inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-semibold disabled:opacity-60 sm:h-10 sm:px-3.5"
-            icon={<PlusIcon />}
-            label="Agregar atributo"
-          />
+          >
+            Agregar atributo
+          </AppButton>
         </div>
       ) : null}
     </section>

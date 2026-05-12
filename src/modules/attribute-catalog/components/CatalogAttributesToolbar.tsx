@@ -1,10 +1,7 @@
 "use client";
 
+import { AppButton } from "@/modules/core/components/AppButton";
 import { SearchBar } from "@/modules/core/components/SearchBar";
-import {
-  ToolbarActions,
-  type DataTableToolbarAction,
-} from "@/modules/core/components/DataTableToolbar";
 import type { CatalogAttributeStatusFilter } from "@/modules/attribute-catalog/types/catalog-attribute-form.types";
 
 type CatalogAttributesToolbarProps = {
@@ -22,14 +19,6 @@ export function CatalogAttributesToolbar({
   onStatusFilterChange,
   onCreateClick,
 }: CatalogAttributesToolbarProps) {
-  const actions: DataTableToolbarAction[] = [
-    {
-      label: "Nuevo atributo",
-      iconPath: "/icons/plus.svg",
-      onClick: onCreateClick,
-    },
-  ];
-
   return (
     <div className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-md">
       <div className="flex flex-row items-center gap-2">
@@ -41,7 +30,9 @@ export function CatalogAttributesToolbar({
             ariaLabel="Buscar atributos de catálogo"
           />
         </div>
-        <ToolbarActions actions={actions} className="shrink-0" />
+        <AppButton iconPath="/icons/plus-circle.svg" onClick={onCreateClick}>
+          Nuevo atributo
+        </AppButton>
       </div>
 
       <div className="grid gap-3 md:grid-cols-[220px] md:justify-end">
@@ -60,4 +51,3 @@ export function CatalogAttributesToolbar({
     </div>
   );
 }
-

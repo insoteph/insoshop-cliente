@@ -7,6 +7,7 @@ import type {
   SetStateAction,
 } from "react";
 
+import { AppButton } from "@/modules/core/components/AppButton";
 import { MaterialInput } from "@/modules/core/components/MaterialInput";
 import { formatCurrency } from "@/modules/core/lib/formatters";
 import { ProductVariantsImagePicker } from "@/modules/products/components/ProductVariantsImagePicker";
@@ -142,22 +143,20 @@ export function ProductManagementVariantsSection({
 
                 {canManage ? (
                   <div className="flex flex-wrap gap-2 md:justify-end">
-                    <button
-                      type="button"
-                      className="app-button-secondary inline-flex h-9 items-center rounded-xl px-3 text-xs font-semibold"
+                    <AppButton
+                      variant="secondary"
+                      iconPath="/icons/edit.svg"
                       onClick={() => handleEditVariant(variant)}
                     >
                       Editar
-                    </button>
-                    <button
-                      type="button"
-                      className={`inline-flex h-9 items-center rounded-xl px-3 text-xs font-semibold ${
-                        variant.estado ? "app-button-danger" : "app-button-primary"
-                      }`}
+                    </AppButton>
+                    <AppButton
+                      variant={variant.estado ? "danger" : "primary"}
+                      iconPath={variant.estado ? "/icons/cross.svg" : "/icons/check.svg"}
                       onClick={() => void handleToggleVariant(variant)}
                     >
                       {variant.estado ? "Inactivar" : "Activar"}
-                    </button>
+                    </AppButton>
                   </div>
                 ) : null}
               </div>
@@ -187,13 +186,14 @@ export function ProductManagementVariantsSection({
                     existencias y la imagen de esta combinación.
                   </p>
                 </div>
-                <button
-                  type="button"
-                  className="app-button-secondary inline-flex h-10 w-full items-center justify-center rounded-xl px-3.5 text-sm font-semibold sm:w-auto"
+                <AppButton
+                  variant="secondary"
+                  iconPath="/icons/cross.svg"
+                  className="w-full sm:w-auto"
                   onClick={closeVariantEditor}
                 >
                   Cerrar
-                </button>
+                </AppButton>
               </div>
 
               <div className="rounded-none border-0 bg-transparent px-0 py-2 text-sm text-[var(--muted)] sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel-muted)] sm:px-4 sm:py-3">
@@ -340,20 +340,20 @@ export function ProductManagementVariantsSection({
               ) : null}
 
               <div className="flex flex-wrap justify-end gap-2">
-                <button
-                  type="button"
-                  className="app-button-secondary inline-flex h-10 items-center rounded-xl px-3.5 text-sm font-semibold"
+                <AppButton
+                  variant="secondary"
+                  iconPath="/icons/refresh.svg"
                   onClick={resetVariantForm}
                 >
                   Limpiar
-                </button>
-                <button
+                </AppButton>
+                <AppButton
+                  iconPath="/icons/save.svg"
                   type="submit"
                   disabled={isSavingVariant || product.atributos.length === 0}
-                  className="app-button-primary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold disabled:opacity-60"
                 >
                   {isSavingVariant ? "Guardando..." : "Guardar combinación"}
-                </button>
+                </AppButton>
               </div>
             </form>
           </div>
@@ -371,9 +371,10 @@ export function ProductManagementVariantsSection({
 
       {canManage ? (
         <div className="flex justify-end pt-1">
-          <button
-            type="button"
-            className="app-button-secondary inline-flex h-10 w-full items-center justify-center rounded-xl px-3.5 text-sm font-semibold sm:w-auto"
+          <AppButton
+            variant="secondary"
+            iconPath="/icons/plus-circle.svg"
+            className="w-full sm:w-auto"
             onClick={() => {
               resetVariantForm();
               openVariantEditor();
@@ -381,7 +382,7 @@ export function ProductManagementVariantsSection({
             disabled={product.atributos.length === 0}
           >
             Agregar combinación
-          </button>
+          </AppButton>
         </div>
       ) : null}
     </section>

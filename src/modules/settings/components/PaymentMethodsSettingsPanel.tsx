@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { AppButton } from "@/modules/core/components/AppButton";
 import {
   DataTable,
   type DataTableBadgeConfig,
@@ -269,6 +270,7 @@ export function PaymentMethodsSettingsPanel({
   const rowActions = canEdit || canToggle
     ? {
         primaryButtonLabel: canEdit ? "Editar" : "Cambiar estado",
+        primaryButtonIconPath: canEdit ? "/icons/edit.svg" : undefined,
         onPrimaryAction: canEdit ? openEditForm : handleToggleStatus,
         dropdownOptions: [
           ...(canEdit
@@ -297,22 +299,18 @@ export function PaymentMethodsSettingsPanel({
       <div className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-md">
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-[var(--foreground)]">
+            <h3 className="text-[15px] font-semibold text-[var(--foreground)] sm:text-base">
               Metodos de pago
             </h3>
-            <p className="text-sm text-[var(--muted)]">
+            <p className="text-[13px] text-[var(--muted)] sm:text-sm">
               Gestiona disponibilidad y nombres de metodos segun el alcance de tu usuario.
             </p>
           </div>
 
           {canCreate ? (
-            <button
-              type="button"
-              className="app-button-primary rounded-2xl px-4 py-3 text-sm font-semibold"
-              onClick={openCreateForm}
-            >
+            <AppButton iconPath="/icons/plus-circle.svg" onClick={openCreateForm}>
               Crear metodo de pago
-            </button>
+            </AppButton>
           ) : null}
         </div>
 
@@ -396,25 +394,25 @@ export function PaymentMethodsSettingsPanel({
                 </p>
                 <h4
                   id="payment-method-modal-title"
-                  className="text-xl font-semibold text-[var(--foreground)]"
+                  className="text-base font-semibold text-[var(--foreground)] sm:text-lg"
                 >
                   {editingMethod ? "Editar metodo de pago" : "Crear metodo de pago"}
                 </h4>
-                <p className="text-sm text-[var(--muted)]">
+                <p className="text-[13px] text-[var(--muted)] sm:text-sm">
                   {editingMethod
                     ? "Actualiza el nombre del metodo de pago seleccionado."
                     : "Registra un nuevo metodo de pago para esta tienda."}
                 </p>
               </div>
 
-              <button
-                type="button"
-                className="app-button-secondary rounded-2xl px-3 py-2 text-sm font-semibold"
+              <AppButton
+                variant="secondary"
+                iconPath="/icons/cross.svg"
                 onClick={closeForm}
                 disabled={isSaving}
               >
                 Cerrar
-              </button>
+              </AppButton>
             </div>
 
             <div className="space-y-2">
@@ -447,21 +445,17 @@ export function PaymentMethodsSettingsPanel({
             ) : null}
 
             <div className="flex flex-wrap justify-end gap-2">
-              <button
-                type="button"
-                className="app-button-secondary rounded-2xl px-4 py-3 text-sm font-semibold"
+              <AppButton
+                variant="secondary"
+                iconPath="/icons/cross.svg"
                 onClick={closeForm}
                 disabled={isSaving}
               >
                 Cancelar
-              </button>
-              <button
-                type="submit"
-                className="app-button-primary rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
-                disabled={isSaving}
-              >
+              </AppButton>
+              <AppButton iconPath="/icons/save.svg" type="submit" disabled={isSaving}>
                 {isSaving ? "Guardando..." : editingMethod ? "Guardar cambios" : "Crear"}
-              </button>
+              </AppButton>
             </div>
           </form>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { MaterialInput } from "@/modules/core/components/MaterialInput";
+import { AppButton } from "@/modules/core/components/AppButton";
 import type { Category } from "@/modules/categories/services/category-service";
 import {
   ProductAttributesPanel,
@@ -74,13 +75,9 @@ export function ProductFormPanel({
                 {editingProductId ? "Editar producto" : "Crear producto"}
               </h4>
             </div>
-            <button
-              type="button"
-              className="app-button-danger inline-flex h-9 items-center rounded-xl px-3 text-sm font-semibold sm:h-10 sm:px-3.5"
-              onClick={onClose}
-            >
+            <AppButton variant="danger" iconPath="/icons/cross.svg" onClick={onClose}>
               Cerrar
-            </button>
+            </AppButton>
           </div>
 
           <MaterialInput
@@ -144,15 +141,15 @@ export function ProductFormPanel({
         ) : null}
 
         <div className="flex justify-end">
-          <button
+          <AppButton
+            iconPath="/icons/save.svg"
             type="submit"
             disabled={
               isSaving || (editingProductId ? !canEditProducts : !canCreateProducts)
             }
-            className="app-button-primary inline-flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-semibold disabled:opacity-60"
           >
             <span>{isSaving ? "Guardando..." : "Guardar"}</span>
-          </button>
+          </AppButton>
         </div>
       </form>
     </div>

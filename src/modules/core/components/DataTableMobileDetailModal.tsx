@@ -3,6 +3,8 @@
 import { createPortal } from "react-dom";
 import { useEffect, useState, type ReactNode } from "react";
 
+import { AppButton } from "@/modules/core/components/AppButton";
+
 type DetailItem = {
   label: string;
   value: ReactNode;
@@ -151,13 +153,9 @@ export function DataTableMobileDetailModal({
 
         {primaryActionLabel && onPrimaryAction ? (
           <div className="border-t border-[var(--line)] px-4 py-4">
-            <button
-              type="button"
-              className="app-button-primary inline-flex h-11 w-full items-center justify-center rounded-2xl px-4 text-sm font-semibold"
-              onClick={onPrimaryAction}
-            >
+            <AppButton className="w-full" onClick={onPrimaryAction}>
               {primaryActionLabel}
-            </button>
+            </AppButton>
           </div>
         ) : null}
       </div>

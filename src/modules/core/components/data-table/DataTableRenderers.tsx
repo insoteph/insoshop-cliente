@@ -11,7 +11,11 @@ import {
   resolveColumnValue,
   summarizeValue,
 } from "./DataTableHelpers";
-import { renderCompactImagePreview, renderImageCell } from "./DataTableImage";
+import {
+  renderCompactImagePreview,
+  renderEmptyImagePlaceholder,
+  renderImageCell,
+} from "./DataTableImage";
 
 export function renderDesktopColumnContent<TData extends Record<string, unknown>>(
   row: TData,
@@ -57,9 +61,30 @@ export function renderDesktopColumnContent<TData extends Record<string, unknown>
 export function renderMobileSummaryValue<TData extends Record<string, unknown>>(
   row: TData,
   column: DataTableColumn<TData>,
+  badges: Array<DataTableBadgeConfig<TData>> = [],
 ) {
+  const rawValue = resolveColumnValue(row, column.key);
+  const badgeConfig = badges.find(
+    (badge) =>
+      normalizeKeyComparison(badge.columnKey) ===
+      normalizeKeyComparison(column.key),
+  );
+  const badgeRule = badgeConfig
+    ? resolveBadgeRule(rawValue, badgeConfig.rules)
+    : undefined;
+
+  if (badgeRule) {
+    return (
+      <DataTableBadge
+        label={badgeRule.label}
+        iconPath={badgeRule.iconPath}
+        textClassName={badgeRule.textClassName}
+        backgroundClassName={badgeRule.backgroundClassName}
+      />
+    );
+  }
+
   if (column.dataType === "image") {
-    const rawValue = resolveColumnValue(row, column.key);
     const imageSources =
       typeof rawValue === "string" && rawValue.trim()
         ? collectImageSources(rawValue)
@@ -69,18 +94,13 @@ export function renderMobileSummaryValue<TData extends Record<string, unknown>>(
       return renderCompactImagePreview(imageSources, column.header);
     }
 
-    return renderEmptyValuePlaceholder();
+    return renderEmptyImagePlaceholder(44);
   }
 
-  const rawValue = resolveColumnValue(row, column.key);
   const imageSources = collectImageSources(rawValue);
   if (imageSources.length > 0) {
     return renderCompactImagePreview(imageSources, column.header);
   }
 
   return summarizeValue(rawValue);
-}
-
-function renderEmptyValuePlaceholder() {
-  return <span className="text-[var(--muted)]">-</span>;
 }

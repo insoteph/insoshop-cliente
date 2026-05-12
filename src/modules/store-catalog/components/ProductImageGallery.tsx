@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 
+import { ImagePlaceholder } from "@/modules/core/components/ImagePlaceholder";
+
 type ProductImageGalleryProps = {
   productName: string;
   imageUrls: string[];
@@ -29,8 +31,13 @@ export function ProductImageGallery({
 
   if (!activeImage) {
     return (
-      <div className="flex aspect-square items-center justify-center rounded-2xl border border-dashed border-[var(--line)] bg-[var(--panel-muted)] text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)] shadow-[0_12px_28px_rgba(15,23,42,0.05)] sm:aspect-auto sm:h-[400px] sm:text-sm sm:tracking-[0.2em] lg:h-[440px]">
-        NO IMAGE
+      <div className="flex aspect-square items-center justify-center rounded-2xl border border-dashed border-[var(--line)] bg-[var(--panel-muted)] shadow-[0_12px_28px_rgba(15,23,42,0.05)] sm:aspect-auto sm:h-[400px] lg:h-[440px]">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <ImagePlaceholder size={56} iconPath="/icons/no-image.svg" iconClassName="h-6 w-6" />
+          <p className="text-[13px] font-medium text-[var(--muted)] sm:text-sm">
+            Sin imagen disponible
+          </p>
+        </div>
       </div>
     );
   }

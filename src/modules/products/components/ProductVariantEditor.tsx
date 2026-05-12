@@ -2,6 +2,7 @@
 
 import type { Dispatch, FormEvent, RefObject, SetStateAction } from "react";
 
+import { AppButton } from "@/modules/core/components/AppButton";
 import { MaterialInput } from "@/modules/core/components/MaterialInput";
 import { ProductVariantsImagePicker } from "@/modules/products/components/ProductVariantsImagePicker";
 import type { ProductAttributeDraft } from "@/modules/products/components/ProductAttributesPanel";
@@ -76,13 +77,14 @@ export function ProductVariantEditor({
               existencias y la imagen de esta combinación.
             </p>
           </div>
-          <button
-            type="button"
-            className="app-button-secondary inline-flex h-10 w-full items-center justify-center rounded-xl px-3.5 text-sm font-semibold sm:w-auto"
+          <AppButton
+            variant="secondary"
+            iconPath="/icons/cross.svg"
+            className="w-full sm:w-auto"
             onClick={closeVariantEditor}
           >
             Cerrar
-          </button>
+          </AppButton>
         </div>
 
         <div className="rounded-none border-0 bg-transparent px-0 py-2 text-sm text-[var(--muted)] sm:rounded-2xl sm:border sm:border-[var(--line)] sm:bg-[var(--panel-muted)] sm:px-4 sm:py-3">
@@ -204,20 +206,16 @@ export function ProductVariantEditor({
         ) : null}
 
         <div className="flex flex-wrap justify-end gap-2">
-          <button
-            type="button"
-            className="app-button-secondary inline-flex h-10 items-center rounded-xl px-3.5 text-sm font-semibold"
+          <AppButton
+            variant="secondary"
+            iconPath="/icons/refresh.svg"
             onClick={resetVariantForm}
           >
             Limpiar
-          </button>
-          <button
-            type="submit"
-            disabled={isSavingVariant}
-            className="app-button-primary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold disabled:opacity-60"
-          >
+          </AppButton>
+          <AppButton iconPath="/icons/save.svg" type="submit" disabled={isSavingVariant}>
             {isSavingVariant ? "Guardando..." : "Guardar combinación"}
-          </button>
+          </AppButton>
         </div>
       </form>
     </div>

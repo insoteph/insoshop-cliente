@@ -1,6 +1,7 @@
 "use client";
 
 import { MaterialInput } from "@/modules/core/components/MaterialInput";
+import { AppButton } from "@/modules/core/components/AppButton";
 import type { PaisTelefono } from "@/modules/tiendas/types/tiendas-types";
 
 export type StoreCreateFormState = {
@@ -66,13 +67,9 @@ export function StoreCreateFormPanel({
               Registra una nueva tienda y define sus datos principales.
             </p>
           </div>
-          <button
-            type="button"
-            className="app-button-secondary rounded-xl px-3 py-2 text-sm"
-            onClick={onClose}
-          >
+          <AppButton variant="secondary" iconPath="/icons/cross.svg" onClick={onClose}>
             Cerrar
-          </button>
+          </AppButton>
         </div>
 
         <MaterialInput
@@ -171,13 +168,9 @@ export function StoreCreateFormPanel({
         ) : null}
 
         <div className="flex justify-end">
-          <button
-            type="submit"
-            disabled={isSaving}
-            className="app-button-primary rounded-xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
-          >
+          <AppButton iconPath="/icons/save.svg" type="submit" disabled={isSaving}>
             {isSaving ? "Guardando..." : "Crear tienda"}
-          </button>
+          </AppButton>
         </div>
       </form>
     </div>

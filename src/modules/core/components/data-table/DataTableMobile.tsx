@@ -164,7 +164,7 @@ export function DataTableMobile<TData extends Record<string, unknown>>({
                   <div className="flex min-w-0 items-center gap-2">
                     {imageColumn ? (
                         <div className="shrink-0 scale-[0.92]">
-                          {renderMobileSummaryValue(row, imageColumn)}
+                          {renderMobileSummaryValue(row, imageColumn, badges)}
                         </div>
                     ) : null}
 
@@ -176,10 +176,10 @@ export function DataTableMobile<TData extends Record<string, unknown>>({
                             className={`min-w-0 truncate text-[0.8rem] ${
                               columnIndex === 0
                                 ? "font-semibold text-[var(--foreground-strong)]"
-                                : "text-[var(--muted)]"
+                              : "text-[var(--muted)]"
                             }`}
                           >
-                            {renderMobileSummaryValue(row, column)}
+                            {renderMobileSummaryValue(row, column, badges)}
                           </span>
                         ))}
                       </div>

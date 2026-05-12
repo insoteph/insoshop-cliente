@@ -49,7 +49,7 @@ export function DataTableDesktop<TData extends Record<string, unknown>>({
   const contentColumns = headers.filter((_, index) => index !== imageColumnIndex);
 
   return (
-    <div className="hidden md:block">
+    <div className="hidden md:block px-4 pt-4">
       {showSkeleton ? (
         <div
           className={`space-y-3 transition-opacity ${

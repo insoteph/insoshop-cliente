@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { permissions } from "@/modules/auth/lib/permissions";
 import { useAdminSession } from "@/modules/auth/providers/AdminSessionProvider";
+import { AppButton } from "@/modules/core/components/AppButton";
 import { useToast } from "@/modules/core/providers/ToastProvider";
 import { PermissionGroupsSelector } from "@/modules/roles/components/PermissionGroupsSelector";
 import {
@@ -174,13 +175,9 @@ export function RoleCreateView() {
         ) : null}
 
         <div className="flex justify-end">
-          <button
-            type="submit"
-            disabled={isSaving}
-            className="app-button-primary rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-60"
-          >
+          <AppButton iconPath="/icons/save.svg" type="submit" disabled={isSaving}>
             {isSaving ? "Guardando..." : "Crear rol"}
-          </button>
+          </AppButton>
         </div>
       </form>
     </section>

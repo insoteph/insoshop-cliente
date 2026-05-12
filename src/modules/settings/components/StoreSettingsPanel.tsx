@@ -20,10 +20,10 @@ export function StoreSettingsPanel({
   return (
     <section className="space-y-6">
       <div className="rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-md">
-        <h3 className="text-lg font-semibold text-[var(--foreground)]">
+        <h3 className="text-[15px] font-semibold text-[var(--foreground)] sm:text-base">
           Configuraciones
         </h3>
-        <p className="mt-1 text-sm text-[var(--muted)]">
+        <p className="mt-1 text-[13px] text-[var(--muted)] sm:text-sm">
           Desde aqui administras parametros comerciales por tienda.
         </p>
       </div>

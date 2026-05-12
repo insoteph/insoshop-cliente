@@ -1,6 +1,7 @@
 "use client";
 
 import { formatCurrency } from "@/modules/core/lib/formatters";
+import { ImagePlaceholder } from "@/modules/core/components/ImagePlaceholder";
 import { DetailModal } from "@/modules/core/components/DetailModal";
 import { ProductImageGallery } from "@/modules/store-catalog/components/ProductImageGallery";
 import { ColorSwatch } from "@/modules/products/components/shared/ProductVisuals";
@@ -126,8 +127,12 @@ function ProductVariantRow({
               className="h-full w-full object-cover"
             />
           ) : (
-            <div className="flex h-[88px] items-center justify-center px-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
-              Sin imagen
+            <div className="flex h-[88px] items-center justify-center">
+              <ImagePlaceholder
+                size={52}
+                iconPath="/icons/no-image.svg"
+                iconClassName="h-5 w-5"
+              />
             </div>
           )}
         </div>

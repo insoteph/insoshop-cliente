@@ -2,6 +2,7 @@
 
 import type { FormEvent } from "react";
 
+import { AppButton } from "@/modules/core/components/AppButton";
 import { MaterialInput } from "@/modules/core/components/MaterialInput";
 import type { PaisFormState } from "@/modules/paises/types/paises-types";
 
@@ -68,13 +69,9 @@ export function PaisFormPanel({
             </p>
           </div>
 
-          <button
-            type="button"
-            className="app-button-secondary rounded-xl px-3 py-2 text-sm"
-            onClick={onClose}
-          >
+          <AppButton variant="secondary" iconPath="/icons/cross.svg" onClick={onClose}>
             Cerrar
-          </button>
+          </AppButton>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
@@ -149,13 +146,9 @@ export function PaisFormPanel({
         ) : null}
 
         <div className="flex justify-end">
-          <button
-            type="submit"
-            disabled={isSaving}
-            className="app-button-primary rounded-lg px-4 py-3 text-sm font-semibold disabled:opacity-60"
-          >
+          <AppButton iconPath="/icons/save.svg" type="submit" disabled={isSaving}>
             {isSaving ? "Guardando..." : "Guardar pais"}
-          </button>
+          </AppButton>
         </div>
       </form>
     </div>

@@ -8,7 +8,6 @@ import {
   type DataTableColumn,
 } from "@/modules/core/components/DataTable";
 import { formatCurrency } from "@/modules/core/lib/formatters";
-import { NoImageThumbnail } from "@/modules/products/components/shared/ProductVisuals";
 import type { Product } from "@/modules/products/services/product-service";
 
 type ProductsTableProps = {
@@ -45,23 +44,20 @@ export function ProductsTable({
       {
         key: "imagenes",
         header: "Imagen",
-        render: (product) => {
-          const imageUrl = product.imagenes[0]?.url?.trim();
-
-          if (!imageUrl) {
-            return <NoImageThumbnail />;
-          }
-
-          return (
-            <div className="h-14 w-14 overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={imageUrl}
-                alt={product.nombre}
-                className="h-full w-full object-cover"
-              />
-            </div>
-          );
+        dataType: "image",
+        imageConfig: {
+          alt: (product) => `Imagen de ${product.nombre}`,
+          width: 56,
+          height: 56,
+          className: "rounded-2xl",
+          fallbackText: "Sin imagen",
+        },
+        desktopImageConfig: {
+          alt: (product) => `Imagen de ${product.nombre}`,
+          width: 72,
+          height: 72,
+          className: "rounded-2xl",
+          fallbackText: "Sin imagen",
         },
       },
       {

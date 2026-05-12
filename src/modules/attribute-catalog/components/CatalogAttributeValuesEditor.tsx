@@ -2,6 +2,7 @@
 
 import { CatalogAttributeValueRow } from "@/modules/attribute-catalog/components/CatalogAttributeValueRow";
 import type { CatalogAttributeFormValue } from "@/modules/attribute-catalog/types/catalog-attribute-form.types";
+import { AppButton } from "@/modules/core/components/AppButton";
 
 type CatalogAttributeValuesEditorProps = {
   values: CatalogAttributeFormValue[];
@@ -49,15 +50,10 @@ export function CatalogAttributeValuesEditor({
       </div>
 
       <div className="flex justify-end">
-        <button
-          type="button"
-          className="app-button-secondary inline-flex h-10 items-center rounded-xl px-3 text-sm font-semibold"
-          onClick={onAddValue}
-        >
+        <AppButton variant="secondary" iconPath="/icons/plus-circle.svg" onClick={onAddValue}>
           Agregar valor
-        </button>
+        </AppButton>
       </div>
     </section>
   );
 }
-

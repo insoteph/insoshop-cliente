@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ChangeEvent } from "react";
 
+import { AppButton } from "@/modules/core/components/AppButton";
 import {
   deleteTiendaLogo,
   uploadTiendaLogo,
@@ -147,24 +148,23 @@ export function StoreLogoUploader({
 
       <div className="flex min-w-0 flex-1 flex-col gap-3">
         <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="button"
+          <AppButton
+            iconPath="/icons/uploadimg.svg"
             onClick={() => inputRef.current?.click()}
             disabled={disabled || isUploading}
-            className="app-button-secondary inline-flex h-10 items-center rounded-lg px-3.5 text-sm font-semibold disabled:opacity-60"
           >
             Elegir imagen
-          </button>
+          </AppButton>
         </div>
         {hasPersistedLogo ? (
-          <button
-            type="button"
+          <AppButton
+            iconPath="/icons/trash.svg"
             onClick={handleDelete}
             disabled={disabled || isUploading}
-            className="inline-flex h-10 w-fit items-center rounded-lg border border-[var(--line)] bg-white px-3.5 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--panel-muted)] disabled:opacity-60"
+            variant="danger"
           >
             {isUploading ? "Eliminando..." : "Eliminar imagen"}
-          </button>
+          </AppButton>
         ) : null}
         {errorMessage ? (
           <p className="text-sm text-red-600">{errorMessage}</p>

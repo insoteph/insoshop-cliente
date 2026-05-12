@@ -21,6 +21,16 @@ const TAB_LABELS: Record<StoreModuleTabId, string> = {
   configuraciones: "Configuraciones",
 };
 
+const TAB_ICONS: Record<StoreModuleTabId, string> = {
+  informacion: "/icons/shop.svg",
+  apariencia: "/icons/img.svg",
+  productos: "/icons/check-cart.svg",
+  categorias: "/icons/filter.svg",
+  ventas: "/icons/cart.svg",
+  usuarios: "/icons/users.svg",
+  configuraciones: "/icons/shield.svg",
+};
+
 type StoreModuleTabsProps = {
   visibleTabs: StoreModuleTabId[];
   activeTab: StoreModuleTabId;
@@ -99,13 +109,29 @@ export function StoreModuleTabs({
             tabRefs.current[tabId] = element;
           }}
           onClick={() => onTabChange(tabId)}
-          className={`shrink-0 snap-start whitespace-nowrap border-r border-[var(--line)] px-4 py-3 text-sm text-[var(--foreground)] transition last:border-r-0 ${
+          className={`group flex shrink-0 snap-start flex-col items-center justify-center gap-1 border-r border-[var(--line)] px-4 py-2.5 text-center transition last:border-r-0 sm:min-w-[7rem] ${
             activeTab === tabId
-              ? "bg-[var(--accent-soft)] text-[var(--foreground-strong)]"
+              ? "bg-[var(--accent-soft)] text-[var(--accent)]"
               : "bg-transparent text-[var(--muted)] hover:bg-[var(--panel-muted)] hover:text-[var(--foreground)]"
           }`}
         >
-          {TAB_LABELS[tabId]}
+          <span
+            aria-hidden="true"
+            className="h-[18px] w-[18px] bg-current"
+            style={{
+              WebkitMaskImage: `url(${TAB_ICONS[tabId]})`,
+              maskImage: `url(${TAB_ICONS[tabId]})`,
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+              maskPosition: "center",
+              WebkitMaskSize: "contain",
+              maskSize: "contain",
+            }}
+          />
+          <span className="text-[11px] font-semibold leading-none sm:text-xs">
+            {TAB_LABELS[tabId]}
+          </span>
         </button>
       ))}
     </div>

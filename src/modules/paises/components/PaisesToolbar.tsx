@@ -1,5 +1,6 @@
 "use client";
 
+import { AppButton } from "@/modules/core/components/AppButton";
 import { SearchBar } from "@/modules/core/components/SearchBar";
 import type { PaisStatusFilter } from "@/modules/paises/types/paises-types";
 
@@ -30,27 +31,9 @@ export function PaisesToolbar({
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={onCreateClick}
-          className="app-button-primary inline-flex h-11 items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium md:self-start"
-        >
-          <span
-            aria-hidden="true"
-            className="h-4 w-4 shrink-0 bg-current"
-            style={{
-              WebkitMaskImage: "url(/icons/plus.svg)",
-              maskImage: "url(/icons/plus.svg)",
-              WebkitMaskRepeat: "no-repeat",
-              maskRepeat: "no-repeat",
-              WebkitMaskPosition: "center",
-              maskPosition: "center",
-              WebkitMaskSize: "contain",
-              maskSize: "contain",
-            }}
-          />
-          <span>Nuevo pais</span>
-        </button>
+        <AppButton iconPath="/icons/plus-circle.svg" onClick={onCreateClick} className="md:self-start">
+          Nuevo pais
+        </AppButton>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px]">

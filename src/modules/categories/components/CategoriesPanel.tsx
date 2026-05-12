@@ -40,9 +40,6 @@ export function CategoriesPanel({
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<
-    "activos" | "inactivos" | "todos"
-  >("todos");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,7 +65,6 @@ export function CategoriesPanel({
         page,
         pageSize,
         search,
-        estadoFiltro: statusFilter,
       });
 
       setCategories(result.items);
@@ -83,7 +79,7 @@ export function CategoriesPanel({
     } finally {
       setIsLoading(false);
     }
-  }, [page, pageSize, search, statusFilter, storeId]);
+  }, [page, pageSize, search, storeId]);
 
   useEffect(() => {
     void loadCategories();
@@ -238,26 +234,55 @@ export function CategoriesPanel({
 
   return (
     <section className="space-y-5">
-      <CategoriesToolbar
-        search={search}
-        statusFilter={statusFilter}
-        canManage={canManage}
-        onSearchChange={(value) => {
-          setPage(1);
-          setSearch(value);
-        }}
-        onStatusFilterChange={(value) => {
-          setPage(1);
-          setStatusFilter(value);
-        }}
-        onCreateClick={handleCreateClick}
-      />
+      <div className="app-card overflow-hidden rounded-2xl shadow-[0_12px_30px_rgba(15,23,42,0.07)]">
+        <div className="space-y-3 px-4 py-4 md:px-5 md:py-5">
+          <div className="space-y-1">
+            <h2 className="text-[1.05rem] font-semibold tracking-tight text-[var(--foreground-strong)] md:text-[1.15rem]">
+              Categorias
+            </h2>
+            <p className="max-w-2xl text-[0.84rem] leading-relaxed text-[var(--muted)] md:text-[0.9rem]">
+              Administra las categorias de productos de esta tienda.
+            </p>
+          </div>
 
-      {error ? (
-        <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
-          {error}
-        </p>
-      ) : null}
+          <div className="border-t border-[var(--line)]" />
+
+          <CategoriesToolbar
+            search={search}
+            canManage={canManage}
+            onSearchChange={(value) => {
+              setPage(1);
+              setSearch(value);
+            }}
+            onCreateClick={handleCreateClick}
+          />
+        </div>
+
+        {error ? (
+          <div className="border-t border-[var(--line)] px-4 py-3 md:px-5">
+            <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
+              {error}
+            </p>
+          </div>
+        ) : null}
+
+        <div className="border-t border-[var(--line)]" />
+
+        <div className="px-0 pt-4">
+          <CategoriesTable
+            categories={categories}
+            isLoading={isLoading}
+            page={page}
+            totalPages={totalPages}
+            totalRecords={totalRecords}
+            canManage={canManage}
+            onPageChange={setPage}
+            onDetails={handleOpenCategoryDetail}
+            onEdit={handleEditClick}
+            onToggleStatus={handleToggleStatus}
+          />
+        </div>
+      </div>
 
       <CategoryFormPanel
         isMounted={isFormMounted}
@@ -280,19 +305,6 @@ export function CategoriesPanel({
         open={isCategoryDetailOpen}
         category={selectedCategory}
         onClose={handleCloseCategoryDetail}
-      />
-
-      <CategoriesTable
-        categories={categories}
-        isLoading={isLoading}
-        page={page}
-        totalPages={totalPages}
-        totalRecords={totalRecords}
-        canManage={canManage}
-        onPageChange={setPage}
-        onDetails={handleOpenCategoryDetail}
-        onEdit={handleEditClick}
-        onToggleStatus={handleToggleStatus}
       />
     </section>
   );
