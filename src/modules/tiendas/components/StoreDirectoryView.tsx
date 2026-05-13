@@ -296,7 +296,7 @@ export function StoreDirectoryView() {
     () => ({
       headerLabel: "Acciones",
       primaryButtonLabel: "Administrar",
-      primaryButtonIconPath: "/icons/shop.svg",
+      primaryButtonIconPath: "/icons/redirect.svg",
       onPrimaryAction: (store) => {
         window.location.assign(buildStoreAdminUrl(store.subdominio));
       },

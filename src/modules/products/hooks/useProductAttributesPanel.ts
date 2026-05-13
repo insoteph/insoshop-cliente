@@ -192,7 +192,7 @@ export function useProductAttributesPanel({
 
   const addAttribute = useCallback(() => {
     if (!canAddAttribute || value.length >= MAX_ATTRIBUTES) {
-      return;
+      return "";
     }
 
     const nextDraft = createDraft();
@@ -201,6 +201,7 @@ export function useProductAttributesPanel({
       ...current,
       [nextDraft.key]: [createValuePicker()],
     }));
+    return nextDraft.key;
   }, [canAddAttribute, onChange, value]);
 
   const removeAttribute = useCallback(

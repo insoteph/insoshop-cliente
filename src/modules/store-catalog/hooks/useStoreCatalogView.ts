@@ -111,8 +111,8 @@ export function useStoreCatalogView({ slug }: UseStoreCatalogViewProps) {
   );
 
   const pageLabel = useMemo(
-    () => `Pagina ${page} de ${Math.max(totalPages, 1)}`,
-    [page, totalPages],
+    () => `${products.length} producto${products.length === 1 ? "" : "s"}`,
+    [products.length],
   );
 
   const categoryCounts = useMemo(() => {

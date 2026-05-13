@@ -1,6 +1,7 @@
 "use client";
 
 type PaginationControlsProps = {
+  displayedRecords?: number;
   page: number;
   totalPages: number;
   totalRecords: number;
@@ -8,15 +9,18 @@ type PaginationControlsProps = {
 };
 
 export function PaginationControls({
+  displayedRecords,
   page,
   totalPages,
   totalRecords,
   onPageChange,
 }: PaginationControlsProps) {
+  const visibleRecords = displayedRecords ?? totalRecords;
+
   return (
     <div className="flex flex-col gap-3 rounded-3xl border border-[var(--line)] bg-[var(--panel)] px-5 py-4 md:flex-row md:items-center md:justify-between">
       <p className="text-sm text-[var(--muted)]">
-        {totalRecords} registro{totalRecords === 1 ? "" : "s"} en total
+        {visibleRecords} registro{visibleRecords === 1 ? "" : "s"}
       </p>
 
       <div className="flex items-center gap-2">
@@ -28,7 +32,7 @@ export function PaginationControls({
         >
           Anterior
         </button>
-        <span className="text-sm text-[var(--muted)]">
+        <span className="hidden text-sm text-[var(--muted)] md:inline">
           Página {page} de {Math.max(totalPages, 1)}
         </span>
         <button

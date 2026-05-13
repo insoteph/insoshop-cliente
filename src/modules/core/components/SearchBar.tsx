@@ -20,7 +20,7 @@ export function SearchBar({
   ariaLabel = "Buscar",
 }: SearchBarProps) {
   return (
-    <div className={`relative w-full ${className ?? ""}`}>
+    <div className={`relative w-full shadow-none ${className ?? ""}`}>
       <span
         aria-hidden="true"
         className={`pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted)] ${iconClassName ?? ""}`}
@@ -43,7 +43,7 @@ export function SearchBar({
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         aria-label={ariaLabel}
-        className={`app-input h-10 w-full rounded-xl px-3.5 pl-10 text-sm ${inputClassName ?? ""}`}
+        className={`app-input h-10 w-full rounded-xl px-3.5 pl-10 text-sm !shadow-none ${inputClassName ?? ""}`}
       />
     </div>
   );

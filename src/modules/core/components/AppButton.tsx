@@ -2,7 +2,7 @@
 
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-type AppButtonVariant = "primary" | "secondary" | "danger";
+type AppButtonVariant = "primary" | "secondary" | "danger" | "cancel";
 
 type AppButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: AppButtonVariant;
@@ -16,6 +16,7 @@ const VARIANT_CLASSES: Record<AppButtonVariant, string> = {
     "border-[var(--line)] bg-[var(--panel-strong)] text-[var(--foreground)] hover:bg-[var(--panel-muted)]",
   danger:
     "border-[color-mix(in_srgb,var(--danger)_40%,transparent)] bg-[var(--danger)] text-white hover:bg-[color-mix(in_srgb,var(--danger)_88%,black_12%)]",
+  cancel: "app-button-cancel",
 };
 
 export function AppButton({

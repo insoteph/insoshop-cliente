@@ -66,7 +66,7 @@ export function CatalogAttributeFormPanel({
               {editingAttributeId ? "Editar atributo" : "Crear atributo"}
             </h4>
           </div>
-          <AppButton variant="secondary" iconPath="/icons/cross.svg" onClick={onClose}>
+          <AppButton variant="cancel" iconPath="/icons/cross.svg" onClick={onClose}>
             Cerrar
           </AppButton>
         </div>

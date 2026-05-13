@@ -154,7 +154,7 @@ export function StoreCartSummaryPanel({
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
-              className="rounded-full border border-[#dbe7ff] bg-white px-3 py-2.5 text-xs font-semibold text-[var(--foreground)] shadow-[0_10px_24px_rgba(15,23,42,0.06)]"
+              className="rounded-lg border border-[var(--danger)] bg-white px-3 py-2.5 text-xs font-semibold text-[var(--danger)] shadow-[0_10px_24px_rgba(15,23,42,0.06)] transition hover:bg-[var(--panel-muted)] disabled:opacity-60"
               onClick={onCloseCheckout}
               disabled={isSubmittingCheckout}
             >

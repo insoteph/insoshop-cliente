@@ -3,7 +3,6 @@
 type DataTableSkeletonProps = {
   variant: "mobile" | "desktop";
   rows: number;
-  columns: number;
   summaryColumns?: number;
   hasImage?: boolean;
 };
@@ -11,7 +10,6 @@ type DataTableSkeletonProps = {
 export function DataTableSkeleton({
   variant,
   rows,
-  columns,
   summaryColumns = 2,
   hasImage = false,
 }: DataTableSkeletonProps) {
@@ -47,7 +45,7 @@ export function DataTableSkeleton({
       {Array.from({ length: rows }).map((_, rowIndex) => (
         <article
           key={`desktop-skeleton-${rowIndex}`}
-          className="rounded-xl border border-[var(--line)] bg-[var(--panel)] p-4 shadow-[0_16px_38px_rgba(15,23,42,0.11)]"
+          className="rounded-xl border border-[var(--line)] bg-[var(--panel)] p-4"
         >
           <div className="flex items-center gap-3">
             {hasImage ? (

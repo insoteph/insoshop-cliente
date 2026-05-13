@@ -87,12 +87,12 @@ export function TableRowActions({
       <button
         type="button"
         onClick={onPrimaryAction}
-        className="app-button-action cursor-pointer"
+        className="app-button-action app-row-action-primary cursor-pointer"
       >
         {primaryButtonIconPath ? (
           <span
             aria-hidden="true"
-            className="h-4 w-4 shrink-0 bg-current"
+            className="h-[1.125rem] w-[1.125rem] shrink-0 bg-current"
             style={{
               WebkitMaskImage: `url(${primaryButtonIconPath})`,
               maskImage: `url(${primaryButtonIconPath})`,
@@ -117,7 +117,7 @@ export function TableRowActions({
             aria-haspopup="menu"
             aria-expanded={isOpen}
             aria-label="Abrir mas acciones"
-            className="ml-1 inline-flex cursor-pointer items-center justify-center rounded-lg bg-[var(--panel)] px-2 py-1.5 text-[var(--accent-strong)] shadow-sm transition hover:bg-[var(--panel-muted)]"
+            className="ml-1 inline-flex cursor-pointer items-center justify-center rounded-lg border border-transparent bg-[var(--panel)] px-2 py-1.5 text-[var(--accent-strong)] shadow-none transition hover:bg-[var(--panel-muted)]"
           >
             <span
               aria-hidden="true"

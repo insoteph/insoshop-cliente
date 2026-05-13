@@ -8,6 +8,7 @@ import {
   type DataTableBadgeConfig,
   type DataTableColumn,
 } from "@/modules/core/components/DataTable";
+import { PanelSectionHeader } from "@/modules/core/components/PanelSectionHeader";
 import { SearchBar } from "@/modules/core/components/SearchBar";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
 import { fetchUsers } from "@/modules/users/services/user-service";
@@ -24,7 +25,6 @@ type StoreUsersTabPanelProps = {
   storeId: number;
 };
 
-type StatusFilter = "activos" | "inactivos" | "todos";
 const FORM_ANIMATION_MS = 400;
 
 export function StoreUsersTabPanel({ storeId }: StoreUsersTabPanelProps) {
@@ -35,7 +35,6 @@ export function StoreUsersTabPanel({ storeId }: StoreUsersTabPanelProps) {
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("todos");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAssignPanelMounted, setIsAssignPanelMounted] = useState(false);
@@ -60,7 +59,7 @@ export function StoreUsersTabPanel({ storeId }: StoreUsersTabPanelProps) {
         page,
         pageSize,
         search,
-        estadoFiltro: statusFilter,
+        estadoFiltro: "todos",
       });
 
       setUsers(result.items);
@@ -75,7 +74,7 @@ export function StoreUsersTabPanel({ storeId }: StoreUsersTabPanelProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [page, pageSize, search, statusFilter, storeId]);
+  }, [page, pageSize, search, storeId]);
 
   useEffect(() => {
     void loadUsers();
@@ -158,6 +157,12 @@ export function StoreUsersTabPanel({ storeId }: StoreUsersTabPanelProps) {
       setIsAssignLoading(false);
     }
   }, [assignPage, assignPageSize, assignSearch, isAssignPanelMounted]);
+
+  const waitForAssignPanelClose = useCallback(() => {
+    return new Promise<void>((resolve) => {
+      window.setTimeout(() => resolve(), FORM_ANIMATION_MS);
+    });
+  }, []);
 
   useEffect(() => {
     void loadAvailableUsers();
@@ -399,6 +404,9 @@ export function StoreUsersTabPanel({ storeId }: StoreUsersTabPanelProps) {
   const assignRowActions = {
     primaryButtonLabel: "Asignar",
     onPrimaryAction: async (user: UserRecord) => {
+      closeAssignPanel();
+      await waitForAssignPanelClose();
+
       const shouldContinue = await confirm({
         title: "Asignar usuario",
         description: `Deseas asignar a ${user.username} a esta tienda?`,
@@ -424,51 +432,65 @@ export function StoreUsersTabPanel({ storeId }: StoreUsersTabPanelProps) {
 
   return (
     <section className="space-y-5">
-      <div className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-md">
-        <div className="flex flex-row items-center gap-2">
-          <div className="min-w-0 flex-1">
-            <SearchBar
-              value={search}
-              onChange={(value) => {
-                setPage(1);
-                setSearch(value);
+      <div className="app-card overflow-hidden rounded-2xl shadow-[0_12px_30px_rgba(15,23,42,0.07)]">
+        <div className="space-y-4 px-4 py-4 md:px-5 md:py-5">
+          <PanelSectionHeader
+            title="Usuarios de la tienda"
+            subtitle="Administra los usuarios asociados, su estado y los accesos a esta tienda."
+            headingLevel="h3"
+          />
+
+          <div className="flex flex-row items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <SearchBar
+                value={search}
+                onChange={(value) => {
+                  setPage(1);
+                  setSearch(value);
+                }}
+                placeholder="Buscar por usuario, correo o telefono"
+                ariaLabel="Buscar usuarios de tienda"
+              />
+            </div>
+            <AppButton
+              variant={isAssignPanelMounted ? "cancel" : "primary"}
+              iconPath={isAssignPanelMounted ? "/icons/cross.svg" : "/icons/plus-circle.svg"}
+              onClick={() => {
+                if (isAssignPanelMounted) {
+                  closeAssignPanel();
+                  return;
+                }
+                openAssignPanel();
               }}
-              placeholder="Buscar por usuario, correo o telefono"
-              ariaLabel="Buscar usuarios de tienda"
-            />
+            >
+              {isAssignPanelMounted ? "Cerrar formulario" : "Agregar usuario"}
+            </AppButton>
           </div>
-          <AppButton
-            iconPath={isAssignPanelMounted ? "/icons/cross.svg" : "/icons/plus-circle.svg"}
-            onClick={() => {
-              if (isAssignPanelMounted) {
-                closeAssignPanel();
-                return;
-              }
-              openAssignPanel();
-            }}
-          >
-            {isAssignPanelMounted ? "Cerrar formulario" : "Agregar usuario"}
-          </AppButton>
+
+          {error ? (
+            <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">{error}</p>
+          ) : null}
         </div>
 
-        <div className="grid gap-3 md:grid-cols-[220px] md:justify-end">
-          <select
-            value={statusFilter}
-            onChange={(event) => {
-              setPage(1);
-              setStatusFilter(event.target.value as StatusFilter);
-            }}
-            className="app-input rounded-2xl px-4 py-3 text-sm"
-          >
-            <option value="todos">Todos los estados</option>
-            <option value="activos">Solo activos</option>
-            <option value="inactivos">Solo inactivos</option>
-          </select>
-        </div>
+        <div className="border-t border-[var(--line)]" />
 
-        {error ? (
-          <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">{error}</p>
-        ) : null}
+        <div className="px-0 pt-4">
+          <DataTable
+            headers={columns}
+            data={users}
+            isLoading={isLoading}
+            rowKey="usuarioId"
+            emptyMessage="No hay usuarios asociados a esta tienda."
+            badges={badges}
+            rowActions={rowActions}
+            pagination={{
+              page,
+              totalPages,
+              totalRecords,
+              onPageChange: setPage,
+            }}
+          />
+        </div>
       </div>
 
       {isAssignPanelMounted ? (
@@ -492,7 +514,7 @@ export function StoreUsersTabPanel({ storeId }: StoreUsersTabPanelProps) {
             <button
               type="button"
               onClick={closeAssignPanel}
-              className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--line)] bg-[var(--panel)] text-[var(--foreground)] shadow-sm transition hover:bg-[var(--panel-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/40"
+              className="absolute right-3 top-3 inline-flex h-9 w-9 items-center justify-center rounded-full border border-[var(--danger)] bg-white text-[var(--danger)] shadow-sm transition hover:bg-[var(--panel-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--danger)]/30"
               aria-label="Cerrar modal"
               title="Cerrar modal"
             >
@@ -502,14 +524,14 @@ export function StoreUsersTabPanel({ storeId }: StoreUsersTabPanelProps) {
             </button>
 
             <div className="max-h-[min(78vh,48rem)] space-y-4 overflow-y-auto bg-[var(--panel)] p-4 text-[var(--foreground)] sm:p-5">
-              <div className="space-y-1 pr-10">
+              <div className="space-y-0.5 pr-10">
                 <h4
                   id="assign-user-modal-title"
-                  className="text-lg font-semibold text-[var(--foreground)]"
+                  className="text-[15px] font-semibold text-[var(--foreground)] sm:text-base"
                 >
                   Agregar usuario a la tienda
                 </h4>
-                <p className="text-sm text-[var(--muted)]">
+                <p className="text-[13px] text-[var(--muted)] sm:text-sm">
                   Busca un usuario y asignalo a esta tienda.
                 </p>
               </div>
@@ -552,21 +574,6 @@ export function StoreUsersTabPanel({ storeId }: StoreUsersTabPanelProps) {
         </div>
       ) : null}
 
-      <DataTable
-        headers={columns}
-        data={users}
-        isLoading={isLoading}
-        rowKey="usuarioId"
-        emptyMessage="No hay usuarios asociados a esta tienda."
-        badges={badges}
-        rowActions={rowActions}
-        pagination={{
-          page,
-          totalPages,
-          totalRecords,
-          onPageChange: setPage,
-        }}
-      />
     </section>
   );
 }

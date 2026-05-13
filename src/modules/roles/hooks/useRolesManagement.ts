@@ -41,6 +41,7 @@ export function useRolesManagement() {
 
   const rowActions: DataTableRowActionsConfig<RoleListItem> = {
     primaryButtonLabel: "Detalles",
+    primaryButtonIconPath: "/icons/eye.svg",
     onPrimaryAction: list.handleSelectRole,
     dropdownOptions: [
       ...(list.canEditRole

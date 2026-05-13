@@ -30,7 +30,6 @@ export function DataTable<TData extends Record<string, unknown>>({
   const showSkeleton = isLoading && resolvedRows.length === 0;
   const showRefreshingState = isLoading && resolvedRows.length > 0;
   const displayedRecords = resolvedRows.length;
-  const totalRecords = pagination.totalRecords ?? displayedRecords;
 
   return (
     <div className="relative">
@@ -65,7 +64,6 @@ export function DataTable<TData extends Record<string, unknown>>({
 
       <DataTableFooter
         displayedRecords={displayedRecords}
-        totalRecords={totalRecords}
         pagination={pagination}
       />
     </div>

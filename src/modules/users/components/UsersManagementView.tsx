@@ -616,7 +616,7 @@ export function UsersManagementView() {
                 </p>
               </div>
 
-              <AppButton variant="secondary" onClick={() => closeRolesFormPanel(true)}>
+              <AppButton variant="cancel" onClick={() => closeRolesFormPanel(true)}>
                 Cerrar
               </AppButton>
             </div>
@@ -693,7 +693,7 @@ export function UsersManagementView() {
               </div>
 
               <AppButton
-                variant="secondary"
+                variant="cancel"
                 onClick={handleClosePasswordModal}
                 disabled={isSavingPassword}
               >
@@ -756,7 +756,7 @@ export function UsersManagementView() {
 
               <div className="flex justify-end gap-2">
                 <AppButton
-                  variant="secondary"
+                  variant="cancel"
                   onClick={handleClosePasswordModal}
                   disabled={isSavingPassword}
                 >

@@ -78,7 +78,7 @@ export function ProductVariantEditor({
             </p>
           </div>
           <AppButton
-            variant="secondary"
+            variant="cancel"
             iconPath="/icons/cross.svg"
             className="w-full sm:w-auto"
             onClick={closeVariantEditor}

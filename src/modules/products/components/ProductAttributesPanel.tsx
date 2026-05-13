@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
+
+import { AppButton } from "@/modules/core/components/AppButton";
 import { ProductAttributeRow } from "@/modules/products/components/ProductAttributeRow";
 import { useProductAttributesPanel } from "@/modules/products/hooks/useProductAttributesPanel";
-import { AppButton } from "@/modules/core/components/AppButton";
 
 export type ProductAttributeDraft = {
   key: string;
@@ -28,6 +30,10 @@ export function ProductAttributesPanel({
   canEdit,
   canDelete,
 }: ProductAttributesPanelProps) {
+  const [expandedRowKey, setExpandedRowKey] = useState<string | null>(
+    null,
+  );
+
   const {
     catalogError,
     canAddAttribute,
@@ -47,15 +53,27 @@ export function ProductAttributesPanel({
     canEdit,
   });
 
+  const effectiveExpandedRowKey =
+    expandedRowKey && value.some((draft) => draft.key === expandedRowKey)
+      ? expandedRowKey
+      : null;
+
+  const handleAddAttribute = () => {
+    const newAttributeKey = addAttribute();
+    if (newAttributeKey) {
+      setExpandedRowKey(newAttributeKey);
+    }
+  };
+
   return (
-    <section className="space-y-4 rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-3 shadow-sm sm:p-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <section className="space-y-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h4 className="text-base font-semibold text-[var(--foreground-strong)] sm:text-lg">
-            Atributos y valores
+            Atributos
           </h4>
           <p className="text-sm text-[var(--muted)]">
-            Define los atributos del producto y los valores que lo componen.
+            Define las bases que luego usarán tus variantes.
           </p>
         </div>
       </div>
@@ -67,35 +85,55 @@ export function ProductAttributesPanel({
       ) : null}
 
       {value.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[var(--line)] px-4 py-5 text-sm text-[var(--muted)]">
-          Todavia no agregaste atributos. Usa el boton de arriba para crear el
-          primero.
+        <div className="space-y-3 rounded-2xl border border-dashed border-[var(--line)] bg-[var(--panel-muted)] px-4 py-5">
+          <p className="text-sm text-[var(--muted)]">
+            Todavia no agregaste atributos.
+          </p>
+          {canAddAttribute ? (
+            <div className="flex justify-start">
+              <AppButton
+                iconPath="/icons/plus-circle.svg"
+                disabled={disabled || isCatalogLoading}
+                onClick={handleAddAttribute}
+              >
+                Agregar atributo
+              </AppButton>
+            </div>
+          ) : null}
         </div>
       ) : null}
 
-      <div className="divide-y divide-[var(--line)]/60">
-        {rows.map((row) => (
-          <ProductAttributeRow
-            key={row.draft.key}
-            row={row}
-            disabled={disabled}
-            canEdit={canEdit}
-            canDelete={canDelete}
-            onSetAttribute={setAttribute}
-            onRemoveAttribute={removeAttribute}
-            onRemoveValueFromRow={removeValueFromRow}
-            onAddPickerToRow={addPickerToRow}
-            onSelectPickerValue={selectPickerValue}
-          />
-        ))}
-      </div>
+      {value.length > 0 ? (
+        <div className="space-y-3">
+          {rows.map((row) => (
+            <ProductAttributeRow
+              key={row.draft.key}
+              row={row}
+              expanded={effectiveExpandedRowKey === row.draft.key}
+              disabled={disabled}
+              canEdit={canEdit}
+              canDelete={canDelete}
+              onToggleExpanded={() =>
+                setExpandedRowKey((current) =>
+                  current === row.draft.key ? null : row.draft.key,
+                )
+              }
+              onSetAttribute={setAttribute}
+              onRemoveAttribute={removeAttribute}
+              onRemoveValueFromRow={removeValueFromRow}
+              onAddPickerToRow={addPickerToRow}
+              onSelectPickerValue={selectPickerValue}
+            />
+          ))}
+        </div>
+      ) : null}
 
-      {canAddAttribute ? (
+      {value.length > 0 && canAddAttribute ? (
         <div className="flex justify-end pt-1">
           <AppButton
             iconPath="/icons/plus-circle.svg"
             disabled={disabled || isCatalogLoading}
-            onClick={addAttribute}
+            onClick={handleAddAttribute}
           >
             Agregar atributo
           </AppButton>

@@ -14,14 +14,14 @@ export function ProductManagementHeader({
 }: ProductManagementHeaderProps) {
   return (
     <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-      <div className="space-y-1">
+      <div className="space-y-0.5">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
           Configuración de venta
         </p>
         <h3 className="text-[15px] font-semibold text-[var(--foreground-strong)] sm:text-base">
           {product.nombre}
         </h3>
-        <p className="max-w-3xl text-[13px] text-[var(--muted)] sm:text-sm">
+        <p className="max-w-3xl text-[13px] leading-5 text-[var(--muted)] sm:text-sm">
           Primero define las opciones que verá tu cliente, como color o talla.
           Después crea las combinaciones reales que vas a vender con su precio,
           existencias e imagen.

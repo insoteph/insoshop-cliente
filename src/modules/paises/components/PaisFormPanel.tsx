@@ -69,7 +69,7 @@ export function PaisFormPanel({
             </p>
           </div>
 
-          <AppButton variant="secondary" iconPath="/icons/cross.svg" onClick={onClose}>
+          <AppButton variant="cancel" iconPath="/icons/cross.svg" onClick={onClose}>
             Cerrar
           </AppButton>
         </div>

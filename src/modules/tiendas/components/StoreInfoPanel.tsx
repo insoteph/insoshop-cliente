@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { AppButton } from "@/modules/core/components/AppButton";
+import { PanelSectionHeader } from "@/modules/core/components/PanelSectionHeader";
 import { useToast } from "@/modules/core/providers/ToastProvider";
 import {
   fetchTiendaById,
@@ -143,12 +144,11 @@ export function StoreInfoPanel({ storeId, canEdit }: StoreInfoPanelProps) {
     <section className="space-y-5">
       <div className="app-card overflow-hidden rounded-2xl shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
         <div className="px-5 py-4 sm:px-6 sm:py-5">
-          <h2 className="text-[15px] font-semibold text-[var(--foreground-strong)] sm:text-base">
-            Informacion de la tienda
-          </h2>
-          <p className="mt-1 text-[13px] text-[var(--muted)] sm:text-sm">
-            Actualiza los datos principales de tu tienda
-          </p>
+          <PanelSectionHeader
+            title="Informacion de la tienda"
+            subtitle="Actualiza los datos principales de tu tienda"
+            headingLevel="h2"
+          />
         </div>
 
         <div className="border-t border-[var(--line)]" />
@@ -263,7 +263,7 @@ export function StoreInfoPanel({ storeId, canEdit }: StoreInfoPanelProps) {
               <div className="flex flex-wrap items-center gap-3">
                 {canEdit ? (
                   <AppButton
-                    variant={isEditing ? "danger" : "primary"}
+                    variant={isEditing ? "cancel" : "primary"}
                     iconPath={isEditing ? "/icons/cross.svg" : "/icons/edit.svg"}
                     onClick={() =>
                       setIsEditing((currentValue) => !currentValue)

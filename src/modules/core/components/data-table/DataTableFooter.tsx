@@ -4,21 +4,18 @@ import type { DataTablePaginationConfig } from "./DataTableTypes";
 
 type DataTableFooterProps = {
   displayedRecords: number;
-  totalRecords: number;
   pagination: DataTablePaginationConfig;
 };
 
 export function DataTableFooter({
   displayedRecords,
-  totalRecords,
   pagination,
 }: DataTableFooterProps) {
   return (
     <div className="mt-4 border-t border-[var(--line)] px-4 py-3 md:mt-5 md:px-5 md:py-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <p className="w-full text-center text-sm text-[var(--foreground)] md:w-auto md:text-left">
-          Mostrando {displayedRecords} de {totalRecords} registro
-          {totalRecords === 1 ? "" : "s"}
+          {displayedRecords} registro{displayedRecords === 1 ? "" : "s"}
         </p>
 
         <div className="flex items-center justify-center gap-2 self-center md:self-auto">
@@ -45,7 +42,7 @@ export function DataTableFooter({
             Anterior
           </button>
 
-          <span className="inline-flex items-center rounded-md border border-[var(--line)] bg-[var(--panel)] px-3.5 py-2 text-sm font-medium text-[var(--foreground)] shadow-sm md:rounded-xl">
+          <span className="hidden items-center rounded-md border border-[var(--line)] bg-[var(--panel)] px-3.5 py-2 text-sm font-medium text-[var(--foreground)] shadow-sm md:inline-flex md:rounded-xl">
             Pagina {pagination.page} de {Math.max(pagination.totalPages, 1)}
           </span>
 

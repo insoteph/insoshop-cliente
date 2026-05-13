@@ -13,6 +13,7 @@ import {
 import { AppButton } from "@/modules/core/components/AppButton";
 
 type ConfirmationVariant = "primary" | "danger";
+type ConfirmationCancelVariant = "cancel" | "secondary" | "danger";
 
 type ConfirmationOptions = {
   title?: string;
@@ -20,6 +21,7 @@ type ConfirmationOptions = {
   confirmLabel?: string;
   cancelLabel?: string;
   variant?: ConfirmationVariant;
+  cancelVariant?: ConfirmationCancelVariant;
 };
 
 type ConfirmationDialogContextValue = {
@@ -176,7 +178,16 @@ export function ConfirmationDialogProvider({
             </p>
 
             <div className="mt-5 flex justify-end gap-2">
-              <AppButton variant="secondary" onClick={() => closeDialog(false)}>
+              <AppButton
+                variant={
+                  dialogState.options.cancelVariant === "secondary"
+                    ? "secondary"
+                    : dialogState.options.cancelVariant === "danger"
+                    ? "danger"
+                    : "cancel"
+                }
+                onClick={() => closeDialog(false)}
+              >
                 {dialogState.options.cancelLabel ?? "Cancelar"}
               </AppButton>
 

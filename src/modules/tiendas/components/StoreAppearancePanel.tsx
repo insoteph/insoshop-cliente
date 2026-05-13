@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { PanelSectionHeader } from "@/modules/core/components/PanelSectionHeader";
 import { useToast } from "@/modules/core/providers/ToastProvider";
 import { fetchTiendaById } from "@/modules/tiendas/services/tiendas-service";
 import { StoreLogoUploader } from "@/modules/tiendas/components/StoreLogoUploader";
@@ -64,12 +65,11 @@ export function StoreAppearancePanel({
   return (
     <section className="app-card overflow-hidden rounded-2xl shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
       <div className="px-5 py-4 sm:px-6 sm:py-5">
-        <h2 className="text-[15px] font-semibold text-[var(--foreground-strong)] sm:text-base">
-          Apariencia
-        </h2>
-        <p className="mt-1 text-[13px] text-[var(--muted)] sm:text-sm">
-          Administra aquí el logotipo de la tienda.
-        </p>
+        <PanelSectionHeader
+          title="Apariencia"
+          subtitle="Administra aquí el logotipo de la tienda."
+          headingLevel="h2"
+        />
       </div>
 
       <div className="border-t border-[var(--line)]" />

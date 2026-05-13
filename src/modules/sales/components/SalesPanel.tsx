@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { DataTable } from "@/modules/core/components/DataTable";
+import { PanelSectionHeader } from "@/modules/core/components/PanelSectionHeader";
+import { SearchBar } from "@/modules/core/components/SearchBar";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
 import { useToast } from "@/modules/core/providers/ToastProvider";
 import { formatCurrency, formatDateTime } from "@/modules/core/lib/formatters";
@@ -35,8 +37,6 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [search, setSearch] = useState("");
-  const [fechaDesde, setFechaDesde] = useState("");
-  const [fechaHasta, setFechaHasta] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reloadTick, setReloadTick] = useState(0);
@@ -61,8 +61,6 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
           page,
           pageSize,
           search,
-          fechaDesde: fechaDesde || undefined,
-          fechaHasta: fechaHasta || undefined,
         });
 
         setSales(result.items);
@@ -80,7 +78,7 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
     }
 
     void loadSales();
-  }, [fechaDesde, fechaHasta, page, pageSize, reloadTick, search, storeId]);
+  }, [page, pageSize, reloadTick, search, storeId]);
 
   useEffect(() => {
     return () => {
@@ -259,86 +257,69 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
 
   return (
     <section className="space-y-5">
-      <div className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-lg">
-        <div>
-          <h3 className="text-lg font-semibold text-[var(--foreground)]">
-            Ventas de la tienda
-          </h3>
-          <p className="text-sm text-[var(--muted)]">
-            Revisa órdenes, montos, método de pago y estado comercial.
-          </p>
-        </div>
+      <div className="app-card overflow-hidden rounded-2xl shadow-[0_12px_30px_rgba(15,23,42,0.07)]">
+        <div className="space-y-4 px-4 py-4 md:px-5 md:py-5">
+          <PanelSectionHeader
+            title="Ventas de la tienda"
+            subtitle="Revisa órdenes, montos, método de pago y estado comercial."
+            headingLevel="h3"
+          />
 
-        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_180px_180px]">
-          <input
+          <SearchBar
             value={search}
-            onChange={(event) => {
+            onChange={(value) => {
               setPage(1);
-              setSearch(event.target.value);
+              setSearch(value);
             }}
             placeholder="Buscar por orden, estado u observación"
-            className="rounded-2xl border border-[var(--line)] bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)] outline-none"
+            ariaLabel="Buscar ventas"
           />
-          <input
-            type="date"
-            value={fechaDesde}
-            onChange={(event) => {
-              setPage(1);
-              setFechaDesde(event.target.value);
-            }}
-            className="app-input rounded-2xl px-4 py-3 text-sm"
-          />
-          <input
-            type="date"
-            value={fechaHasta}
-            onChange={(event) => {
-              setPage(1);
-              setFechaHasta(event.target.value);
-            }}
-            className="app-input rounded-2xl px-4 py-3 text-sm"
-          />
+
+          {error ? (
+            <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
+              {error}
+            </p>
+          ) : null}
         </div>
 
-        {error ? (
-          <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
-            {error}
-          </p>
-        ) : null}
-      </div>
+        <div className="border-t border-[var(--line)]" />
 
-      <DataTable
-        headers={columns}
-        data={sales}
-        isLoading={isLoading}
-        rowKey="id"
-        emptyMessage="No hay ventas para los filtros aplicados."
-        rowActions={{
-          primaryButtonLabel: "Ver detalle",
-          onPrimaryAction: handleOpenDetail,
-          dropdownOptions: [
-            {
-              label: "Completar venta",
-              hidden: (sale) => !isPendingSale(sale.estadoVentaNombre),
-              onClick: (sale) => {
-                void handleStatusChange(sale, "Completado");
-              },
-            },
-            {
-              label: "Cancelar venta",
-              hidden: (sale) => !isPendingSale(sale.estadoVentaNombre),
-              onClick: (sale) => {
-                void handleStatusChange(sale, "Cancelado");
-              },
-            },
-          ],
-        }}
-        pagination={{
-          page,
-          totalPages,
-          totalRecords,
-          onPageChange: setPage,
-        }}
-      />
+        <div className="px-0 pt-4">
+          <DataTable
+            headers={columns}
+            data={sales}
+            isLoading={isLoading}
+            rowKey="id"
+            emptyMessage="No hay ventas para los filtros aplicados."
+            rowActions={{
+              primaryButtonLabel: "Ver detalle",
+              onPrimaryAction: handleOpenDetail,
+              dropdownOptions: [
+                {
+                  label: "Completar venta",
+                  hidden: (sale) => !isPendingSale(sale.estadoVentaNombre),
+                  onClick: (sale) => {
+                    void handleStatusChange(sale, "Completado");
+                  },
+                },
+                {
+                  label: "Cancelar venta",
+                  hidden: (sale) => !isPendingSale(sale.estadoVentaNombre),
+                  onClick: (sale) => {
+                    void handleStatusChange(sale, "Cancelado");
+                  },
+                },
+              ],
+            }}
+            pagination={{
+              page,
+              totalPages,
+              totalRecords,
+              onPageChange: setPage,
+            }}
+          />
+        </div>
+      </div>
 
       <SaleDetailModal
         open={isSaleDetailOpen}

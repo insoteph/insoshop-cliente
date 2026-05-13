@@ -1,8 +1,14 @@
 "use client";
 
+import { useState } from "react";
+
+import { AppButton } from "@/modules/core/components/AppButton";
 import { formatCurrency } from "@/modules/core/lib/formatters";
 import { ProductVariantsImagePicker } from "@/modules/products/components/ProductVariantsImagePicker";
-import { getAttributeValueLabel, type ProductVariantDraftInfo } from "@/modules/products/mappers/product-variants.mapper";
+import {
+  getAttributeValueLabel,
+  type ProductVariantDraftInfo,
+} from "@/modules/products/mappers/product-variants.mapper";
 import type { ProductVariantDraft } from "@/modules/products/services/product-service";
 
 type ProductVariantsListProps = {
@@ -12,6 +18,9 @@ type ProductVariantsListProps = {
   canEdit: boolean;
   canDelete: boolean;
   disabled: boolean;
+  canBuildVariants: boolean;
+  isCatalogLoading: boolean;
+  onAddVariant: () => string;
   onRemove: (rowKey: string) => void;
   onUpdateVariant: (rowKey: string, patch: Partial<ProductVariantDraft>) => void;
 };
@@ -41,10 +50,12 @@ function getSelectedLabel(
   selectedValueId: string,
 ) {
   return (
-    attribute.values.find((attributeValue) => attributeValue.id === Number(selectedValueId || 0))
-      ?.nombre ??
-    attribute.values.find((attributeValue) => attributeValue.id === Number(selectedValueId || 0))
-      ?.valor ??
+    attribute.values.find(
+      (attributeValue) => attributeValue.id === Number(selectedValueId || 0),
+    )?.nombre ??
+    attribute.values.find(
+      (attributeValue) => attributeValue.id === Number(selectedValueId || 0),
+    )?.valor ??
     "Sin seleccionar"
   );
 }
@@ -56,315 +67,260 @@ export function ProductVariantsList({
   canEdit,
   canDelete,
   disabled,
+  canBuildVariants,
+  isCatalogLoading,
+  onAddVariant,
   onRemove,
   onUpdateVariant,
 }: ProductVariantsListProps) {
-  if (value.length === 0) {
-    return null;
-  }
+  const [expandedVariantKey, setExpandedVariantKey] = useState<string | null>(
+    null,
+  );
+
+  const handleAddVariant = () => {
+    const newVariantKey = onAddVariant();
+    setExpandedVariantKey(newVariantKey);
+  };
+
+  const renderVariantFields = (draft: ProductVariantDraft, expanded: boolean) => (
+    <div
+      className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${
+        expanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+      }`}
+      aria-hidden={!expanded}
+    >
+      <div className="overflow-hidden border-t border-[var(--line)] px-4 py-4">
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            {variants.map((attribute) => {
+              const selectedValueId =
+                draft.valoresPorAtributo[attribute.attribute.atributoCatalogoId] ?? "";
+
+              return (
+                <label
+                  key={`${draft.key}-${attribute.attribute.atributoCatalogoId}`}
+                  className="grid gap-2"
+                >
+                  <span className="text-sm font-medium text-[var(--foreground-strong)]">
+                    {attribute.label}
+                  </span>
+                  <select
+                    value={selectedValueId}
+                    onChange={(event) =>
+                      onUpdateVariant(draft.key, {
+                        valoresPorAtributo: {
+                          ...draft.valoresPorAtributo,
+                          [attribute.attribute.atributoCatalogoId]: event.target.value,
+                        },
+                      })
+                    }
+                    disabled={
+                      disabled ||
+                      !attribute.attribute.atributoCatalogoId ||
+                      attribute.loading ||
+                      attribute.values.length === 0
+                    }
+                    className="app-input w-full rounded-xl px-3 py-2.5 text-sm"
+                  >
+                    <option value="">
+                      {attribute.loading
+                        ? "Cargando..."
+                        : attribute.values.length > 0
+                          ? "Selecciona"
+                          : "Sin valores"}
+                    </option>
+                    {attribute.values.map((attributeValue) => (
+                      <option key={attributeValue.id} value={attributeValue.id}>
+                        {getAttributeValueLabel(attributeValue)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              );
+            })}
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <label className="space-y-2">
+              <span className="text-sm font-medium text-[var(--foreground-strong)]">
+                Precio
+              </span>
+              <input
+                type="number"
+                min="0.01"
+                step="0.01"
+                value={draft.precio}
+                onChange={(event) =>
+                  onUpdateVariant(draft.key, { precio: event.target.value })
+                }
+                disabled={disabled}
+                className="app-input w-full rounded-xl px-3 py-2.5 text-sm"
+              />
+            </label>
+
+            <label className="space-y-2">
+              <span className="text-sm font-medium text-[var(--foreground-strong)]">
+                Stock
+              </span>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={draft.cantidad}
+                onChange={(event) =>
+                  onUpdateVariant(draft.key, { cantidad: event.target.value })
+                }
+                disabled={disabled}
+                className="app-input w-full rounded-xl px-3 py-2.5 text-sm"
+              />
+            </label>
+          </div>
+
+          {canEdit ? (
+            <label className="flex items-center gap-3 rounded-2xl border border-[var(--line)]/70 bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)]">
+              <input
+                type="checkbox"
+                checked={draft.estado}
+                onChange={(event) =>
+                  onUpdateVariant(draft.key, { estado: event.target.checked })
+                }
+                disabled={disabled}
+              />
+              Combinación activa
+            </label>
+          ) : null}
+
+          <div className="rounded-2xl border border-dashed border-[var(--line)] bg-[var(--panel-muted)] p-3">
+            <ProductVariantsImagePicker
+              value={draft.urlImagen}
+              onChange={(nextImage) =>
+                onUpdateVariant(draft.key, { urlImagen: nextImage })
+              }
+              disabled={disabled || !canEdit}
+            />
+          </div>
+
+          {canDelete ? (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => onRemove(draft.key)}
+                disabled={disabled}
+                className="inline-flex h-11 w-full items-center justify-center rounded-2xl border border-[color-mix(in_srgb,var(--danger)_18%,var(--line))] bg-[var(--danger-soft)] text-[var(--danger)] shadow-none transition duration-200 hover:-translate-y-0.5 hover:bg-[color-mix(in_srgb,var(--danger-soft)_72%,white)] hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--danger)_28%,transparent)] disabled:translate-y-0 disabled:opacity-60 lg:w-full"
+                aria-label="Eliminar variante"
+                title="Eliminar variante"
+              >
+                <TrashIcon />
+              </button>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-4">
-      <div className="divide-y divide-[var(--line)]/60 md:hidden">
-        {value.map((draft, index) => (
-          <div key={draft.key} className="py-4 first:pt-0 last:pb-0">
-            <div className="space-y-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-sm font-semibold text-[var(--foreground-strong)]">
-                  Variante {index + 1}
-                </span>
-              </div>
-
-              <div className="grid gap-3">
-                {variants.map((attribute) => {
-                  const selectedValueId =
-                    draft.valoresPorAtributo[attribute.attribute.atributoCatalogoId] ?? "";
-
-                  return (
-                    <label
-                      key={`${draft.key}-${attribute.attribute.atributoCatalogoId}`}
-                      className="grid gap-2"
-                    >
-                      <span className="text-sm font-medium text-[var(--foreground-strong)]">
-                        {attribute.label}
-                      </span>
-                      <select
-                        value={selectedValueId}
-                        onChange={(event) =>
-                          onUpdateVariant(draft.key, {
-                            valoresPorAtributo: {
-                              ...draft.valoresPorAtributo,
-                              [attribute.attribute.atributoCatalogoId]: event.target.value,
-                            },
-                          })
-                        }
-                        disabled={
-                          disabled ||
-                          !attribute.attribute.atributoCatalogoId ||
-                          attribute.loading ||
-                          attribute.values.length === 0
-                        }
-                        className="app-input w-full rounded-xl px-3 py-2.5 text-sm"
-                      >
-                        <option value="">
-                          {attribute.loading
-                            ? "Cargando..."
-                            : attribute.values.length > 0
-                              ? "Selecciona"
-                              : "Sin valores"}
-                        </option>
-                        {attribute.values.map((attributeValue) => (
-                          <option key={attributeValue.id} value={attributeValue.id}>
-                            {getAttributeValueLabel(attributeValue)}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  );
-                })}
-              </div>
-
-              <div className="grid gap-3">
-                <div className="rounded-2xl border border-dashed border-[var(--line)] bg-[var(--panel-muted)] p-3">
-                  <ProductVariantsImagePicker
-                    value={draft.urlImagen}
-                    onChange={(nextImage) =>
-                      onUpdateVariant(draft.key, { urlImagen: nextImage })
-                    }
-                    disabled={disabled || !canEdit}
-                  />
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="space-y-2">
-                    <span className="text-sm font-medium text-[var(--foreground-strong)]">
-                      Precio
-                    </span>
-                    <input
-                      type="number"
-                      min="0.01"
-                      step="0.01"
-                      value={draft.precio}
-                      onChange={(event) =>
-                        onUpdateVariant(draft.key, { precio: event.target.value })
-                      }
-                      disabled={disabled}
-                      className="app-input w-full rounded-xl px-3 py-2.5 text-sm"
-                    />
-                  </label>
-
-                  <label className="space-y-2">
-                    <span className="text-sm font-medium text-[var(--foreground-strong)]">
-                      Existencias
-                    </span>
-                    <input
-                      type="number"
-                      min="0"
-                      step="1"
-                      value={draft.cantidad}
-                      onChange={(event) =>
-                        onUpdateVariant(draft.key, { cantidad: event.target.value })
-                      }
-                      disabled={disabled}
-                      className="app-input w-full rounded-xl px-3 py-2.5 text-sm"
-                    />
-                  </label>
-                </div>
-
-                {canEdit ? (
-                  <label className="flex items-center gap-3 rounded-2xl border border-[var(--line)]/70 bg-[var(--panel-muted)] px-4 py-3 text-sm text-[var(--foreground)]">
-                    <input
-                      type="checkbox"
-                      checked={draft.estado}
-                      onChange={(event) =>
-                        onUpdateVariant(draft.key, { estado: event.target.checked })
-                      }
-                      disabled={disabled}
-                    />
-                    Combinación activa
-                  </label>
-                ) : null}
-              </div>
-
-              {canDelete ? (
-                <button
-                  type="button"
-                  onClick={() => onRemove(draft.key)}
-                  disabled={disabled}
-                  className="flex h-11 w-full items-center justify-center rounded-2xl border border-red-200/80 bg-red-50/70 text-red-600 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-red-300 hover:bg-red-100 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300/70 disabled:translate-y-0 disabled:opacity-60"
-                  aria-label="Eliminar variante"
-                  title="Eliminar variante"
-                >
-                  <TrashIcon />
-                </button>
-              ) : null}
+      {value.length === 0 ? (
+        <div className="space-y-3 rounded-2xl border border-dashed border-[var(--line)] bg-[var(--panel-muted)] px-4 py-5">
+          <p className="text-sm text-[var(--muted)]">
+            Todavía no hay variantes creadas.
+          </p>
+          {canEdit ? (
+            <div className="flex justify-start">
+              <AppButton
+                iconPath="/icons/plus-circle.svg"
+                disabled={disabled || isCatalogLoading || !canBuildVariants}
+                onClick={handleAddVariant}
+              >
+                Agregar variante
+              </AppButton>
             </div>
-          </div>
-        ))}
-      </div>
+          ) : null}
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {value.map((draft, index) => {
+            const isExpanded = expandedVariantKey === draft.key;
+            const title = `Variante ${index + 1}`;
+            const selectedLabels = variants
+              .map((attribute) => {
+                const selectedValueId =
+                  draft.valoresPorAtributo[attribute.attribute.atributoCatalogoId] ?? "";
+                const selectedLabel = getSelectedLabel(attribute, selectedValueId);
 
-      <div className="hidden overflow-x-auto rounded-2xl border border-[var(--line)]/70 md:block">
-        <table className="min-w-full border-collapse text-sm">
-          <thead className="bg-[var(--panel-muted)] text-left text-[var(--foreground-strong)]">
-            <tr>
-              {variants.map((attribute) => (
-                <th
-                  key={attribute.attribute.atributoCatalogoId}
-                  className="px-4 py-3 font-semibold"
-                >
-                  {attribute.label}
-                </th>
-              ))}
-              <th className="px-4 py-3 font-semibold">Precio</th>
-              <th className="px-4 py-3 font-semibold">Cantidad</th>
-              <th className="px-4 py-3 font-semibold">Imagen</th>
-              <th className="px-4 py-3 font-semibold">Estado</th>
-              {canDelete ? <th className="px-4 py-3 font-semibold">Acciones</th> : null}
-            </tr>
-          </thead>
-          <tbody>
-            {value.map((draft) => (
-              <tr key={draft.key} className="border-t border-[var(--line)]/70 align-top">
-                {variants.map((attribute) => {
-                  const selectedValueId =
-                    draft.valoresPorAtributo[attribute.attribute.atributoCatalogoId] ?? "";
+                return `${attribute.label}: ${selectedLabel}`;
+              })
+              .join(" • ");
 
-                  return (
-                    <td key={attribute.attribute.atributoCatalogoId} className="px-4 py-3">
-                      {canEdit ? (
-                        <select
-                          value={selectedValueId}
-                          onChange={(event) =>
-                            onUpdateVariant(draft.key, {
-                              valoresPorAtributo: {
-                                ...draft.valoresPorAtributo,
-                                [attribute.attribute.atributoCatalogoId]: event.target.value,
-                              },
-                            })
-                          }
-                          disabled={
-                            disabled ||
-                            !attribute.attribute.atributoCatalogoId ||
-                            attribute.loading ||
-                            attribute.values.length === 0
-                          }
-                          className="app-input w-full min-w-[180px] rounded-xl px-3 py-2.5 text-sm"
-                        >
-                          <option value="">
-                            {attribute.loading
-                              ? "Cargando..."
-                              : attribute.values.length > 0
-                                ? "Selecciona"
-                                : "Sin valores"}
-                          </option>
-                          {attribute.values.map((attributeValue) => (
-                            <option key={attributeValue.id} value={attributeValue.id}>
-                              {getAttributeValueLabel(attributeValue)}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        <span className="text-[var(--foreground-strong)]">
-                          {getSelectedLabel(attribute, selectedValueId)}
-                        </span>
-                      )}
-                    </td>
-                  );
-                })}
-
-                <td className="px-4 py-3">
-                  {canEdit ? (
-                    <input
-                      type="number"
-                      min="0.01"
-                      step="0.01"
-                      value={draft.precio}
-                      onChange={(event) =>
-                        onUpdateVariant(draft.key, { precio: event.target.value })
-                      }
-                      disabled={disabled}
-                      className="app-input w-full min-w-[120px] rounded-xl px-3 py-2.5 text-sm"
-                    />
-                  ) : (
-                    <span>
-                      {currency ? formatCurrency(Number(draft.precio || 0), currency) : draft.precio}
+            return (
+            <article
+              key={draft.key}
+              className="overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--panel)] shadow-sm transition-shadow"
+            >
+              <button
+                type="button"
+                className="flex w-full items-start justify-between gap-3 px-4 py-3 text-left"
+                onClick={() =>
+                  setExpandedVariantKey(isExpanded ? null : draft.key)
+                }
+                aria-expanded={isExpanded}
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-semibold text-[var(--foreground-strong)]">
+                      {title}
                     </span>
-                  )}
-                </td>
-
-                <td className="px-4 py-3">
-                  {canEdit ? (
-                    <input
-                      type="number"
-                      min="0"
-                      step="1"
-                      value={draft.cantidad}
-                      onChange={(event) =>
-                        onUpdateVariant(draft.key, { cantidad: event.target.value })
-                      }
-                      disabled={disabled}
-                      className="app-input w-full min-w-[110px] rounded-xl px-3 py-2.5 text-sm"
-                    />
-                  ) : (
-                    <span>{draft.cantidad}</span>
-                  )}
-                </td>
-
-                <td className="px-4 py-3">
-                  <ProductVariantsImagePicker
-                    value={draft.urlImagen}
-                    onChange={(nextImage) =>
-                      onUpdateVariant(draft.key, { urlImagen: nextImage })
-                    }
-                    disabled={disabled || !canEdit}
-                  />
-                </td>
-
-                <td className="px-4 py-3">
-                  {canEdit ? (
-                    <label className="inline-flex h-11 items-center gap-2 rounded-2xl border border-[var(--line)]/70 bg-[var(--panel-muted)] px-4 text-sm text-[var(--foreground)]">
-                      <input
-                        type="checkbox"
-                        checked={draft.estado}
-                        onChange={(event) =>
-                          onUpdateVariant(draft.key, { estado: event.target.checked })
-                        }
-                        disabled={disabled}
-                      />
-                      Activa
-                    </label>
-                  ) : (
                     <span
                       className={
                         draft.estado
-                          ? "rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"
-                          : "rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600"
+                          ? "rounded-lg bg-[var(--success-soft)] px-2 py-0.5 text-[11px] font-semibold text-[var(--success)]"
+                          : "rounded-lg bg-[var(--danger-soft)] px-2 py-0.5 text-[11px] font-semibold text-[var(--danger)]"
                       }
                     >
                       {draft.estado ? "Activa" : "Inactiva"}
                     </span>
-                  )}
-                </td>
+                  </div>
+                  <p className="mt-0.5 line-clamp-2 text-sm text-[var(--muted)]">
+                    {selectedLabels || "Selecciona los atributos de esta variante."}
+                  </p>
+                  <p className="mt-1 text-sm text-[var(--muted)]">
+                    {currency
+                      ? `Precio: ${formatCurrency(Number(draft.precio || 0), currency)}`
+                      : `Precio: ${draft.precio || "-"}`}
+                    {" • "}
+                    Stock: {draft.cantidad || "-"}
+                  </p>
+                </div>
 
-                {canDelete ? (
-                  <td className="px-4 py-3">
-                    <button
-                      type="button"
-                      onClick={() => onRemove(draft.key)}
-                      disabled={disabled}
-                      className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-red-200/80 bg-red-50/70 text-red-600 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-red-300 hover:bg-red-100 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300/70 disabled:translate-y-0 disabled:opacity-60"
-                      aria-label="Eliminar variante"
-                      title="Eliminar variante"
-                    >
-                      <TrashIcon />
-                    </button>
-                  </td>
-                ) : null}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                <span
+                  aria-hidden="true"
+                  className={`mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--line)] bg-[var(--panel-muted)] text-base leading-none transition-transform duration-200 ${
+                    isExpanded ? "rotate-180" : "rotate-0"
+                  }`}
+                >
+                    ⌄
+                  </span>
+                </button>
+
+                {renderVariantFields(draft, isExpanded)}
+              </article>
+            );
+          })}
+        </div>
+      )}
+
+      {value.length > 0 && canEdit ? (
+        <div className="flex justify-end pt-1">
+          <AppButton
+            iconPath="/icons/plus-circle.svg"
+            disabled={disabled || isCatalogLoading || !canBuildVariants}
+            onClick={handleAddVariant}
+          >
+            Agregar variante
+          </AppButton>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { AppButton } from "@/modules/core/components/AppButton";
+import { PanelSectionHeader } from "@/modules/core/components/PanelSectionHeader";
 import { SearchBar } from "@/modules/core/components/SearchBar";
 
 type ProductsToolbarProps = {
@@ -24,21 +25,18 @@ export function ProductsToolbar({
 }: ProductsToolbarProps) {
   return (
     <div className="space-y-4">
-      <div className="space-y-1.5">
-        <h1 className="text-[15px] font-semibold tracking-tight text-[var(--foreground-strong)] sm:text-base md:text-lg">
-          {title}
-        </h1>
-        <p className="max-w-2xl text-[13px] font-normal leading-6 text-[var(--muted)] sm:text-sm">
-          {subtitle}
-        </p>
-      </div>
+      <PanelSectionHeader
+        title={title}
+        subtitle={subtitle}
+        headingLevel="h1"
+      />
 
       <div className="flex items-center gap-2">
         <div className="min-w-0 flex-1">
           <SearchBar
             value={search}
             onChange={onSearchChange}
-            placeholder="Buscar por nombre o descripción del producto"
+            placeholder="Buscar por nombre o SKU"
             ariaLabel="Buscar productos"
           />
         </div>

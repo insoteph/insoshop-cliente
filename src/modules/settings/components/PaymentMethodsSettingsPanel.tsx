@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { AppButton } from "@/modules/core/components/AppButton";
+import { PanelSectionHeader } from "@/modules/core/components/PanelSectionHeader";
 import {
   DataTable,
   type DataTableBadgeConfig,
@@ -50,9 +51,6 @@ export function PaymentMethodsSettingsPanel({
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<
-    "activos" | "inactivos" | "todos"
-  >("todos");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -73,7 +71,7 @@ export function PaymentMethodsSettingsPanel({
         page,
         pageSize,
         search,
-        estadoFiltro: statusFilter,
+        estadoFiltro: "todos",
       });
 
       setMethods(result.items);
@@ -88,7 +86,7 @@ export function PaymentMethodsSettingsPanel({
     } finally {
       setIsLoading(false);
     }
-  }, [hasGlobalAccess, page, pageSize, search, statusFilter, storeId]);
+  }, [hasGlobalAccess, page, pageSize, search, storeId]);
 
   useEffect(() => {
     void loadMethods();
@@ -296,79 +294,70 @@ export function PaymentMethodsSettingsPanel({
 
   return (
     <section className="space-y-5">
-      <div className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-md">
-        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-          <div>
-            <h3 className="text-[15px] font-semibold text-[var(--foreground)] sm:text-base">
-              Metodos de pago
-            </h3>
-            <p className="text-[13px] text-[var(--muted)] sm:text-sm">
-              Gestiona disponibilidad y nombres de metodos segun el alcance de tu usuario.
-            </p>
+      <div className="app-card overflow-hidden rounded-2xl shadow-[0_12px_30px_rgba(15,23,42,0.07)]">
+        <div className="space-y-4 px-4 py-4 md:px-5 md:py-5">
+          <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+            <PanelSectionHeader
+              title="Metodos de pago"
+              subtitle="Gestiona disponibilidad y nombres de metodos segun el alcance de tu usuario."
+              headingLevel="h3"
+            />
+
+            {canCreate ? (
+              <AppButton
+                iconPath="/icons/plus-circle.svg"
+                onClick={openCreateForm}
+              >
+                Crear metodo de pago
+              </AppButton>
+            ) : null}
           </div>
 
-          {canCreate ? (
-            <AppButton iconPath="/icons/plus-circle.svg" onClick={openCreateForm}>
-              Crear metodo de pago
-            </AppButton>
+          <div className="grid gap-3">
+            <SearchBar
+              value={search}
+              onChange={(value) => {
+                setPage(1);
+                setSearch(value);
+              }}
+              placeholder="Buscar metodo de pago"
+              ariaLabel="Buscar metodos de pago"
+            />
+          </div>
+
+          {error ? (
+            <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
+              {error}
+            </p>
+          ) : null}
+
+          {message ? (
+            <p className="app-alert-success rounded-2xl px-4 py-3 text-sm">
+              {message}
+            </p>
           ) : null}
         </div>
 
-        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_240px]">
-          <SearchBar
-            value={search}
-            onChange={(value) => {
-              setPage(1);
-              setSearch(value);
+        <div className="border-t border-[var(--line)]" />
+
+        <div className="px-0 pt-4">
+          <DataTable
+            headers={columns}
+            data={methods}
+            isLoading={isLoading}
+            rowKey="id"
+            emptyMessage="No hay metodos de pago disponibles."
+            badges={stateBadges}
+            rowActions={rowActions}
+            pagination={{
+              page,
+              totalPages,
+              totalRecords,
+              onPageChange: setPage,
             }}
-            placeholder="Buscar metodo de pago"
-            ariaLabel="Buscar metodos de pago"
           />
-
-          <select
-            value={statusFilter}
-            onChange={(event) => {
-              setPage(1);
-              setStatusFilter(
-                event.target.value as "activos" | "inactivos" | "todos",
-              );
-            }}
-            className="app-input rounded-2xl px-4 py-3 text-sm"
-          >
-            <option value="todos">Todos los estados</option>
-            <option value="activos">Solo activos</option>
-            <option value="inactivos">Solo inactivos</option>
-          </select>
         </div>
-
-        {error ? (
-          <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
-            {error}
-          </p>
-        ) : null}
-
-        {message ? (
-          <p className="app-alert-success rounded-2xl px-4 py-3 text-sm">
-            {message}
-          </p>
-        ) : null}
       </div>
-
-      <DataTable
-        headers={columns}
-        data={methods}
-        isLoading={isLoading}
-        rowKey="id"
-        emptyMessage="No hay metodos de pago disponibles."
-        badges={stateBadges}
-        rowActions={rowActions}
-        pagination={{
-          page,
-          totalPages,
-          totalRecords,
-          onPageChange: setPage,
-        }}
-      />
 
       {isFormOpen ? (
         <div
@@ -406,7 +395,7 @@ export function PaymentMethodsSettingsPanel({
               </div>
 
               <AppButton
-                variant="secondary"
+                variant="cancel"
                 iconPath="/icons/cross.svg"
                 onClick={closeForm}
                 disabled={isSaving}
@@ -446,7 +435,7 @@ export function PaymentMethodsSettingsPanel({
 
             <div className="flex flex-wrap justify-end gap-2">
               <AppButton
-                variant="secondary"
+                variant="cancel"
                 iconPath="/icons/cross.svg"
                 onClick={closeForm}
                 disabled={isSaving}

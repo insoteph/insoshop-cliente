@@ -67,7 +67,7 @@ export function StoreCreateFormPanel({
               Registra una nueva tienda y define sus datos principales.
             </p>
           </div>
-          <AppButton variant="secondary" iconPath="/icons/cross.svg" onClick={onClose}>
+          <AppButton variant="cancel" iconPath="/icons/cross.svg" onClick={onClose}>
             Cerrar
           </AppButton>
         </div>

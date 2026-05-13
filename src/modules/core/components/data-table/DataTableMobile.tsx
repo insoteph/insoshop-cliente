@@ -13,6 +13,7 @@ import { DataTableEmptyState } from "./DataTableEmptyState";
 import { DataTableMobileDetailModal } from "@/modules/core/components/DataTableMobileDetailModal";
 import { DataTableSkeleton } from "./DataTableSkeleton";
 import {
+  getColumnLayout,
   getRowKey,
   getVisibleDropdownOptions,
   resolvePrimaryButtonLabel,
@@ -55,14 +56,7 @@ export function DataTableMobile<TData extends Record<string, unknown>>({
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const closeDetailTimeoutRef = useRef<number | null>(null);
 
-  const imageColumnIndex = headers.findIndex(
-    (column) => column.dataType === "image",
-  );
-  const imageColumn =
-    imageColumnIndex >= 0 ? headers[imageColumnIndex] : undefined;
-  const summaryColumns = headers
-    .filter((_, index) => index !== imageColumnIndex)
-    .slice(0, imageColumn ? 1 : 2);
+  const { imageColumn, summaryColumns } = getColumnLayout(headers);
 
   const clearCloseTimeout = useCallback(() => {
     if (closeDetailTimeoutRef.current) {
@@ -127,7 +121,6 @@ export function DataTableMobile<TData extends Record<string, unknown>>({
         <DataTableSkeleton
           variant="mobile"
           rows={skeletonRows}
-          columns={summaryColumns.length + (imageColumn ? 1 : 0)}
           summaryColumns={summaryColumns.length}
         />
       ) : rows.length > 0 ? (
@@ -142,10 +135,8 @@ export function DataTableMobile<TData extends Record<string, unknown>>({
           return (
             <article
               key={`mobile-${mobileRowKey}`}
-              className={`overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--panel)] shadow-[0_16px_38px_rgba(15,23,42,0.11)] md:rounded-2xl ${
-                rowActions
-                  ? "transition hover:border-[var(--line-strong)] hover:shadow-[0_20px_46px_rgba(15,23,42,0.14)]"
-                  : ""
+              className={`overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--panel)] md:rounded-2xl ${
+                rowActions ? "transition hover:border-[var(--line-strong)]" : ""
               }`}
             >
               <div
@@ -163,9 +154,9 @@ export function DataTableMobile<TData extends Record<string, unknown>>({
                 <div className="min-w-0 flex-1">
                   <div className="flex min-w-0 items-center gap-2">
                     {imageColumn ? (
-                        <div className="shrink-0 scale-[0.92]">
-                          {renderMobileSummaryValue(row, imageColumn, badges)}
-                        </div>
+                      <div className="shrink-0 scale-[0.92]">
+                        {renderMobileSummaryValue(row, imageColumn, badges)}
+                      </div>
                     ) : null}
 
                     <div className="min-w-0 flex-1">
@@ -188,14 +179,20 @@ export function DataTableMobile<TData extends Record<string, unknown>>({
                 </div>
 
                 {rowActions ? (
-                <div className="shrink-0" onClick={(event) => event.stopPropagation()}>
-                  <TableRowActions
-                    primaryButtonLabel={resolvePrimaryButtonLabel(row, rowActions)}
-                    primaryButtonIconPath={rowActions.primaryButtonIconPath}
-                    onPrimaryAction={() => rowActions.onPrimaryAction(row)}
-                    dropdownOptions={visibleDropdownOptions}
-                  />
-                </div>
+                  <div
+                    className="shrink-0"
+                    onClick={(event) => event.stopPropagation()}
+                  >
+                    <TableRowActions
+                      primaryButtonLabel={resolvePrimaryButtonLabel(
+                        row,
+                        rowActions,
+                      )}
+                      primaryButtonIconPath={rowActions.primaryButtonIconPath}
+                      onPrimaryAction={() => rowActions.onPrimaryAction(row)}
+                      dropdownOptions={visibleDropdownOptions}
+                    />
+                  </div>
                 ) : null}
               </div>
             </article>

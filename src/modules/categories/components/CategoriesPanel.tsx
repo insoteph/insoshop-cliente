@@ -245,8 +245,6 @@ export function CategoriesPanel({
             </p>
           </div>
 
-          <div className="border-t border-[var(--line)]" />
-
           <CategoriesToolbar
             search={search}
             canManage={canManage}

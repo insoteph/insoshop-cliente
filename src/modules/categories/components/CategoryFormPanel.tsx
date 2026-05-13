@@ -59,7 +59,7 @@ export function CategoryFormPanel({
               Manten consistencia en nombres y estado de publicacion.
             </p>
           </div>
-          <AppButton variant="secondary" iconPath="/icons/cross.svg" onClick={onClose}>
+          <AppButton variant="cancel" iconPath="/icons/cross.svg" onClick={onClose}>
             Cerrar
           </AppButton>
         </div>

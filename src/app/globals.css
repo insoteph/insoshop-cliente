@@ -151,7 +151,7 @@ textarea {
   border: 1px solid color-mix(in srgb, var(--line) 85%, white);
   background: color-mix(in srgb, var(--panel-strong) 96%, transparent);
   color: var(--foreground);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: none;
 }
 
 .app-input::placeholder {
@@ -164,7 +164,7 @@ textarea {
 
 .app-input:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 12%, transparent), 0 10px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 10%, transparent);
   outline: none;
 }
 
@@ -202,6 +202,31 @@ textarea {
 
 .app-button-action:hover {
   background: var(--accent-strong);
+}
+
+.app-row-action-primary {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--accent) 7%, var(--panel-strong));
+  color: var(--accent);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.app-row-action-primary:hover {
+  background: color-mix(in srgb, var(--accent) 12%, var(--panel-strong));
+  color: var(--accent-strong);
+}
+
+.app-button-action.app-button-cancel {
+  border-color: color-mix(in srgb, var(--danger) 58%, var(--line)) !important;
+  background-color: white !important;
+  color: var(--danger) !important;
+}
+
+.app-button-action.app-button-cancel:hover {
+  border-color: color-mix(in srgb, var(--danger) 72%, var(--line-strong)) !important;
+  background-color: var(--panel-muted) !important;
+  transform: translateY(-1px);
 }
 
 .app-button-secondary {

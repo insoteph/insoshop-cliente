@@ -144,7 +144,9 @@ export function useProductVariantsPanel({
     activeAttributes.length > 0 && !hasMissingAttributeValues;
 
   const addVariant = useCallback(() => {
-    onChange([...value, createVariantDraft(attributes)]);
+    const newVariant = createVariantDraft(attributes);
+    onChange([...value, newVariant]);
+    return newVariant.key;
   }, [attributes, onChange, value]);
 
   const removeVariant = useCallback(

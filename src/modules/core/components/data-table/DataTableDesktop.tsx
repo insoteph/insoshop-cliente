@@ -3,6 +3,7 @@
 import { TableRowActions } from "@/modules/core/components/TableRowActions";
 
 import {
+  getColumnLayout,
   getRowKey,
   getVisibleDropdownOptions,
   resolveColumnValue,
@@ -41,12 +42,7 @@ export function DataTableDesktop<TData extends Record<string, unknown>>({
   skeletonRows,
   emptyMessage,
 }: DataTableDesktopProps<TData>) {
-  const imageColumnIndex = headers.findIndex(
-    (column) => column.dataType === "image",
-  );
-  const imageColumn =
-    imageColumnIndex >= 0 ? headers[imageColumnIndex] : undefined;
-  const contentColumns = headers.filter((_, index) => index !== imageColumnIndex);
+  const { imageColumn, contentColumns } = getColumnLayout(headers);
 
   return (
     <div className="hidden md:block px-4 pt-4">
@@ -59,7 +55,6 @@ export function DataTableDesktop<TData extends Record<string, unknown>>({
           <DataTableSkeleton
             variant="desktop"
             rows={skeletonRows}
-            columns={headers.length + (rowActions ? 1 : 0)}
             summaryColumns={contentColumns.length}
             hasImage={Boolean(imageColumn)}
           />
@@ -79,7 +74,7 @@ export function DataTableDesktop<TData extends Record<string, unknown>>({
             return (
               <article
                 key={computedRowKeyText}
-                className="overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--panel)] shadow-[0_16px_38px_rgba(15,23,42,0.11)] transition hover:border-[var(--line-strong)] hover:shadow-[0_20px_46px_rgba(15,23,42,0.14)]"
+                className="overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--panel)] transition hover:border-[var(--line-strong)]"
               >
                 <div className="flex min-w-max items-center gap-3 overflow-x-auto px-3.5 py-3">
                   {imageColumn ? (
@@ -136,11 +131,10 @@ export function DataTableDesktop<TData extends Record<string, unknown>>({
                   {rowActions ? (
                     <div className="shrink-0 self-center">
                       <TableRowActions
-                        primaryButtonLabel={
-                          typeof rowActions.primaryButtonLabel === "function"
-                            ? rowActions.primaryButtonLabel(row)
-                            : rowActions.primaryButtonLabel
-                        }
+                        primaryButtonLabel={resolvePrimaryButtonLabel(
+                          row,
+                          rowActions,
+                        )}
                         primaryButtonIconPath={rowActions.primaryButtonIconPath}
                         onPrimaryAction={() => rowActions.onPrimaryAction(row)}
                         dropdownOptions={visibleDropdownOptions}

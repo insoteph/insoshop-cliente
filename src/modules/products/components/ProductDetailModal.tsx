@@ -32,10 +32,10 @@ type ProductDetailModalProps = {
 function StatusChip({ active }: { active: boolean }) {
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold ${
+      className={`inline-flex items-center rounded-lg border px-3 py-1 text-[11px] font-semibold ${
         active
-          ? "border-[color:color-mix(in_srgb,var(--success)_28%,transparent)] bg-[color:color-mix(in_srgb,var(--success-soft)_80%,var(--panel-strong)_20%)] text-[color:color-mix(in_srgb,var(--success)_84%,var(--foreground)_16%)]"
-          : "border-[color:color-mix(in_srgb,var(--danger)_28%,transparent)] bg-[color:color-mix(in_srgb,var(--danger-soft)_80%,var(--panel-strong)_20%)] text-[color:color-mix(in_srgb,var(--danger)_84%,var(--foreground)_16%)]"
+          ? "border-[color:color-mix(in_srgb,var(--success)_22%,var(--line))] bg-[var(--success-soft)] text-[var(--success)]"
+          : "border-[color:color-mix(in_srgb,var(--danger)_22%,var(--line))] bg-[var(--danger-soft)] text-[var(--danger)]"
       }`}
     >
       {active ? "Activo" : "Inactivo"}

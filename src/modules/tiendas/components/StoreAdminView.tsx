@@ -10,6 +10,7 @@ import {
   StoreModuleTabs,
   type StoreModuleTabId,
 } from "@/modules/core/components/StoreModuleTabs";
+import { useStoreModuleTabState } from "@/modules/core/hooks/useStoreModuleTabState";
 import { TitleBar } from "@/modules/core/components/TitleBar";
 import { ProductsPanel } from "@/modules/products/components/ProductsPanel";
 import { SalesPanel } from "@/modules/sales/components/SalesPanel";
@@ -30,7 +31,6 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
   const [store, setStore] = useState<TiendaDetalle | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<StoreModuleTabId>("informacion");
 
   useEffect(() => {
     if (activeStoreId !== storeId) {
@@ -110,11 +110,10 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
     storeId,
   ]);
 
-  useEffect(() => {
-    if (!visibleTabs.includes(activeTab)) {
-      setActiveTab(visibleTabs[0] ?? "informacion");
-    }
-  }, [activeTab, visibleTabs]);
+  const { activeTab, setActiveTab } = useStoreModuleTabState({
+    storeId,
+    visibleTabs,
+  });
 
   if (isLoading) {
     return (
@@ -162,6 +161,7 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
           store.slug ? (
             <AppButton
               onClick={handleOpenPublicStore}
+              iconPath="/icons/redirect.svg"
               title={`Ir a la tienda publica ${store.nombre}`}
             >
               Ver tienda
@@ -170,66 +170,55 @@ export function StoreAdminView({ storeId }: StoreAdminViewProps) {
         }
       />
 
-      <div className="mb-3 flex min-h-[calc(100dvh-14rem)] flex-col space-y-0 md:min-h-[calc(100dvh-15rem)]">
+      <div className="mb-3 flex min-h-[calc(100dvh-14rem)] flex-col space-y-3 md:min-h-[calc(100dvh-15rem)]">
         <StoreModuleTabs
           visibleTabs={visibleTabs}
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          className="rounded-b-none border-b-0"
+          className="rounded-b-2xl shadow-none"
         />
 
-        <div className="app-card flex-1 rounded-b-2xl border p-4">
-          {activeTab === "informacion" ? (
-            <StoreInfoPanel storeId={storeId} canEdit={canEditStore} />
-          ) : null}
+        {activeTab === "informacion" ? (
+          <StoreInfoPanel storeId={storeId} canEdit={canEditStore} />
+        ) : null}
 
-          {activeTab === "apariencia" ? (
-            <StoreAppearancePanel storeId={storeId} canEdit={canEditStore} />
-          ) : null}
+        {activeTab === "apariencia" ? (
+          <StoreAppearancePanel storeId={storeId} canEdit={canEditStore} />
+        ) : null}
 
-          {activeTab === "productos" ? (
-            <ProductsPanel
-              storeId={storeId}
-              canCreateProducts={canCreateProducts}
-              canEditProducts={canEditProducts}
-              canDeleteProducts={canDeleteProducts}
-              canEditAttributes={canEditProducts}
-              canDeleteAttributes={canDeleteProducts}
-              currency={store.monedaCodigo}
-            />
-          ) : null}
+        {activeTab === "productos" ? (
+          <ProductsPanel
+            storeId={storeId}
+            canCreateProducts={canCreateProducts}
+            canEditProducts={canEditProducts}
+            canDeleteProducts={canDeleteProducts}
+            currency={store.monedaCodigo}
+          />
+        ) : null}
 
-          {activeTab === "categorias" ? (
-            <CategoriesPanel
-              storeId={storeId}
-              canManage={canManageCategories}
-            />
-          ) : null}
+        {activeTab === "categorias" ? (
+          <CategoriesPanel storeId={storeId} canManage={canManageCategories} />
+        ) : null}
 
-          {activeTab === "ventas" ? (
-            <SalesPanel storeId={storeId} currency={store.monedaCodigo} />
-          ) : null}
+        {activeTab === "ventas" ? (
+          <SalesPanel storeId={storeId} currency={store.monedaCodigo} />
+        ) : null}
 
-          {activeTab === "usuarios" ? (
-            <StoreUsersTabPanel storeId={storeId} />
-          ) : null}
+        {activeTab === "usuarios" ? (
+          <StoreUsersTabPanel storeId={storeId} />
+        ) : null}
 
-          {activeTab === "configuraciones" ? (
-            <StoreSettingsPanel
-              storeId={storeId}
-              hasGlobalAccess={Boolean(currentUser?.tieneAccesoGlobal)}
-              canCreatePaymentMethods={hasPermission(
-                permissions.metodosPago.crear,
-              )}
-              canEditPaymentMethods={hasPermission(
-                permissions.metodosPago.editar,
-              )}
-              canTogglePaymentMethods={hasPermission(
-                permissions.metodosPago.cambiarEstado,
-              )}
-            />
-          ) : null}
-        </div>
+        {activeTab === "configuraciones" ? (
+          <StoreSettingsPanel
+            storeId={storeId}
+            hasGlobalAccess={Boolean(currentUser?.tieneAccesoGlobal)}
+            canCreatePaymentMethods={hasPermission(permissions.metodosPago.crear)}
+            canEditPaymentMethods={hasPermission(permissions.metodosPago.editar)}
+            canTogglePaymentMethods={hasPermission(
+              permissions.metodosPago.cambiarEstado,
+            )}
+          />
+        ) : null}
       </div>
 
       {!currentUser?.tieneAccesoGlobal && visibleTabs.length === 0 ? (

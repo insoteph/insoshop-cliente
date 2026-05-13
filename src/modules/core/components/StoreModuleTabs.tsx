@@ -24,7 +24,7 @@ const TAB_LABELS: Record<StoreModuleTabId, string> = {
 const TAB_ICONS: Record<StoreModuleTabId, string> = {
   informacion: "/icons/shop.svg",
   apariencia: "/icons/img.svg",
-  productos: "/icons/check-cart.svg",
+  productos: "/icons/box.svg",
   categorias: "/icons/filter.svg",
   ventas: "/icons/cart.svg",
   usuarios: "/icons/users.svg",
@@ -88,7 +88,7 @@ export function StoreModuleTabs({
     <div
       ref={containerRef}
       onScroll={updateIndicator}
-      className={`app-card relative flex flex-nowrap gap-0 overflow-x-auto scroll-smooth rounded-2xl p-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${className ?? ""}`}
+      className={`relative flex flex-nowrap gap-0 overflow-x-auto scroll-smooth rounded-2xl border border-[var(--line)] bg-[var(--panel)] p-0 shadow-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${className ?? ""}`}
     >
       <span
         aria-hidden="true"
@@ -109,10 +109,10 @@ export function StoreModuleTabs({
             tabRefs.current[tabId] = element;
           }}
           onClick={() => onTabChange(tabId)}
-          className={`group flex shrink-0 snap-start flex-col items-center justify-center gap-1 border-r border-[var(--line)] px-4 py-2.5 text-center transition last:border-r-0 sm:min-w-[7rem] ${
+          className={`group flex min-h-[4.1rem] shrink-0 snap-start flex-col items-center justify-center gap-1 px-4 py-3.5 text-center font-normal transition sm:min-w-[7rem] ${
             activeTab === tabId
-              ? "bg-[var(--accent-soft)] text-[var(--accent)]"
-              : "bg-transparent text-[var(--muted)] hover:bg-[var(--panel-muted)] hover:text-[var(--foreground)]"
+              ? "bg-[var(--panel-strong)] text-[var(--accent)]"
+              : "bg-[var(--panel)] text-[var(--muted)] hover:text-[var(--foreground)]"
           }`}
         >
           <span
@@ -129,7 +129,7 @@ export function StoreModuleTabs({
               maskSize: "contain",
             }}
           />
-          <span className="text-[11px] font-semibold leading-none sm:text-xs">
+          <span className="text-[11px] font-normal leading-none sm:text-xs">
             {TAB_LABELS[tabId]}
           </span>
         </button>

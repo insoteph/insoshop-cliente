@@ -8,6 +8,7 @@ import type {
 } from "react";
 
 import { AppButton } from "@/modules/core/components/AppButton";
+import { PanelSectionHeader } from "@/modules/core/components/PanelSectionHeader";
 import { MaterialInput } from "@/modules/core/components/MaterialInput";
 import { formatCurrency } from "@/modules/core/lib/formatters";
 import { ProductVariantsImagePicker } from "@/modules/products/components/ProductVariantsImagePicker";
@@ -71,15 +72,11 @@ export function ProductManagementVariantsSection({
   return (
     <section className="space-y-4 rounded-none border-0 bg-transparent p-0 sm:rounded-[24px] sm:border sm:border-[var(--line)] sm:bg-[var(--panel-strong)] sm:p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h4 className="text-base font-semibold text-[var(--foreground-strong)]">
-            Combinaciones de venta
-          </h4>
-          <p className="text-sm text-[var(--muted)]">
-            Cada combinación representa una presentación real que puedes
-            vender: precio, existencias e imagen principal.
-          </p>
-        </div>
+        <PanelSectionHeader
+          title="Combinaciones de venta"
+          subtitle="Cada combinación representa una presentación real que puedes vender: precio, existencias e imagen principal."
+          headingLevel="h4"
+        />
       </div>
 
       <div className="divide-y divide-[var(--line)]/60">
@@ -187,7 +184,7 @@ export function ProductManagementVariantsSection({
                   </p>
                 </div>
                 <AppButton
-                  variant="secondary"
+                  variant="cancel"
                   iconPath="/icons/cross.svg"
                   className="w-full sm:w-auto"
                   onClick={closeVariantEditor}

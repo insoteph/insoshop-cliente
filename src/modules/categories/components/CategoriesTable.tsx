@@ -76,6 +76,7 @@ export function CategoriesTable({
 
   const rowActions = {
     primaryButtonLabel: "Detalles",
+    primaryButtonIconPath: "/icons/eye.svg",
     onPrimaryAction: onDetails,
     dropdownOptions: canManage
       ? [

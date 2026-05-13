@@ -3,7 +3,10 @@
 import type { DataTableRowActionOption } from "@/modules/core/components/TableRowActions";
 import type { DataTableBadgeRule } from "@/modules/core/components/DataTableBadge";
 
-import type { DataTableRowActionsConfig } from "./DataTableTypes";
+import type {
+  DataTableColumn,
+  DataTableRowActionsConfig,
+} from "./DataTableTypes";
 
 export function formatCellValue(value: unknown) {
   if (typeof value === "boolean") {
@@ -15,17 +18,6 @@ export function formatCellValue(value: unknown) {
   }
 
   return String(value);
-}
-
-export function getStableKeyPart(
-  key: string | number | symbol,
-  fallbackIndex?: number,
-) {
-  if (typeof key === "symbol") {
-    return key.description ?? `symbol-${fallbackIndex ?? 0}`;
-  }
-
-  return String(key);
 }
 
 export function normalizeReactKey(
@@ -204,6 +196,26 @@ export function getRowKey<TData extends Record<string, unknown>>(
   return rowIndex;
 }
 
+export function getColumnLayout<TData extends Record<string, unknown>>(
+  headers: Array<DataTableColumn<TData>>,
+) {
+  const imageColumnIndex = headers.findIndex(
+    (column) => column.dataType === "image",
+  );
+  const imageColumn =
+    imageColumnIndex >= 0 ? headers[imageColumnIndex] : undefined;
+  const contentColumns = headers.filter(
+    (_, index) => index !== imageColumnIndex,
+  );
+  const summaryColumns = contentColumns.slice(0, imageColumn ? 1 : 2);
+
+  return {
+    imageColumn,
+    contentColumns,
+    summaryColumns,
+  };
+}
+
 export function normalizeComparable(value: unknown) {
   if (typeof value === "boolean") {
     return value ? "true" : "false";
@@ -270,11 +282,4 @@ export function resolvePrimaryButtonLabel<TData extends Record<string, unknown>>
   return typeof rowActions.primaryButtonLabel === "function"
     ? rowActions.primaryButtonLabel(row)
     : rowActions.primaryButtonLabel;
-}
-
-export function getTotalColumns(
-  headersLength: number,
-  rowActionsEnabled: boolean,
-) {
-  return headersLength + (rowActionsEnabled ? 1 : 0);
 }

@@ -3,6 +3,7 @@
 import type { Dispatch, FormEvent, RefObject, SetStateAction } from "react";
 
 import { AppButton } from "@/modules/core/components/AppButton";
+import { PanelSectionHeader } from "@/modules/core/components/PanelSectionHeader";
 import { ColorSwatch } from "@/modules/products/components/shared/ProductVisuals";
 import type {
   CatalogAttribute,
@@ -59,15 +60,11 @@ export function ProductManagementAttributesSection({
   return (
     <section className="space-y-4 rounded-none border-0 bg-transparent p-0 sm:rounded-[24px] sm:border sm:border-[var(--line)] sm:bg-[var(--panel-strong)] sm:p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h4 className="text-base font-semibold text-[var(--foreground-strong)]">
-            Opciones del producto
-          </h4>
-          <p className="text-sm text-[var(--muted)]">
-            Elige las opciones y valores que verá tu cliente en este producto,
-            por ejemplo color, talla o material.
-          </p>
-        </div>
+        <PanelSectionHeader
+          title="Opciones del producto"
+          subtitle="Elige las opciones y valores que verá tu cliente en este producto, por ejemplo color, talla o material."
+          headingLevel="h4"
+        />
         {canManage ? (
           <AppButton
             variant="secondary"
@@ -157,7 +154,7 @@ export function ProductManagementAttributesSection({
                   </p>
                 </div>
                 <AppButton
-                  variant="secondary"
+                  variant="cancel"
                   iconPath="/icons/cross.svg"
                   onClick={closeAttributeEditor}
                 >
