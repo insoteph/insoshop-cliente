@@ -65,7 +65,7 @@ export function CategoriesTable({
             value: false,
             label: "Inactiva",
             iconPath: "/icons/cross.svg",
-            textClassName: "app-badge-neutral",
+            textClassName: "app-badge-danger",
             backgroundClassName: "",
           },
         ],

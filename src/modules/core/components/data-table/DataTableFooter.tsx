@@ -14,9 +14,31 @@ export function DataTableFooter({
   return (
     <div className="mt-4 border-t border-[var(--line)] px-4 py-3 md:mt-5 md:px-5 md:py-4">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <p className="w-full text-center text-sm text-[var(--foreground)] md:w-auto md:text-left">
-          {displayedRecords} registro{displayedRecords === 1 ? "" : "s"}
-        </p>
+        <div className="flex w-full items-center justify-center gap-3 md:w-auto md:justify-start">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[var(--line)] bg-[var(--panel-strong)]">
+            <span
+              aria-hidden="true"
+              className="h-5 w-5 bg-[var(--muted)] opacity-75"
+              style={{
+                WebkitMaskImage: "url(/icons/data.svg)",
+                maskImage: "url(/icons/data.svg)",
+                WebkitMaskRepeat: "no-repeat",
+                maskRepeat: "no-repeat",
+                WebkitMaskPosition: "center",
+                maskPosition: "center",
+                WebkitMaskSize: "contain",
+                maskSize: "contain",
+              }}
+            />
+          </div>
+
+          <div>
+            <p className="text-[13px] font-semibold text-[var(--foreground-strong)]">
+              Mostrando {displayedRecords} registro
+              {displayedRecords === 1 ? "" : "s"}
+            </p>
+          </div>
+        </div>
 
         <div className="flex items-center justify-center gap-2 self-center md:self-auto">
           <button

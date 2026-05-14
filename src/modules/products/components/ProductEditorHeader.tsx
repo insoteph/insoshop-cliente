@@ -23,7 +23,7 @@ export function ProductEditorHeader({
         </AppButton>
 
         <div className="min-w-0 text-right">
-          <h1 className="text-[15px] font-semibold tracking-tight text-[var(--foreground-strong)] sm:text-base">
+          <h1 className="text-[0.98rem] font-semibold tracking-tight text-[var(--foreground-strong)] sm:text-[1.05rem]">
             {title}
           </h1>
         </div>
@@ -31,4 +31,3 @@ export function ProductEditorHeader({
     </div>
   );
 }
-

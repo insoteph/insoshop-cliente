@@ -61,5 +61,6 @@ export type DataTableProps<TData extends Record<string, unknown>> = {
   emptyMessage?: string;
   badges?: Array<DataTableBadgeConfig<TData>>;
   rowActions?: DataTableRowActionsConfig<TData>;
+  onRowClick?: (row: TData) => void;
   pagination: DataTablePaginationConfig;
 };

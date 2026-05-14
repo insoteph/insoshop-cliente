@@ -3,6 +3,7 @@
 import type { Dispatch, FormEvent, RefObject, SetStateAction } from "react";
 
 import { AppButton } from "@/modules/core/components/AppButton";
+import { PanelSectionHeader } from "@/modules/core/components/PanelSectionHeader";
 import { MaterialInput } from "@/modules/core/components/MaterialInput";
 import { ProductVariantsImagePicker } from "@/modules/products/components/ProductVariantsImagePicker";
 import type { ProductAttributeDraft } from "@/modules/products/components/ProductAttributesPanel";
@@ -68,15 +69,11 @@ export function ProductVariantEditor({
     >
       <form className="space-y-4" onSubmit={handleSaveVariant}>
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h5 className="text-sm font-semibold text-[var(--foreground-strong)]">
-              {editingVariantId ? "Editar combinación" : "Nueva combinación"}
-            </h5>
-            <p className="text-sm text-[var(--muted)]">
-              Selecciona un valor por cada opción y define el precio, las
-              existencias y la imagen de esta combinación.
-            </p>
-          </div>
+          <PanelSectionHeader
+            title={editingVariantId ? "Editar combinación" : "Nueva combinación"}
+            subtitle="Selecciona un valor por cada opción y define el precio, las existencias y la imagen de esta combinación."
+            headingLevel="h4"
+          />
           <AppButton
             variant="cancel"
             iconPath="/icons/cross.svg"

@@ -25,6 +25,7 @@ type DataTableDesktopProps<TData extends Record<string, unknown>> = {
   rowKey?: keyof TData | ((row: TData, rowIndex: number) => string | number);
   badges: Array<DataTableBadgeConfig<TData>>;
   rowActions?: DataTableRowActionsConfig<TData>;
+  onRowClick?: (row: TData) => void;
   showSkeleton: boolean;
   showRefreshingState: boolean;
   skeletonRows: number;
@@ -37,6 +38,7 @@ export function DataTableDesktop<TData extends Record<string, unknown>>({
   rowKey,
   badges,
   rowActions,
+  onRowClick,
   showSkeleton,
   showRefreshingState,
   skeletonRows,
@@ -74,7 +76,22 @@ export function DataTableDesktop<TData extends Record<string, unknown>>({
             return (
               <article
                 key={computedRowKeyText}
-                className="overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--panel)] transition hover:border-[var(--line-strong)]"
+                className={`overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--panel)] transition ${
+                  onRowClick ? "cursor-pointer hover:border-[var(--line-strong)]" : "hover:border-[var(--line-strong)]"
+                }`}
+                onClick={onRowClick ? () => onRowClick(row) : undefined}
+                onKeyDown={
+                  onRowClick
+                    ? (event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          onRowClick(row);
+                        }
+                      }
+                    : undefined
+                }
+                role={onRowClick ? "button" : undefined}
+                tabIndex={onRowClick ? 0 : undefined}
               >
                 <div className="flex min-w-max items-center gap-3 overflow-x-auto px-3.5 py-3">
                   {imageColumn ? (
@@ -92,7 +109,7 @@ export function DataTableDesktop<TData extends Record<string, unknown>>({
                       {contentColumns.map((column) => (
                         <div
                           key={`${computedRowKeyText}-${String(column.key)}`}
-                          className="min-w-[6.75rem] max-w-[9rem] rounded-md bg-transparent px-0 py-0"
+                          className="w-[8.5rem] min-w-[8.5rem] max-w-[8.5rem] shrink-0 rounded-md bg-transparent px-0 py-0"
                         >
                           <div className="flex items-center gap-0.5">
                             {column.headerIconPath ? (
@@ -129,7 +146,10 @@ export function DataTableDesktop<TData extends Record<string, unknown>>({
                   </div>
 
                   {rowActions ? (
-                    <div className="shrink-0 self-center">
+                    <div
+                      className="shrink-0 self-center"
+                      onClick={(event) => event.stopPropagation()}
+                    >
                       <TableRowActions
                         primaryButtonLabel={resolvePrimaryButtonLabel(
                           row,

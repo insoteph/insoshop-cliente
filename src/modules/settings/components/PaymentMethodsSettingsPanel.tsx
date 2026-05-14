@@ -256,7 +256,7 @@ export function PaymentMethodsSettingsPanel({
             value: false,
             label: "Inactivo",
             iconPath: "/icons/cross.svg",
-            textClassName: "app-badge-neutral",
+            textClassName: "app-badge-danger",
             backgroundClassName: "",
           },
         ],
@@ -296,33 +296,34 @@ export function PaymentMethodsSettingsPanel({
     <section className="space-y-5">
       <div className="app-card overflow-hidden rounded-2xl shadow-[0_12px_30px_rgba(15,23,42,0.07)]">
         <div className="space-y-4 px-4 py-4 md:px-5 md:py-5">
-          <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-            <PanelSectionHeader
-              title="Metodos de pago"
-              subtitle="Gestiona disponibilidad y nombres de metodos segun el alcance de tu usuario."
-              headingLevel="h3"
-            />
+          <PanelSectionHeader
+            title="Configuraciones"
+            subtitle="Desde aqui administras parametros comerciales por tienda."
+            headingLevel="h3"
+          />
+
+          <div className="flex flex-row items-center gap-2">
+            <div className="min-w-0 flex-1">
+              <SearchBar
+                value={search}
+                onChange={(value) => {
+                  setPage(1);
+                  setSearch(value);
+                }}
+                placeholder="Buscar metodo de pago"
+                ariaLabel="Buscar metodos de pago"
+              />
+            </div>
 
             {canCreate ? (
               <AppButton
+                className="shrink-0 whitespace-nowrap"
                 iconPath="/icons/plus-circle.svg"
                 onClick={openCreateForm}
               >
                 Crear metodo de pago
               </AppButton>
             ) : null}
-          </div>
-
-          <div className="grid gap-3">
-            <SearchBar
-              value={search}
-              onChange={(value) => {
-                setPage(1);
-                setSearch(value);
-              }}
-              placeholder="Buscar metodo de pago"
-              ariaLabel="Buscar metodos de pago"
-            />
           </div>
 
           {error ? (
@@ -337,8 +338,6 @@ export function PaymentMethodsSettingsPanel({
             </p>
           ) : null}
         </div>
-
-        <div className="border-t border-[var(--line)]" />
 
         <div className="px-0 pt-4">
           <DataTable
@@ -377,21 +376,20 @@ export function PaymentMethodsSettingsPanel({
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-4">
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">
                   Configuración
                 </p>
-                <h4
-                  id="payment-method-modal-title"
-                  className="text-base font-semibold text-[var(--foreground)] sm:text-lg"
-                >
-                  {editingMethod ? "Editar metodo de pago" : "Crear metodo de pago"}
-                </h4>
-                <p className="text-[13px] text-[var(--muted)] sm:text-sm">
-                  {editingMethod
-                    ? "Actualiza el nombre del metodo de pago seleccionado."
-                    : "Registra un nuevo metodo de pago para esta tienda."}
-                </p>
+                <PanelSectionHeader
+                  title={editingMethod ? "Editar metodo de pago" : "Crear metodo de pago"}
+                  subtitle={
+                    editingMethod
+                      ? "Actualiza el nombre del metodo de pago seleccionado."
+                      : "Registra un nuevo metodo de pago para esta tienda."
+                  }
+                  headingLevel="h4"
+                  titleId="payment-method-modal-title"
+                />
               </div>
 
               <AppButton

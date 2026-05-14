@@ -5,6 +5,7 @@ type PanelSectionHeaderProps = {
   subtitle?: string;
   actions?: ReactNode;
   headingLevel?: "h1" | "h2" | "h3" | "h4";
+  titleId?: string;
   className?: string;
 };
 
@@ -13,6 +14,7 @@ export function PanelSectionHeader({
   subtitle,
   actions,
   headingLevel: HeadingTag = "h3",
+  titleId,
   className,
 }: PanelSectionHeaderProps) {
   return (
@@ -20,11 +22,14 @@ export function PanelSectionHeader({
       className={`flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between ${className ?? ""}`}
     >
       <div className="min-w-0">
-        <HeadingTag className="text-[15px] font-semibold text-[var(--foreground-strong)] sm:text-base">
+        <HeadingTag
+          id={titleId}
+          className="text-[0.98rem] font-semibold tracking-tight text-[var(--foreground-strong)] sm:text-[1.05rem]"
+        >
           {title}
         </HeadingTag>
         {subtitle ? (
-          <p className="mt-0.5 text-[13px] leading-5 text-[var(--muted)] sm:text-sm">
+          <p className="mt-1 text-[0.8rem] leading-5 text-[var(--muted)] sm:text-[0.85rem]">
             {subtitle}
           </p>
         ) : null}

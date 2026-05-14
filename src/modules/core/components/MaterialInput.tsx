@@ -34,8 +34,16 @@ export const MaterialInput = forwardRef<HTMLInputElement, MaterialInputProps>(
   ) {
     const isPasswordType = type === "password";
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
     const resolvedType =
       isPasswordType && isPasswordVisible ? "text" : type;
+    const {
+      onFocus,
+      onBlur,
+      placeholder: inputPlaceholder,
+      ...inputProps
+    } = rest;
+    const placeholder = isFocused ? (inputPlaceholder ?? " ") : " ";
 
     return (
       <div className={`relative ${containerClassName}`}>
@@ -52,7 +60,7 @@ export const MaterialInput = forwardRef<HTMLInputElement, MaterialInputProps>(
           id={id}
           name={name ?? id}
           type={resolvedType}
-          placeholder=" "
+          placeholder={placeholder}
           className={`
             app-input peer h-12 w-full rounded-xl px-3
             text-sm outline-none transition-all duration-200
@@ -60,7 +68,15 @@ export const MaterialInput = forwardRef<HTMLInputElement, MaterialInputProps>(
             ${isPasswordType ? "pr-10" : ""}
             ${className}
           `}
-          {...rest}
+          onFocus={(event) => {
+            setIsFocused(true);
+            onFocus?.(event);
+          }}
+          onBlur={(event) => {
+            setIsFocused(false);
+            onBlur?.(event);
+          }}
+          {...inputProps}
         />
         {isPasswordType ? (
           <button

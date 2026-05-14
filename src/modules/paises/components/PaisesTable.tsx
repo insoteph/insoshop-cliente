@@ -73,7 +73,7 @@ export function PaisesTable({
             value: false,
             label: "Inactivo",
             iconPath: "/icons/cross.svg",
-            textClassName: "app-badge-neutral",
+            textClassName: "app-badge-danger",
             backgroundClassName: "",
           },
         ],

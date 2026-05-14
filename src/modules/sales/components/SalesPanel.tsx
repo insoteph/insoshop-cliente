@@ -282,8 +282,6 @@ export function SalesPanel({ storeId, currency }: SalesPanelProps) {
           ) : null}
         </div>
 
-        <div className="border-t border-[var(--line)]" />
-
         <div className="px-0 pt-4">
           <DataTable
             headers={columns}

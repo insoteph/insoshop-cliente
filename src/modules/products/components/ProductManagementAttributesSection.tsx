@@ -144,15 +144,11 @@ export function ProductManagementAttributesSection({
           >
             <form className="space-y-4" onSubmit={handleSaveAttribute}>
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="min-w-0 flex-1">
-                  <h5 className="text-sm font-semibold text-[var(--foreground-strong)]">
-                    {editingAttributeId ? "Editar opción" : "Nueva opción"}
-                  </h5>
-                  <p className="text-sm text-[var(--muted)]">
-                    Selecciona la opción general y luego marca los valores que
-                    estarán disponibles en este producto.
-                  </p>
-                </div>
+                <PanelSectionHeader
+                  title={editingAttributeId ? "Editar opción" : "Nueva opción"}
+                  subtitle="Selecciona la opción general y luego marca los valores que estarán disponibles en este producto."
+                  headingLevel="h4"
+                />
                 <AppButton
                   variant="cancel"
                   iconPath="/icons/cross.svg"

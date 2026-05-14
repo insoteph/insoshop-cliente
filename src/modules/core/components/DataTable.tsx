@@ -24,6 +24,7 @@ export function DataTable<TData extends Record<string, unknown>>({
   emptyMessage = "No hay datos para mostrar.",
   badges = [],
   rowActions,
+  onRowClick,
   pagination,
 }: DataTableProps<TData>) {
   const resolvedRows = rows ?? data ?? [];
@@ -45,6 +46,7 @@ export function DataTable<TData extends Record<string, unknown>>({
         rowKey={rowKey}
         badges={badges}
         rowActions={rowActions}
+        onRowClick={onRowClick}
         showSkeleton={showSkeleton}
         skeletonRows={skeletonRows}
         emptyMessage={emptyMessage}
@@ -56,6 +58,7 @@ export function DataTable<TData extends Record<string, unknown>>({
         rowKey={rowKey}
         badges={badges}
         rowActions={rowActions}
+        onRowClick={onRowClick}
         showSkeleton={showSkeleton}
         showRefreshingState={showRefreshingState}
         skeletonRows={skeletonRows}

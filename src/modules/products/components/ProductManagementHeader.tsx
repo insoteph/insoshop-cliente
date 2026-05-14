@@ -1,6 +1,7 @@
 "use client";
 
 import { formatCurrency } from "@/modules/core/lib/formatters";
+import { PanelSectionHeader } from "@/modules/core/components/PanelSectionHeader";
 import type { ProductDetail } from "@/modules/products/services/product-service";
 
 type ProductManagementHeaderProps = {
@@ -18,14 +19,11 @@ export function ProductManagementHeader({
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
           Configuración de venta
         </p>
-        <h3 className="text-[15px] font-semibold text-[var(--foreground-strong)] sm:text-base">
-          {product.nombre}
-        </h3>
-        <p className="max-w-3xl text-[13px] leading-5 text-[var(--muted)] sm:text-sm">
-          Primero define las opciones que verá tu cliente, como color o talla.
-          Después crea las combinaciones reales que vas a vender con su precio,
-          existencias e imagen.
-        </p>
+        <PanelSectionHeader
+          title={product.nombre}
+          subtitle="Primero define las opciones que verá tu cliente, como color o talla. Después crea las combinaciones reales que vas a vender con su precio, existencias e imagen."
+          headingLevel="h3"
+        />
       </div>
 
       <div className="grid gap-2 sm:grid-cols-3">

@@ -75,17 +75,18 @@ export function ProductFormPanel({
               label="Nombre del producto"
               value={form.nombre}
               onChange={(event) => onNombreChange(event.target.value)}
+              placeholder="Ejem. Camisa de Rayas"
               required
             />
 
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <textarea
+                <MaterialInput
+                  id="producto-descripcion"
+                  label="Descripcion (Opcional)"
                   value={form.descripcion}
                   onChange={(event) => onDescripcionChange(event.target.value)}
-                  placeholder="Descripcion del producto"
-                  rows={7}
-                  className="app-input h-full min-h-[11rem] w-full rounded-2xl px-4 py-3 text-sm"
+                  placeholder="Ejem. Camisa fresca de verano"
                 />
               </div>
 

@@ -1,13 +1,17 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 
-import type { Category } from "@/modules/categories/services/category-service";
+import { ImagePlaceholder } from "@/modules/core/components/ImagePlaceholder";
+import type { Tienda, TiendaDetalle } from "@/modules/tiendas/types/tiendas-types";
 
-type CategoryDetailModalProps = {
+type StoreDetailModalProps = {
   open: boolean;
-  category: Category | null;
+  store: Tienda | null;
+  detail: TiendaDetalle | null;
+  isLoading: boolean;
+  error: string | null;
   onClose: () => void;
 };
 
@@ -61,22 +65,16 @@ function MetricCard({
   label,
   value,
   icon,
-  tone = "accent",
 }: {
   label: string;
-  value: string;
+  value: ReactNode;
   icon?: ReactNode;
-  tone?: "accent" | "neutral";
 }) {
   return (
     <article className="rounded-xl border border-[var(--line)] bg-[var(--background)] px-3 py-2.5">
       <div className="flex items-start gap-2.5">
         {icon ? (
-          <div
-            className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
-              tone === "accent" ? "bg-[var(--accent-soft)] text-[var(--accent)]" : "bg-[color:color-mix(in_srgb,var(--foreground)_6%,transparent)] text-[var(--foreground-strong)]"
-            }`}
-          >
+          <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--accent-soft)] text-[var(--accent)]">
             {icon}
           </div>
         ) : null}
@@ -85,20 +83,35 @@ function MetricCard({
           <p className="text-[11px] font-semibold tracking-[0.08em] text-[var(--muted)]">
             {label}
           </p>
-          <p className="mt-0.5 text-sm font-semibold text-[var(--foreground-strong)]">
+          <div className="mt-0.5 truncate text-sm font-semibold text-[var(--foreground-strong)]">
             {value}
-          </p>
+          </div>
         </div>
       </div>
     </article>
   );
 }
 
-export function CategoryDetailModal({
+function formatDateTime(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("es-ES", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+}
+
+export function StoreDetailModal({
   open,
-  category,
+  store,
+  detail,
+  isLoading,
+  error,
   onClose,
-}: CategoryDetailModalProps) {
+}: StoreDetailModalProps) {
   const [isMounted, setIsMounted] = useState(open);
   const [isVisible, setIsVisible] = useState(open);
   const [isPortalReady, setIsPortalReady] = useState(false);
@@ -156,7 +169,25 @@ export function CategoryDetailModal({
     };
   }, [isMounted, onClose]);
 
-  if (!category || !isMounted || !isPortalReady || typeof window === "undefined") {
+  const resolvedStore = detail ?? store;
+
+  const createdAtText = useMemo(() => {
+    if (!detail?.createdAt) {
+      return "No disponible";
+    }
+
+    return formatDateTime(detail.createdAt);
+  }, [detail?.createdAt]);
+
+  const updatedAtText = useMemo(() => {
+    if (!detail?.updatedAt) {
+      return "No disponible";
+    }
+
+    return formatDateTime(detail.updatedAt);
+  }, [detail?.updatedAt]);
+
+  if (!resolvedStore || !isMounted || !isPortalReady || typeof window === "undefined") {
     return null;
   }
 
@@ -177,25 +208,25 @@ export function CategoryDetailModal({
         onClick={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-label={category.nombre}
+        aria-label={resolvedStore.nombre}
       >
         <div className="flex items-start justify-between gap-3 px-4 py-2.5 sm:px-5 sm:py-3">
           <div className="min-w-0 space-y-1">
             <p className="text-[10px] font-semibold tracking-[0.06em] text-[var(--muted)]">
-              Detalle de categoria
+              Detalle de tienda
             </p>
 
             <div className="flex flex-wrap items-center gap-1.5">
               <h3 className="truncate text-[1.05rem] font-semibold tracking-tight text-[var(--foreground-strong)] sm:text-[1.15rem]">
-                {category.nombre}
+                {resolvedStore.nombre}
               </h3>
-              <StatusChip active={category.estado} />
+              <StatusChip active={resolvedStore.estado} />
             </div>
 
             <div className="flex flex-wrap items-center gap-1.5 text-[12px] text-[var(--muted)]">
-              <span>{category.tiendaNombre}</span>
+              <span>/{resolvedStore.slug}</span>
               <span className="text-[var(--line-strong)]">•</span>
-              <span>ID {category.id}</span>
+              <span>{resolvedStore.pais}</span>
             </div>
           </div>
 
@@ -212,40 +243,83 @@ export function CategoryDetailModal({
 
         <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3.5 sm:px-5 sm:py-4">
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
-              <MetricCard
-                label="Nombre"
-                value={category.nombre}
-                icon={<MaskIcon src="/icons/category.svg" />}
-              />
-              <MetricCard
-                label="Tienda"
-                value={category.tiendaNombre}
-                icon={<MaskIcon src="/icons/shop.svg" />}
-              />
+            <div className="grid gap-3 sm:grid-cols-[92px_minmax(0,1fr)]">
+              <div className="overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--background)]">
+                {resolvedStore.logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={resolvedStore.logoUrl}
+                    alt={`Logo de ${resolvedStore.nombre}`}
+                    className="h-[92px] w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-[92px] items-center justify-center">
+                    <ImagePlaceholder
+                      size={56}
+                      iconPath="/icons/shop.svg"
+                      iconClassName="h-6 w-6"
+                    />
+                  </div>
+                )}
+              </div>
+
             </div>
+
+            {isLoading ? (
+              <div className="rounded-xl border border-[var(--line)] bg-[var(--background)] px-4 py-4 text-sm text-[var(--muted)]">
+                Cargando informacion de la tienda...
+              </div>
+            ) : null}
+
+            {error ? (
+              <div className="rounded-xl border border-[color:color-mix(in_srgb,var(--danger)_28%,transparent)] bg-[color:color-mix(in_srgb,var(--danger-soft)_76%,var(--panel-strong)_24%)] px-4 py-4 text-sm text-[color:color-mix(in_srgb,var(--danger)_84%,var(--foreground)_16%)]">
+                {error}
+              </div>
+            ) : null}
 
             <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
               <MetricCard
-                label="ID"
-                value={`#${category.id}`}
+                label="Telefono"
+                value={`${resolvedStore.telefonoCodigoPais} ${resolvedStore.telefono}`}
+                icon={<MaskIcon src="/icons/whatsapp.svg" />}
+              />
+              <MetricCard
+                label="Moneda"
+                value={`${resolvedStore.monedaNombre} (${resolvedStore.simboloMoneda})`}
+                icon={<span className="text-[12px] font-bold leading-none">$</span>}
+              />
+              <MetricCard
+                label="Pais"
+                value={resolvedStore.pais}
                 icon={<span className="text-[12px] font-bold leading-none">#</span>}
-                tone="neutral"
               />
               <MetricCard
                 label="Estado"
-                value={category.estado ? "Activa" : "Inactiva"}
+                value={resolvedStore.estado ? "Activa" : "Inactiva"}
                 icon={
                   <span
                     aria-hidden="true"
                     className={`h-2.5 w-2.5 rounded-full ${
-                      category.estado ? "bg-[var(--success)]" : "bg-[var(--danger)]"
+                      resolvedStore.estado ? "bg-[var(--success)]" : "bg-[var(--danger)]"
                     }`}
                   />
                 }
-                tone="neutral"
               />
             </div>
+
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-2.5">
+              <MetricCard
+                label="Creada"
+                value={createdAtText}
+                icon={<span className="text-[12px] font-bold leading-none">+</span>}
+              />
+              <MetricCard
+                label="Actualizada"
+                value={updatedAtText}
+                icon={<span className="text-[12px] font-bold leading-none">↻</span>}
+              />
+            </div>
+
           </div>
         </div>
       </div>

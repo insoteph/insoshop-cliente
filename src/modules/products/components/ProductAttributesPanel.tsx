@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { AppButton } from "@/modules/core/components/AppButton";
+import { PanelSectionHeader } from "@/modules/core/components/PanelSectionHeader";
 import { ProductAttributeRow } from "@/modules/products/components/ProductAttributeRow";
 import { useProductAttributesPanel } from "@/modules/products/hooks/useProductAttributesPanel";
 
@@ -68,14 +69,11 @@ export function ProductAttributesPanel({
   return (
     <section className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h4 className="text-base font-semibold text-[var(--foreground-strong)] sm:text-lg">
-            Atributos
-          </h4>
-          <p className="text-sm text-[var(--muted)]">
-            Define las bases que luego usarán tus variantes.
-          </p>
-        </div>
+        <PanelSectionHeader
+          title="Atributos"
+          subtitle="Define las bases que luego usarán tus variantes."
+          headingLevel="h4"
+        />
       </div>
 
       {catalogError ? (

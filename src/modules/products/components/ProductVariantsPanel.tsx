@@ -2,6 +2,7 @@
 
 import { ProductVariantsList } from "@/modules/products/components/ProductVariantsList";
 import { useProductVariantsPanel } from "@/modules/products/hooks/useProductVariantsPanel";
+import { PanelSectionHeader } from "@/modules/core/components/PanelSectionHeader";
 import type { ProductAttributeDraft } from "@/modules/products/components/ProductAttributesPanel";
 import type { ProductVariantDraft } from "@/modules/products/services/product-service";
 
@@ -44,14 +45,11 @@ export function ProductVariantsPanel({
   return (
     <section className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h4 className="text-base font-semibold text-[var(--foreground-strong)] sm:text-lg">
-            Variantes
-          </h4>
-          <p className="text-sm text-[var(--muted)]">
-            Define precio, stock e imagen por combinación.
-          </p>
-        </div>
+        <PanelSectionHeader
+          title="Variantes"
+          subtitle="Define precio, stock e imagen por combinación."
+          headingLevel="h4"
+        />
       </div>
 
       {catalogError ? (

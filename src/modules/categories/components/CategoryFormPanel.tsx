@@ -10,8 +10,6 @@ type CategoryFormState = {
 };
 
 type CategoryFormPanelProps = {
-  isMounted: boolean;
-  isVisible: boolean;
   editingCategoryId: number | null;
   form: CategoryFormState;
   isSaving: boolean;
@@ -19,12 +17,9 @@ type CategoryFormPanelProps = {
   onClose: () => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onNombreChange: (value: string) => void;
-  onEstadoChange: (value: boolean) => void;
 };
 
 export function CategoryFormPanel({
-  isMounted,
-  isVisible,
   editingCategoryId,
   form,
   isSaving,
@@ -32,71 +27,39 @@ export function CategoryFormPanel({
   onClose,
   onSubmit,
   onNombreChange,
-  onEstadoChange,
 }: CategoryFormPanelProps) {
-  if (!isMounted) {
-    return null;
-  }
-
   return (
-    <div
-      className={`origin-top overflow-hidden transition-all duration-500 ease-in-out ${
-        isVisible
-          ? "max-h-[900px] translate-y-0 opacity-100"
-          : "pointer-events-none max-h-0 -translate-y-2 opacity-0"
-      }`}
-    >
-      <form
-        className="space-y-4 rounded-md border border-[var(--line)] bg-[var(--panel)] p-5 shadow-md"
-        onSubmit={onSubmit}
-      >
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h4 className="text-lg font-semibold text-[var(--foreground)]">
-              {editingCategoryId ? "Editar categoria" : "Crear categoria"}
-            </h4>
-            <p className="text-sm text-[var(--muted)]">
-              Manten consistencia en nombres y estado de publicacion.
-            </p>
-          </div>
-          <AppButton variant="cancel" iconPath="/icons/cross.svg" onClick={onClose}>
-            Cerrar
-          </AppButton>
-        </div>
+    <form className="space-y-4 px-5 py-5" onSubmit={onSubmit}>
+      <input
+        required
+        value={form.nombre}
+        onChange={(event) => onNombreChange(event.target.value)}
+        placeholder="Nombre de la categoria"
+        className="app-input rounded-2xl px-4 py-3 text-sm"
+      />
 
-        <input
-          required
-          value={form.nombre}
-          onChange={(event) => onNombreChange(event.target.value)}
-          placeholder="Nombre de la categoria"
-          className="app-input rounded-2xl px-4 py-3 text-sm"
-        />
+      {formError ? (
+        <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
+          {formError}
+        </p>
+      ) : null}
 
-        <label className="flex items-center gap-3 text-sm text-[var(--foreground)]">
-          <input
-            type="checkbox"
-            checked={form.estado}
-            onChange={(event) => onEstadoChange(event.target.checked)}
-          />
-          Categoria activa
-        </label>
-
-        {formError ? (
-          <p className="app-alert-error rounded-2xl px-4 py-3 text-sm">
-            {formError}
-          </p>
-        ) : null}
-
-        <div className="flex justify-end">
-          <AppButton iconPath="/icons/save.svg" type="submit" disabled={isSaving}>
-            {isSaving
-              ? "Guardando..."
-              : editingCategoryId
-                ? "Actualizar"
-                : "Crear"}
-          </AppButton>
-        </div>
-      </form>
-    </div>
+      <div className="flex justify-end gap-2">
+        <AppButton
+          variant="cancel"
+          iconPath="/icons/cross.svg"
+          onClick={onClose}
+        >
+          Cancelar
+        </AppButton>
+        <AppButton iconPath="/icons/save.svg" type="submit" disabled={isSaving}>
+          {isSaving
+            ? "Guardando..."
+            : editingCategoryId
+              ? "Actualizar"
+              : "Crear"}
+        </AppButton>
+      </div>
+    </form>
   );
 }

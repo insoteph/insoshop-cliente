@@ -174,15 +174,11 @@ export function ProductManagementVariantsSection({
           >
             <form className="space-y-4" onSubmit={handleSaveVariant}>
               <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h5 className="text-sm font-semibold text-[var(--foreground-strong)]">
-                    {editingVariantId ? "Editar combinación" : "Nueva combinación"}
-                  </h5>
-                  <p className="text-sm text-[var(--muted)]">
-                    Selecciona un valor por cada opción y define el precio, las
-                    existencias y la imagen de esta combinación.
-                  </p>
-                </div>
+                <PanelSectionHeader
+                  title={editingVariantId ? "Editar combinación" : "Nueva combinación"}
+                  subtitle="Selecciona un valor por cada opción y define el precio, las existencias y la imagen de esta combinación."
+                  headingLevel="h4"
+                />
                 <AppButton
                   variant="cancel"
                   iconPath="/icons/cross.svg"

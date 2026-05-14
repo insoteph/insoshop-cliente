@@ -14,6 +14,7 @@ import { useToast } from "@/modules/core/providers/ToastProvider";
 import {
   fetchTiendas,
   createTienda,
+  fetchTiendaById,
   fetchPaises,
   toggleTiendaStatus,
 } from "@/modules/tiendas/services/tiendas-service";
@@ -21,11 +22,13 @@ import {
   StoreCreateFormPanel,
   type StoreCreateFormState,
 } from "@/modules/tiendas/components/StoreCreateFormPanel";
+import { StoreDetailModal } from "@/modules/tiendas/components/StoreDetailModal";
 import { StoreDirectoryHeader } from "@/modules/tiendas/components/StoreDirectoryHeader";
 import { buildStoreAdminUrl } from "@/modules/tiendas/lib/store-routing";
 import type {
   PaisTelefono,
   Tienda,
+  TiendaDetalle,
 } from "@/modules/tiendas/types/tiendas-types";
 
 const INITIAL_CREATE_FORM: StoreCreateFormState = {
@@ -57,7 +60,16 @@ export function StoreDirectoryView() {
   const [availablePaises, setAvailablePaises] = useState<PaisTelefono[]>([]);
   const [isCreateFormMounted, setIsCreateFormMounted] = useState(false);
   const [isCreateFormVisible, setIsCreateFormVisible] = useState(false);
+  const [selectedStore, setSelectedStore] = useState<Tienda | null>(null);
+  const [selectedStoreDetail, setSelectedStoreDetail] = useState<
+    TiendaDetalle | null
+  >(null);
+  const [isStoreDetailOpen, setIsStoreDetailOpen] = useState(false);
+  const [isStoreDetailLoading, setIsStoreDetailLoading] = useState(false);
+  const [storeDetailError, setStoreDetailError] = useState<string | null>(null);
   const closeCreateFormTimeoutRef = useRef<number | null>(null);
+  const closeStoreDetailTimeoutRef = useRef<number | null>(null);
+  const storeDetailRequestRef = useRef(0);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -154,6 +166,13 @@ export function StoreDirectoryView() {
     }
   }, []);
 
+  const clearStoreDetailCloseTimeout = useCallback(() => {
+    if (closeStoreDetailTimeoutRef.current) {
+      window.clearTimeout(closeStoreDetailTimeoutRef.current);
+      closeStoreDetailTimeoutRef.current = null;
+    }
+  }, []);
+
   const openCreateFormPanel = useCallback(() => {
     clearCloseCreateFormTimeout();
     setIsCreateFormMounted(true);
@@ -179,8 +198,58 @@ export function StoreDirectoryView() {
   useEffect(() => {
     return () => {
       clearCloseCreateFormTimeout();
+      clearStoreDetailCloseTimeout();
     };
-  }, [clearCloseCreateFormTimeout]);
+  }, [clearCloseCreateFormTimeout, clearStoreDetailCloseTimeout]);
+
+  const handleOpenStoreDetail = useCallback(
+    async (store: Tienda) => {
+      clearStoreDetailCloseTimeout();
+      setSelectedStore(store);
+      setSelectedStoreDetail(null);
+      setStoreDetailError(null);
+      setIsStoreDetailLoading(true);
+      setIsStoreDetailOpen(true);
+
+      const requestId = storeDetailRequestRef.current + 1;
+      storeDetailRequestRef.current = requestId;
+
+      try {
+        const result = await fetchTiendaById(store.id);
+        if (storeDetailRequestRef.current !== requestId) {
+          return;
+        }
+
+        setSelectedStoreDetail(result);
+      } catch (detailError) {
+        if (storeDetailRequestRef.current !== requestId) {
+          return;
+        }
+
+        setStoreDetailError(
+          detailError instanceof Error
+            ? detailError.message
+            : "No se pudo cargar el detalle de la tienda.",
+        );
+      } finally {
+        if (storeDetailRequestRef.current === requestId) {
+          setIsStoreDetailLoading(false);
+        }
+      }
+    },
+    [clearStoreDetailCloseTimeout],
+  );
+
+  const handleCloseStoreDetail = useCallback(() => {
+    setIsStoreDetailOpen(false);
+    clearStoreDetailCloseTimeout();
+    closeStoreDetailTimeoutRef.current = window.setTimeout(() => {
+      setSelectedStore(null);
+      setSelectedStoreDetail(null);
+      setStoreDetailError(null);
+      setIsStoreDetailLoading(false);
+    }, 240);
+  }, [clearStoreDetailCloseTimeout]);
 
   const handleToggleStoreStatus = useCallback(
     async (store: Tienda) => {
@@ -395,6 +464,7 @@ export function StoreDirectoryView() {
             emptyMessage="No hay tiendas que coincidan con los filtros aplicados."
             badges={badges}
             rowActions={rowActions}
+            onRowClick={handleOpenStoreDetail}
             pagination={{
               page,
               totalPages,
@@ -431,6 +501,15 @@ export function StoreDirectoryView() {
           availablePaises={availablePaises}
         />
       ) : null}
+
+      <StoreDetailModal
+        open={isStoreDetailOpen}
+        store={selectedStore}
+        detail={selectedStoreDetail}
+        isLoading={isStoreDetailLoading}
+        error={storeDetailError}
+        onClose={handleCloseStoreDetail}
+      />
     </section>
   );
 }

@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { CategoryDetailModal } from "@/modules/categories/components/CategoryDetailModal";
-import { CategoryFormPanel } from "@/modules/categories/components/CategoryFormPanel";
+import { CategoryFormModal } from "@/modules/categories/components/CategoryFormModal";
 import { CategoriesTable } from "@/modules/categories/components/CategoriesTable";
 import { CategoriesToolbar } from "@/modules/categories/components/CategoriesToolbar";
+import { PanelSectionHeader } from "@/modules/core/components/PanelSectionHeader";
 import { useConfirmationDialog } from "@/modules/core/providers/ConfirmationDialogProvider";
 import { useToast } from "@/modules/core/providers/ToastProvider";
 
@@ -236,14 +237,11 @@ export function CategoriesPanel({
     <section className="space-y-5">
       <div className="app-card overflow-hidden rounded-2xl shadow-[0_12px_30px_rgba(15,23,42,0.07)]">
         <div className="space-y-3 px-4 py-4 md:px-5 md:py-5">
-          <div className="space-y-1">
-            <h2 className="text-[1.05rem] font-semibold tracking-tight text-[var(--foreground-strong)] md:text-[1.15rem]">
-              Categorias
-            </h2>
-            <p className="max-w-2xl text-[0.84rem] leading-relaxed text-[var(--muted)] md:text-[0.9rem]">
-              Administra las categorias de productos de esta tienda.
-            </p>
-          </div>
+          <PanelSectionHeader
+            title="Categorias"
+            subtitle="Administra las categorias de productos de esta tienda."
+            headingLevel="h2"
+          />
 
           <CategoriesToolbar
             search={search}
@@ -264,8 +262,6 @@ export function CategoriesPanel({
           </div>
         ) : null}
 
-        <div className="border-t border-[var(--line)]" />
-
         <div className="px-0 pt-4">
           <CategoriesTable
             categories={categories}
@@ -282,7 +278,7 @@ export function CategoriesPanel({
         </div>
       </div>
 
-      <CategoryFormPanel
+      <CategoryFormModal
         isMounted={isFormMounted}
         isVisible={isFormVisible}
         editingCategoryId={editingCategoryId}
@@ -293,9 +289,6 @@ export function CategoriesPanel({
         onSubmit={handleSubmit}
         onNombreChange={(value) =>
           setForm((current) => ({ ...current, nombre: value }))
-        }
-        onEstadoChange={(value) =>
-          setForm((current) => ({ ...current, estado: value }))
         }
       />
 

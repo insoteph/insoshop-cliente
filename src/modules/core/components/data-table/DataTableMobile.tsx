@@ -37,6 +37,7 @@ type DataTableMobileProps<TData extends Record<string, unknown>> = {
   rowKey?: keyof TData | ((row: TData, rowIndex: number) => string | number);
   badges: Array<DataTableBadgeConfig<TData>>;
   rowActions?: DataTableRowActionsConfig<TData>;
+  onRowClick?: (row: TData) => void;
   showSkeleton: boolean;
   skeletonRows: number;
   emptyMessage: string;
@@ -48,6 +49,7 @@ export function DataTableMobile<TData extends Record<string, unknown>>({
   rowKey,
   badges,
   rowActions,
+  onRowClick,
   showSkeleton,
   skeletonRows,
   emptyMessage,
@@ -72,6 +74,11 @@ export function DataTableMobile<TData extends Record<string, unknown>>({
   }, [clearCloseTimeout]);
 
   function openDetail(row: TData) {
+    if (onRowClick) {
+      onRowClick(row);
+      return;
+    }
+
     clearCloseTimeout();
     setActiveRow(row);
     setIsDetailOpen(true);
@@ -159,12 +166,12 @@ export function DataTableMobile<TData extends Record<string, unknown>>({
                       </div>
                     ) : null}
 
-                    <div className="min-w-0 flex-1">
-                      <div className="flex min-w-0 items-center gap-1.5 overflow-hidden">
-                        {summaryColumns.map((column, columnIndex) => (
-                          <span
-                            key={`${mobileRowKey}-${String(column.key)}`}
-                            className={`min-w-0 truncate text-[0.8rem] ${
+                      <div className="min-w-0 flex-1">
+                        <div className="flex min-w-0 items-center gap-1.5 overflow-hidden">
+                          {summaryColumns.map((column, columnIndex) => (
+                            <span
+                              key={`${mobileRowKey}-${String(column.key)}`}
+                            className={`w-[6.75rem] min-w-[6.75rem] max-w-[6.75rem] shrink-0 truncate text-[0.8rem] ${
                               columnIndex === 0
                                 ? "font-semibold text-[var(--foreground-strong)]"
                               : "text-[var(--muted)]"
@@ -202,7 +209,7 @@ export function DataTableMobile<TData extends Record<string, unknown>>({
         <DataTableEmptyState message={emptyMessage} />
       )}
 
-      {activeRow ? (
+      {!onRowClick && activeRow ? (
         <DataTableMobileDetailModal
           open={isDetailOpen}
           title={detailTitle}

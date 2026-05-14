@@ -319,7 +319,7 @@ export function StoreUsersTabPanel({ storeId }: StoreUsersTabPanelProps) {
             value: false,
             label: "Inactivo",
             iconPath: "/icons/cross.svg",
-            textClassName: "app-badge-neutral",
+            textClassName: "app-badge-danger",
             backgroundClassName: "",
           },
         ],
@@ -392,7 +392,7 @@ export function StoreUsersTabPanel({ storeId }: StoreUsersTabPanelProps) {
             value: false,
             label: "Inactivo",
             iconPath: "/icons/cross.svg",
-            textClassName: "app-badge-neutral",
+            textClassName: "app-badge-danger",
             backgroundClassName: "",
           },
         ],
@@ -472,8 +472,6 @@ export function StoreUsersTabPanel({ storeId }: StoreUsersTabPanelProps) {
           ) : null}
         </div>
 
-        <div className="border-t border-[var(--line)]" />
-
         <div className="px-0 pt-4">
           <DataTable
             headers={columns}
@@ -525,15 +523,12 @@ export function StoreUsersTabPanel({ storeId }: StoreUsersTabPanelProps) {
 
             <div className="max-h-[min(78vh,48rem)] space-y-4 overflow-y-auto bg-[var(--panel)] p-4 text-[var(--foreground)] sm:p-5">
               <div className="space-y-0.5 pr-10">
-                <h4
-                  id="assign-user-modal-title"
-                  className="text-[15px] font-semibold text-[var(--foreground)] sm:text-base"
-                >
-                  Agregar usuario a la tienda
-                </h4>
-                <p className="text-[13px] text-[var(--muted)] sm:text-sm">
-                  Busca un usuario y asignalo a esta tienda.
-                </p>
+                <PanelSectionHeader
+                  title="Agregar usuario a la tienda"
+                  subtitle="Busca un usuario y asignalo a esta tienda."
+                  headingLevel="h4"
+                  titleId="assign-user-modal-title"
+                />
               </div>
 
               <SearchBar
